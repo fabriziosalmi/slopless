@@ -1,0 +1,15 @@
+id: VBC-215
+name: global-pollutant
+severity: error
+tags:
+  - clean-code
+  - security
+match:
+  regex: window\.[a-zA-Z0-9_]+\s*=
+  file_types:
+    - js
+    - ts
+message: >-
+  Global variable pollution detected (window.prop = ...). Use modules or proper
+  state management.
+category: clean-code

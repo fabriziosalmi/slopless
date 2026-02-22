@@ -1,0 +1,14 @@
+id: VBC-049
+name: magic-boolean
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: \b[a-zA-Z0-9_]+\((true|false)\s*,
+  file_types:
+    - js
+    - ts
+message: >-
+  Magic boolean passed as first argument at line {line}. Use named parameters or
+  a descriptive variable.
+category: clean-code

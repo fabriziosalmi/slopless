@@ -1,0 +1,15 @@
+id: VBC-917
+name: shouting-documentation
+severity: warning
+tags:
+  - documentation
+  - style
+match:
+  regex: '!!!|\?\?\?|IMPORTANT\!'
+  file_types:
+    - md
+    - txt
+message: >-
+  Excessive punctuation or shouting detected at line {line}. Maintain a
+  professional tone.
+category: docs

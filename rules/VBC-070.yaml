@@ -1,0 +1,14 @@
+id: VBC-070
+name: use-innerhtml
+severity: error
+tags:
+  - security
+match:
+  regex: \.innerHTML\s*=
+  file_types:
+    - js
+    - ts
+message: >-
+  Use of 'innerHTML' detected at line {line}. Use 'textContent' or a sanitizer
+  to avoid XSS.
+category: core

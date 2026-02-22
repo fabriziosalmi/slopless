@@ -1,0 +1,12 @@
+id: VBC-929
+name: technical-jargon-slop
+severity: warning
+tags:
+  - documentation
+match:
+  regex: >-
+    (architectural paradigm|synergistic integration|leverage
+    fundamental|cross-platform interoperability|holistic approach)
+  flags: i
+message: Avoid buzzword-heavy jargon at line {line}. Be direct and clear.
+category: docs

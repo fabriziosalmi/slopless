@@ -1,0 +1,15 @@
+id: VBC-015
+name: magic-numbers
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: (?<!\w)(86400|3600|1000|60)(?!\w)
+  file_types:
+    - js
+    - ts
+    - py
+message: >-
+  Magic number '{match}' detected at line {line}. Consider using a named
+  constant (e.g., SECONDS_IN_DAY).
+category: clean-code

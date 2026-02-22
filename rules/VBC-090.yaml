@@ -1,0 +1,23 @@
+id: VBC-090
+name: passive-aggressive-comments
+severity: warning
+tags:
+  - team-culture
+match:
+  regex: >-
+    (blame steve|fix later|sanity
+    check|simply|just|basically|whatever|hack|magic|dunno|idk|hope it
+    works|voodoo|black magic)
+  flags: i
+  file_types:
+    - js
+    - ts
+    - py
+    - sh
+    - c
+    - cpp
+    - md
+message: >-
+  Questionable language or 'vibey' term '{match}' detected in comments at line
+  {line}. Be professional and explicit.
+category: core

@@ -1,0 +1,14 @@
+id: VBC-056
+name: stale-todo
+severity: warning
+tags:
+  - docs
+match:
+  regex: 'TODO:'
+  file_types:
+    - js
+    - ts
+    - py
+    - sh
+message: TODO comment found at line {line}. Ensure it isn't abandoned debt.
+category: clean-code

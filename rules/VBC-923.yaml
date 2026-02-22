@@ -1,0 +1,13 @@
+id: VBC-923
+name: filename-too-long-hazard
+severity: warning
+tags:
+  - git
+  - cross-platform
+match:
+  git_check: filename_too_long
+  threshold: 50
+message: >-
+  Filename length {length} exceeds {threshold} characters. This might cause
+  issues on some systems.
+category: git

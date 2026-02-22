@@ -1,0 +1,12 @@
+id: VBC-046
+name: binary-files-in-git
+severity: warning
+tags:
+  - git
+  - performance
+match:
+  git_check: binary_file
+message: >-
+  Binary file committed to Git. Large binaries should use Git LFS or be stored
+  externally.
+category: git

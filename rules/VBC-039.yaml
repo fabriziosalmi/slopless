@@ -1,0 +1,12 @@
+id: VBC-039
+name: use-eval
+severity: error
+tags:
+  - security
+match:
+  regex: eval\(
+  file_types:
+    - js
+    - ts
+message: Use of 'eval()' detected at line {line}. This is a massive security risk.
+category: core

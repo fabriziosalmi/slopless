@@ -1,0 +1,13 @@
+id: VBC-112
+name: scroll-hijacking
+severity: warning
+tags:
+  - ux
+match:
+  regex: window\.addEventListener\(['"]wheel['"]|\bscroll-behavior:\s*smooth
+  file_types:
+    - js
+    - ts
+    - css
+message: Potential scroll hijacking or forced smooth scrolling detected at line {line}.
+category: ux-dx

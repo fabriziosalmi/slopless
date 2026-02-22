@@ -1,0 +1,10 @@
+id: VBC-025
+name: missing-gitignore
+severity: error
+tags:
+  - git
+  - project-health
+match:
+  git_check: missing_gitignore
+message: Missing .gitignore file. This often lead to committed dependencies or secrets.
+category: git

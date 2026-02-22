@@ -1,0 +1,16 @@
+id: VBC-117
+name: block-paste
+severity: error
+tags:
+  - ux
+  - security
+match:
+  regex: >-
+    onPaste=['"]return
+    false['"]|\.addEventListener\(['"]paste['"],.*?\.preventDefault\(
+  file_types:
+    - js
+    - ts
+    - html
+message: Blocking paste in input fields harms both UX and security (password managers).
+category: ux-dx

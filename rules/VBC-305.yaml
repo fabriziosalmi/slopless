@@ -1,0 +1,15 @@
+id: VBC-305
+name: hardcoded-font-size
+severity: warning
+tags:
+  - ux
+  - accessibility
+match:
+  regex: font-size:\s*[0-9]+(px|pt|pc)
+  file_types:
+    - css
+    - scss
+message: >-
+  Hardcoded font size '{match}' detected at line {line}. Use relative units
+  (rem/em) for better accessibility and user scale preferences.
+category: ux-dx

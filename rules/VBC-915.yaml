@@ -1,0 +1,14 @@
+id: VBC-915
+name: user-select-none-slop
+severity: warning
+tags:
+  - ux
+  - accessibility
+match:
+  regex: user-select:\s*none
+  file_types:
+    - css
+message: >-
+  user-select: none detected at line {line}. Preventing users from copying text
+  is usually a dark pattern.
+category: ux-dx

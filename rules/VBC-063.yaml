@@ -1,0 +1,13 @@
+id: VBC-063
+name: empty-else
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: else\s*\{\s*\}
+  file_types:
+    - js
+    - ts
+    - py
+message: Empty else block detected at line {line}. This clutters the code.
+category: clean-code

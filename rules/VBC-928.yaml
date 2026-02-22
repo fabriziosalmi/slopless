@@ -1,0 +1,13 @@
+id: VBC-928
+name: lorem-ipsum-docs
+severity: error
+tags:
+  - documentation
+  - slop
+match:
+  regex: Lorem ipsum dolor sit amet
+  flags: i
+message: >-
+  Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real
+  content before committing.
+category: docs

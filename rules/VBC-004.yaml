@@ -1,0 +1,18 @@
+id: VBC-004
+name: sql-injection-concatenation
+severity: error
+tags:
+  - security
+match:
+  regex: (execute|query|select|insert|update|delete).*?\+.*?['"]
+  flags: i
+  file_types:
+    - js
+    - ts
+    - py
+    - go
+    - php
+message: >-
+  Potential SQL injection detected at line {line}. Use parameterized queries
+  instead of string concatenation.
+category: security

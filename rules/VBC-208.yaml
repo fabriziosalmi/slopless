@@ -1,0 +1,18 @@
+id: VBC-208
+name: hardcoded-colors
+severity: warning
+tags:
+  - design
+  - maintainability
+match:
+  regex: color:\s*(#[0-9a-fA-F]{3,6}|rgba?\(.*?\))
+  file_types:
+    - css
+    - scss
+  exclude:
+    - '**/theme.css'
+    - '**/vars.css'
+message: >-
+  Hardcoded color value detected at line {line}. Consider using a CSS variable
+  or theme token.
+category: ux-dx

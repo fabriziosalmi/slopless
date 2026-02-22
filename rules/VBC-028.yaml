@@ -1,0 +1,11 @@
+id: VBC-028
+name: function-params-limit
+severity: error
+tags:
+  - clean-code
+match:
+  ast_check:
+    type: function-params-limit
+    threshold: 5
+message: Function has too many parameters ({count}). Max allowed is {threshold}.
+category: core

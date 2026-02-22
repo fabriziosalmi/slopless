@@ -1,0 +1,15 @@
+id: VBC-902
+name: document-write-slop
+severity: error
+tags:
+  - security
+  - performance
+match:
+  regex: document\.write\(
+  file_types:
+    - js
+    - ts
+message: >-
+  document.write() is prohibited at line {line}. It is insecure and
+  performance-heavy.
+category: security

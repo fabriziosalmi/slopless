@@ -1,0 +1,13 @@
+id: VBC-421
+name: filler-words
+severity: warning
+tags:
+  - docs
+  - style
+match:
+  regex: \b(essentially|actually|literally)\b
+  flags: i
+  file_types:
+    - md
+message: Filler word detected at line {line}. Be more direct in your documentation.
+category: docs

@@ -1,0 +1,11 @@
+id: VBC-026
+name: empty-file
+severity: warning
+tags:
+  - clean-code
+  - project-health
+match:
+  ast_check:
+    type: empty-file
+message: Empty code file detected. This clutters the repository.
+category: clean-code

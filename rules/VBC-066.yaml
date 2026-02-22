@@ -1,0 +1,12 @@
+id: VBC-066
+name: redundant-if-true
+severity: warning
+tags:
+  - clean-code
+match:
+  ast_check:
+    type: redundant-if-true
+message: >-
+  Redundant 'if(true)' detected at line {line}. This logic is either debug code
+  or unnecessary.
+category: clean-code

@@ -1,0 +1,11 @@
+id: VBC-158
+name: fouc-prevention
+severity: warning
+tags:
+  - ux
+match:
+  regex: '@import'
+  file_types:
+    - css
+message: Use of @import in CSS can cause Flash of Unstyled Content (FOUC).
+category: ux-dx

@@ -1,0 +1,13 @@
+id: VBC-922
+name: too-many-staged-files
+severity: warning
+tags:
+  - git
+  - dx
+match:
+  git_check: too_many_staged_files
+  threshold: 30
+message: >-
+  Staging {count} files (limit: {threshold}). Large commits are harder to
+  review. Split your work.
+category: git

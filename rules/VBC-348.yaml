@@ -1,0 +1,15 @@
+id: VBC-348
+name: click-here-links
+severity: warning
+tags:
+  - accessibility
+  - docs
+match:
+  regex: \[(click here|read more|here)\]\(.*?\)
+  flags: i
+  file_types:
+    - md
+message: >-
+  Vague link text found at line {line}. Describe the destination for better
+  accessibility.
+category: docs

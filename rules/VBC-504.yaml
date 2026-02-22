@@ -1,0 +1,12 @@
+id: VBC-504
+name: semantic-shadowing
+severity: warning
+tags:
+  - clean-code
+  - semantic
+match:
+  semantic_check: semantic-shadowing
+message: >-
+  Variable '{name}' shadows a common library or system keyword. This can cause
+  confusion during debugging.
+category: semantic

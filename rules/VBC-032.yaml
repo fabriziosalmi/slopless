@@ -1,0 +1,14 @@
+id: VBC-032
+name: css-important
+severity: warning
+tags:
+  - style
+  - css
+match:
+  regex: '!important'
+  file_types:
+    - css
+    - scss
+    - less
+message: Global '!important' detected in CSS at line {line}. This breaks the cascade.
+category: core

@@ -1,0 +1,10 @@
+id: VBC-063-B
+name: empty-block
+severity: warning
+tags:
+  - clean-code
+match:
+  ast_check:
+    type: empty-block
+message: Empty block detected at line {line}. This code does nothing.
+category: clean-code

@@ -1,0 +1,15 @@
+id: VBC-153
+name: sudo-setup
+severity: warning
+tags:
+  - dx
+  - security
+match:
+  regex: sudo\s+npm\s+install|sudo\s+pip\s+install
+  file_types:
+    - md
+    - sh
+message: >-
+  Setup instructions requiring sudo detected at line {line}. Use local
+  environments instead.
+category: ux-dx

@@ -1,0 +1,14 @@
+id: VBC-920
+name: relative-link-format
+severity: warning
+tags:
+  - documentation
+  - maintenance
+match:
+  regex: \]\((?![a-z]+:|/|\.)
+  file_types:
+    - md
+message: >-
+  Relative local link missing './' prefix at line {line}. Use
+  [link](./path/to/file) for better tool compatibility.
+category: docs

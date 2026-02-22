@@ -1,0 +1,11 @@
+id: VBC-909
+name: empty-interface-ts
+severity: warning
+tags:
+  - clean-code
+  - typescript
+match:
+  ast_check:
+    type: empty-interface
+message: Empty interface detected. If intentional, add a comment; otherwise, remove it.
+category: clean-code

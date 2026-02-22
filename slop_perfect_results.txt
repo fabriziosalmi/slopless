@@ -1,0 +1,76 @@
+
+🚫 Anti-Vibecoding Linter found issues:
+
+❌ [VBC-002] .env:0 - Environment file (.env) detected in staged files. This is a security risk.
+❌ [VBC-025] project-root:0 - Missing .gitignore file. This often lead to committed dependencies or secrets.
+⚠️ [VBC-045] project-root:0 - Missing LICENSE file. Every open source project should define its terms of use.
+⚠️ [VBC-032] slop_suite.css:4 - Global '!important' detected in CSS at line 4. This breaks the cascade.
+⚠️ [VBC-206] slop_suite.css:8 - Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark grey (e.g., #121212).
+⚠️ [VBC-305] slop_suite.css:6 - Hardcoded font size in pixels detected. Use relative units (rem/em) for better accessibility.
+⚠️ [VBC-208] slop_suite.css:4 - Hardcoded color value detected at line 4. Consider using a CSS variable or theme token.
+❌ [VBC-913] slop_suite.css:10 - Removing outlines without providing a focus state at line 10 breaks keyboard accessibility.
+⚠️ [VBC-914] slop_suite.css:12 - cursor: pointer applied to potentially non-interactive element at line 12. Don't lie to the user about clickability.
+⚠️ [VBC-915] slop_suite.css:14 - user-select: none detected at line 14. Preventing users from copying text is usually a dark pattern.
+⚠️ [VBC-324] slop_suite.md:9 - Condescending or vague language detected at line 9.
+⚠️ [VBC-348] slop_suite.md:7 - Vague link text found at line 7. Describe the destination for better accessibility.
+⚠️ [VBC-398] slop_suite.md:3 - Excessive punctuation at line 3. Professional copy should avoid multiple symbols like '!!!'.
+⚠️ [VBC-334] slop_suite.md:5 - Potential AI-generated fluff detected at line 5. Keep documentation concise and human-centric.
+⚠️ [VBC-334] slop_suite.md:7 - Potential AI-generated fluff detected at line 7. Keep documentation concise and human-centric.
+⚠️ [VBC-917] slop_suite.md:3 - Excessive punctuation or shouting detected at line 3. Maintain a professional tone.
+⚠️ [VBC-918] slop_suite.md:5 - Avoid first-person collective ('We') in system messages at line 5. Use neutral or user-centric language.
+⚠️ [VBC-920] slop_suite.md:13 - Relative local link missing './' prefix at line 13. Use [link](./path/to/file) for better tool compatibility.
+⚠️ [VBC-921] slop_suite.md:11 - Outdated copyright year detected at line 11. It's 2026, stay current.
+❌ [VBC-928] slop_suite.md:15 - Placeholder text 'Lorem ipsum' detected at line 15. Replace with real content before committing.
+⚠️ [VBC-929] slop_suite.md:9 - Avoid buzzword-heavy jargon at line 9. Be direct and clear.
+⚠️ [VBC-401] slop_suite.md:7 - Broken link detected in markdown: https://broken-link-example-123456.com/bad
+⚠️ [VBC-096] slop_suite.ts:58 - Complex regex found at line 58 without preceding comment explanation.
+⚠️ [VBC-096] slop_suite.ts:64 - Complex regex found at line 64 without preceding comment explanation.
+⚠️ [VBC-048] slop_suite.ts:11 - Meaningless variable name detected at line 11. Use descriptive names like 'userProfile' or 'resultCache'.
+⚠️ [VBC-906] slop_suite.ts:64 - FIXME comment found at line 64. Address this technical debt.
+⚠️ [VBC-911] slop_suite.ts:67 - Generic class name 'class DataManagerHelperBase' detected. Use more specific semantic names (e.g., 'AuthValidator' instead of 'AuthHelper').
+❌ [VBC-001] slop_suite.ts:7 - Hardcoded credential detected at line 7
+⚠️ [VBC-004] slop_suite.ts:10 - Unexpected console.log found at line 10. Consider using a logger or removing it before commit.
+⚠️ [VBC-004] slop_suite.ts:32 - Unexpected console.log found at line 32. Consider using a logger or removing it before commit.
+⚠️ [VBC-004] slop_suite.ts:49 - Unexpected console.log found at line 49. Consider using a logger or removing it before commit.
+❌ [VBC-005] slop_suite.ts:6 - Use of 'var' detected at line 6. Use 'let' or 'const' instead.
+❌ [VBC-039] slop_suite.ts:49 - Use of 'eval()' detected at line 49. This is a massive security risk.
+⚠️ [VBC-057] slop_suite.ts:9 - Avoid using 'any' type at line 9. Use a more specific type or 'unknown'.
+⚠️ [VBC-090] slop_suite.ts:57 - Questionable language or vague terms detected in comments at line 57.
+⚠️ [VBC-398] slop_suite.ts:13 - Excessive punctuation at line 13. Professional copy should avoid multiple symbols like '!!!'.
+⚠️ [VBC-398] slop_suite.ts:40 - Excessive punctuation at line 40. Professional copy should avoid multiple symbols like '!!!'.
+⚠️ [VBC-398] slop_suite.ts:54 - Excessive punctuation at line 54. Professional copy should avoid multiple symbols like '!!!'.
+⚠️ [VBC-398] slop_suite.ts:64 - Excessive punctuation at line 64. Professional copy should avoid multiple symbols like '!!!'.
+❌ [VBC-010] slop_suite.ts:7 - Potential plain text password/secret detected at line 7.
+⚠️ [VBC-018] slop_suite.ts:10 - Production code relying on console.log found at line 10.
+⚠️ [VBC-018] slop_suite.ts:32 - Production code relying on console.log found at line 32.
+⚠️ [VBC-018] slop_suite.ts:49 - Production code relying on console.log found at line 49.
+❌ [VBC-065] slop_suite.ts:25 - Hadouken! Nested logic is too deep (5). Max allowed: 4 levels.
+⚠️ [VBC-063-B] slop_suite.ts:54 - Empty block detected at line 54. This code does nothing.
+⚠️ [VBC-066] slop_suite.ts:54 - Redundant 'if(true)' detected at line 54. This logic is either debug code or unnecessary.
+⚠️ [VBC-909] slop_suite.ts:61 - Empty interface detected. If intentional, add a comment; otherwise, remove it.
+❌ [VBC-028] slop_suite.ts:25 - Function has too many parameters (8). Max allowed is 5.
+❌ [VBC-013] slop_suite.ts:50 - Empty catch block detected at line 50. Swallowing errors makes debugging impossible.
+❌ [VBC-077] slop_suite.ts:9 - Lying function name detected: 'get_user_data_and_mutate_it' implies a non-mutating action but contains side-effect keywords (set, delete, update). This is major vibecoding.
+⚠️ [VBC-501] slop_suite.ts:18 - Boolean variable 'active' has no standard prefix. Consider isactive, hasactive, or canactive for clarity.
+⚠️ [VBC-501] slop_suite.ts:19 - Boolean variable 'admin' has no standard prefix. Consider isadmin, hasadmin, or canadmin for clarity.
+⚠️ [VBC-502] slop_suite.ts:40 - Redundant boolean return detected. This if/else block can be replaced by a single 'return' with a boolean expression.
+⚠️ [VBC-503] slop_suite.ts:22 - Array named 'item' is missing a plural 's' or a collection suffix (List, Array). This makes code less intuitive.
+⚠️ [VBC-504] slop_suite.ts:57 - Variable 'fs' shadows a common library or system keyword. This can cause confusion during debugging.
+⚠️ [VBC-504] slop_suite.ts:58 - Variable 'path' shadows a common library or system keyword. This can cause confusion during debugging.
+⚠️ [VBC-096] vibe_test.js:15 - Complex regex found at line 15 without preceding comment explanation.
+⚠️ [VBC-904] vibe_test.js:2 - Magic string literal passed to function at line 2. Use a named constant instead.
+⚠️ [VBC-004] vibe_test.js:2 - Unexpected console.log found at line 2. Consider using a logger or removing it before commit.
+⚠️ [VBC-004] vibe_test.js:7 - Unexpected console.log found at line 7. Consider using a logger or removing it before commit.
+⚠️ [VBC-004] vibe_test.js:21 - Unexpected console.log found at line 21. Consider using a logger or removing it before commit.
+❌ [VBC-039] vibe_test.js:7 - Use of 'eval()' detected at line 7. This is a massive security risk.
+❌ [VBC-070] vibe_test.js:13 - Use of 'innerHTML' detected at line 13. Use 'textContent' or a sanitizer to avoid XSS.
+❌ [VBC-086] vibe_test.js:15 - target='_blank' without rel='noopener' detected at line 15.
+⚠️ [VBC-018] vibe_test.js:2 - Production code relying on console.log found at line 2.
+⚠️ [VBC-018] vibe_test.js:7 - Production code relying on console.log found at line 7.
+⚠️ [VBC-018] vibe_test.js:21 - Production code relying on console.log found at line 21.
+❌ [VBC-028] vibe_test.js:1 - Function has too many parameters (6). Max allowed is 5.
+❌ [VBC-013] vibe_test.js:8 - Empty catch block detected at line 8. Swallowing errors makes debugging impossible.
+
+Summary: 17 errors, 52 warnings.
+
+Commit blocked. Please fix the errors above.

@@ -1,0 +1,16 @@
+id: VBC-414
+name: please-in-cli
+severity: warning
+tags:
+  - ux
+  - cli
+match:
+  regex: Please run|Please make sure
+  flags: i
+  file_types:
+    - md
+    - sh
+message: >-
+  Avoid using 'Please' in technical instructions at line {line}. Use direct
+  imperative mood (e.g., 'Run...' instead of 'Please run...').
+category: docs

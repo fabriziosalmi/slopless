@@ -1,0 +1,16 @@
+id: VBC-398
+name: panic-punctuation
+severity: warning
+tags:
+  - ux
+  - copy
+match:
+  regex: (!{2,}|\?{2,})
+  file_types:
+    - js
+    - ts
+    - md
+message: >-
+  Excessive punctuation at line {line}. Professional copy should avoid multiple
+  symbols like '!!!'.
+category: docs

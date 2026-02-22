@@ -1,0 +1,12 @@
+id: VBC-502
+name: redundant-boolean-logic
+severity: warning
+tags:
+  - clean-code
+  - semantic
+match:
+  semantic_check: boolean-redundancy
+message: >-
+  Redundant boolean return detected. This if/else block can be replaced by a
+  single 'return' with a boolean expression.
+category: semantic

@@ -1,0 +1,13 @@
+id: VBC-926
+name: short-commit-message-check
+severity: warning
+tags:
+  - git
+  - dx
+match:
+  git_check: commit_message_too_short
+  threshold: 10
+message: >-
+  Commit message is likely too short. Provide more context about the 'why' of
+  your changes.
+category: git
