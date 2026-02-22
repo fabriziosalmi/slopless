@@ -106,32 +106,7 @@ export class AstChecker {
                 }
 
                 if (type === 'nested-blocks-limit' && threshold) {
-                    let maxDepth = 0;
-                    const calculateDepth = (n: ts.Node, depth: number) => {
-                        maxDepth = Math.max(maxDepth, depth);
-                        ts.forEachChild(n, (child) => {
-                            if (ts.isIfStatement(child) || ts.isForStatement(child) || ts.isWhileStatement(child) || ts.isSwitchStatement(child)) {
-                                calculateDepth(child, depth + 1);
-                            } else {
-                                calculateDepth(child, depth);
-                            }
-                        });
-                    };
-
-                    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) {
-                        calculateDepth(node, 0);
-                        if (maxDepth > threshold) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { threshold, count: maxDepth, line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkNestedBlocks(node, rule, threshold, sourceFile, file, violations);
                 }
 
                 if (type === 'empty-block') {
@@ -233,6 +208,35 @@ export class AstChecker {
         }
 
         return violations;
+    }
+
+    private static checkNestedBlocks(node: ts.Node, rule: Rule, threshold: number, sourceFile: ts.SourceFile, file: string, violations: Violation[]) {
+        let maxDepth = 0;
+        const calculateDepth = (n: ts.Node, depth: number) => {
+            maxDepth = Math.max(maxDepth, depth);
+            ts.forEachChild(n, (child) => {
+                if (ts.isIfStatement(child) || ts.isForStatement(child) || ts.isWhileStatement(child) || ts.isSwitchStatement(child)) {
+                    calculateDepth(child, depth + 1);
+                } else {
+                    calculateDepth(child, depth);
+                }
+            });
+        };
+
+        if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) {
+            calculateDepth(node, 0);
+            if (maxDepth > threshold) {
+                const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+                violations.push({
+                    ruleId: rule.id,
+                    name: rule.name,
+                    severity: rule.severity,
+                    message: this.formatMessage(rule.message, { threshold, count: maxDepth, line: line + 1 }),
+                    file,
+                    line: line + 1,
+                });
+            }
+        }
     }
 
     private static traverse(node: ts.Node, callback: (node: ts.Node) => void) {

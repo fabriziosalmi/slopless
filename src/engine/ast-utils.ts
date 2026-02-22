@@ -9,7 +9,7 @@ export interface ProtectedRange {
  * Scans a TypeScript/JavaScript file and returns absolute character ranges
  * for all strings and comments. This prevents regex-based false positives.
  */
-export function getProtectedRanges(content: string, isTsOrJs: boolean): ProtectedRange[] {
+export function extractProtectedRanges(content: string, isTsOrJs: boolean): ProtectedRange[] {
     if (!isTsOrJs) return [];
 
     const ranges: ProtectedRange[] = [];

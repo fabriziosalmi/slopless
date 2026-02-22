@@ -41,7 +41,7 @@ export class CacheManager {
         }
     }
 
-    public getHash(filePath: string): string | null {
+    public calculateHash(filePath: string): string | null {
         try {
             const content = fs.readFileSync(filePath, 'utf8');
             return crypto.createHash('sha256').update(content).digest('hex');

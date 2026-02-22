@@ -75,7 +75,14 @@ async function applyFixes(violations: Violation[]) {
     return fixCount;
 }
 
-async function runLint(files: string[], config: SloplessConfig, format: string, shouldFix: boolean, useCache: boolean, typeCheck: boolean) {
+interface LintOptions {
+    format: string;
+    shouldFix: boolean;
+    useCache: boolean;
+    typeCheck: boolean;
+}
+
+async function runLint(files: string[], config: SloplessConfig, options: LintOptions) {
     const ruleDirs = [RULES_DIR];
     if (config.customRulesPaths) {
         for (const p of config.customRulesPaths) {
@@ -95,17 +102,17 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
     }
 
     if (files.length === 0) {
-        if (format === 'default') console.log('No files to check.');
+        if (options.format === 'default') console.log('No files to check.');
         return;
     }
 
     let allViolations: Violation[] = [];
-    const cacheManager = new CacheManager(useCache && !shouldFix); // Disable cache read if fixing
+    const cacheManager = new CacheManager(options.useCache && !options.shouldFix); // Disable cache read if fixing
 
     let tsProgram: ts.Program | null = null;
     let checker: ts.TypeChecker | null = null;
-    if (typeCheck) {
-        if (format === 'default') console.log('⏳ Initializing TypeScript Program for Deep Semantic Typechecking...');
+    if (options.typeCheck) {
+        if (options.format === 'default') console.log('⏳ Initializing TypeScript Program for Deep Semantic Typechecking...');
         const tsFiles = files.filter(f => f.endsWith('.ts') || f.endsWith('.tsx'));
         if (tsFiles.length > 0) {
             tsProgram = ts.createProgram(tsFiles, {
@@ -126,7 +133,7 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
             return [];
         }
 
-        const currentHash = cacheManager.getHash(file);
+        const currentHash = cacheManager.calculateHash(file);
         if (currentHash) {
             const cached = cacheManager.getCachedViolations(file, currentHash);
             if (cached) {
@@ -157,9 +164,9 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
 
     cacheManager.saveCache();
 
-    if (shouldFix) {
+    if (options.shouldFix) {
         const fixCount = await applyFixes(allViolations);
-        if (format === 'default' && fixCount > 0) {
+        if (options.format === 'default' && fixCount > 0) {
             console.log(`\n🛠️  Applied ${fixCount} auto-fixes.`);
         }
         allViolations = allViolations.filter(v => !v.fix);
@@ -168,9 +175,9 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
     const errors = allViolations.filter(v => v.severity === 'error');
     const warnings = allViolations.filter(v => v.severity === 'warning');
 
-    if (format === 'json') {
+    if (options.format === 'json') {
         console.log(formatJson(allViolations));
-    } else if (format === 'sarif') {
+    } else if (options.format === 'sarif') {
         console.log(formatSarif(allViolations, ruleDirs));
     } else {
         if (allViolations.length > 0) {
@@ -189,7 +196,7 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
     }
 
     if (errors.length > 0) {
-        if (format === 'default') console.log('\nCommit/Run blocked. Please fix the errors above or run with --fix.');
+        if (options.format === 'default') console.log('\nCommit/Run blocked. Please fix the errors above or run with --fix.');
         process.exit(1);
     }
 }
@@ -254,7 +261,12 @@ program
         }
 
         const shouldTypeCheck = options.typeCheck || config.typeCheck || false;
-        await runLint(targetFiles, config, options.format, options.fix, options.cache, shouldTypeCheck);
+        await runLint(targetFiles, config, {
+            format: options.format,
+            shouldFix: options.fix,
+            useCache: options.cache,
+            typeCheck: shouldTypeCheck
+        });
     });
 
 program.parseAsync();

@@ -22,12 +22,12 @@ export class RegexChecker {
 
         const ext = file.split('.').pop() || '';
         const isTsOrJs = ['ts', 'tsx', 'js', 'jsx'].includes(ext);
-        const protectedRanges = isTsOrJs ? import('../engine/ast-utils').then(m => m.getProtectedRanges(content, true)) : null;
+        const protectedRanges = isTsOrJs ? import('../engine/ast-utils').then(m => m.extractProtectedRanges(content, true)) : null;
 
         // Load protected ranges synchronously since our scanner is synchronous
         // To avoid async rewrite of this whole method, we just require it
-        const { getProtectedRanges } = require('../engine/ast-utils');
-        const ranges = getProtectedRanges(content, isTsOrJs);
+        const { extractProtectedRanges } = require('../engine/ast-utils');
+        const ranges = extractProtectedRanges(content, isTsOrJs);
 
         for (const rule of rules) {
             if (!rule.match.regex) continue;
