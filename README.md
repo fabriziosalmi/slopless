@@ -6,28 +6,46 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 - **Rule Engine**: 111+ rigorous rules spanning security, maintainability, accessibility, and documentation integrity.
 - **AST Inspection**: Deep structural validation to identify excessive cyclomatic complexity, parameter limits, and empty control flow blocks.
-- **Semantic Heuristics**: Detection of misleading identifiers, inconsistent boolean nomenclature, and variable shadowing.
-- **Network Validation**: Asynchronous validation of documentation links to ensure reference integrity.
-- **Tone Analysis**: Identification of subjective, non-inclusive, or unprofessional terminology within code comments and documentation.
+- **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
+- **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
+- **Concurrency Pooling**: Fault-tolerant AST parsing distributed across CPU-bound boundaries to guarantee stability on massive monorepos without OOM crashes.
+- **Protected Regex Engine**: AST-aware token scanning maps all strings and comments in RAM to guarantee *zero* false positives on regex evaluations.
+- **LSP IDE Integration**: Ships with `vscode-slopless` for real-time Squiggly-Line diagnostics inside VS Code and Cursor.
 
 ## Installation
 
 ```bash
-git clone https://github.com/fabriziosalmi/slopless.git
-cd slopless
-npm install
+npm install -g slopless
+# OR
+npm install slopless --save-dev
 ```
 
 ## Usage
 
-### Lint Staged Files
+### Instant Initialization
 ```bash
-npx ts-node src/index.ts
+npx slopless --init
+```
+*Creates `slopless.config.json` and `.sloplessignore` in your workspace.*
+
+### Lint the Project
+```bash
+npx slopless
 ```
 
-### Lint Specific Files
+### Auto-Fix and Deep Semantic Check
 ```bash
-npx ts-node src/index.ts path/to/file.ts path/to/docs.md
+npx slopless --fix --type-check
+```
+
+### CI/CD Integration (SARIF)
+```bash
+npx slopless --format sarif > gl-sast-report.json
+```
+
+### Lint Specific Directories
+```bash
+npx slopless "src/**/*.ts" "docs/**/*.md"
 ```
 
 ## Rule Taxonomy

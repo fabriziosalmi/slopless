@@ -56,6 +56,9 @@ Complete reference of all static analysis rules.
 - [VBC-090: passive-aggressive-comments](./VBC-090.md)
 - [VBC-150: production-todo](./VBC-150.md)
 
+## Correctness
+- [VBC-800: Floating Promise](./VBC-800.md)
+
 ## Docs
 - [VBC-103: ascii-art-header](./VBC-103.md)
 - [VBC-324: condescending-language](./VBC-324.md)

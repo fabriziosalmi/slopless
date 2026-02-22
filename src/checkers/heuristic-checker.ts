@@ -3,9 +3,9 @@ import { Rule } from '../engine/schema';
 import { Violation } from './regex-checker';
 
 export class HeuristicChecker {
-    static async check(file: string, rules: Rule[]): Promise<Violation[]> {
+    static async check(file: string, rules: Rule[], rawContent?: string): Promise<Violation[]> {
         const violations: Violation[] = [];
-        const content = fs.readFileSync(file, 'utf8');
+        const content = rawContent !== undefined ? rawContent : fs.readFileSync(file, 'utf8');
 
         for (const rule of rules) {
             if (!rule.match.heuristic_check) continue;

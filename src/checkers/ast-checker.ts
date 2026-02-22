@@ -4,14 +4,14 @@ import { Rule } from '../engine/schema';
 import { Violation } from './regex-checker';
 
 export class AstChecker {
-    static check(file: string, rules: Rule[]): Violation[] {
+    static check(file: string, rules: Rule[], content?: string): Violation[] {
         const violations: Violation[] = [];
         const ext = file.split('.').pop();
         if (!['js', 'ts', 'jsx', 'tsx'].includes(ext || '')) {
             return [];
         }
 
-        const sourceCode = fs.readFileSync(file, 'utf8');
+        const sourceCode = content !== undefined ? content : fs.readFileSync(file, 'utf8');
         const sourceFile = ts.createSourceFile(
             file,
             sourceCode,

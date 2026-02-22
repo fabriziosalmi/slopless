@@ -6,6 +6,7 @@ import ignore from 'ignore';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as cp from 'child_process';
+import * as os from 'os';
 
 import { RuleLoader } from './engine/loader';
 import { loadConfig, SloplessConfig } from './engine/config';
@@ -14,8 +15,11 @@ import { GitChecker } from './checkers/git-checker';
 import { AstChecker } from './checkers/ast-checker';
 import { HeuristicChecker } from './checkers/heuristic-checker';
 import { SemanticChecker } from './checkers/semantic-checker';
+import { TypeCheckerEngine } from './checkers/type-checker';
 import { formatJson, formatSarif } from './engine/formatters';
 import { CacheManager } from './engine/cache';
+import { runWithConcurrencyLimit } from './engine/utils';
+import * as ts from 'typescript';
 
 const RULES_DIR = path.join(__dirname, '..', 'rules');
 
@@ -71,7 +75,7 @@ async function applyFixes(violations: Violation[]) {
     return fixCount;
 }
 
-async function runLint(files: string[], config: SloplessConfig, format: string, shouldFix: boolean, useCache: boolean) {
+async function runLint(files: string[], config: SloplessConfig, format: string, shouldFix: boolean, useCache: boolean, typeCheck: boolean) {
     const ruleDirs = [RULES_DIR];
     if (config.customRulesPaths) {
         for (const p of config.customRulesPaths) {
@@ -98,10 +102,26 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
     let allViolations: Violation[] = [];
     const cacheManager = new CacheManager(useCache && !shouldFix); // Disable cache read if fixing
 
+    let tsProgram: ts.Program | null = null;
+    let checker: ts.TypeChecker | null = null;
+    if (typeCheck) {
+        if (format === 'default') console.log('⏳ Initializing TypeScript Program for Deep Semantic Typechecking...');
+        const tsFiles = files.filter(f => f.endsWith('.ts') || f.endsWith('.tsx'));
+        if (tsFiles.length > 0) {
+            tsProgram = ts.createProgram(tsFiles, {
+                target: ts.ScriptTarget.ES2022,
+                module: ts.ModuleKind.CommonJS,
+                moduleResolution: ts.ModuleResolutionKind.NodeJs,
+                lib: ['lib.es2022.d.ts', 'lib.dom.d.ts']
+            });
+            checker = tsProgram.getTypeChecker();
+        }
+    }
+
     allViolations = allViolations.concat(GitChecker.checkFiles(files, rules));
 
-    // Analyze files concurrently
-    const fileChecks = files.map(async (file) => {
+    // Analyze files concurrently with a CPU core boundary
+    const results = await runWithConcurrencyLimit(files, os.cpus().length, async (file) => {
         if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
             return [];
         }
@@ -120,6 +140,10 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
         fileViolations = fileViolations.concat(await HeuristicChecker.check(file, rules));
         fileViolations = fileViolations.concat(SemanticChecker.check(file, rules));
 
+        if (tsProgram && checker) {
+            fileViolations = fileViolations.concat(TypeCheckerEngine.check(file, rules, tsProgram, checker));
+        }
+
         if (currentHash) {
             cacheManager.setCachedViolations(file, currentHash, fileViolations);
         }
@@ -127,7 +151,6 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
         return fileViolations;
     });
 
-    const results = await Promise.all(fileChecks);
     for (const res of results) {
         allViolations = allViolations.concat(res);
     }
@@ -184,8 +207,9 @@ program
     .option('-f, --format <default|json|sarif>', 'Output format', 'default')
     .option('--fix', 'Automatically fix issues where possible', false)
     .option('--no-cache', 'Disable file caching', false)
+    .option('--type-check', 'Enable deep semantic type analysis via ts.createProgram (slower)', false)
     .option('--init', 'Initialize Slopless configuration files in the current directory')
-    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, init: boolean }) => {
+    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, typeCheck: boolean, init: boolean }) => {
         if (options.init) {
             const configPath = path.join(process.cwd(), 'slopless.config.json');
             const ignorePath = path.join(process.cwd(), '.sloplessignore');
@@ -229,7 +253,8 @@ program
             targetFiles = getStagedFiles();
         }
 
-        await runLint(targetFiles, config, options.format, options.fix, options.cache);
+        const shouldTypeCheck = options.typeCheck || config.typeCheck || false;
+        await runLint(targetFiles, config, options.format, options.fix, options.cache, shouldTypeCheck);
     });
 
 program.parseAsync();

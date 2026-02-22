@@ -1,0 +1,10 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "../client/out",
+        "rootDir": "../client/src"
+    },
+    "include": [
+        "../client/src"
+    ]
+}

@@ -50,6 +50,9 @@ export const RuleSchema = z.object({
             'collection-suffix',
             'semantic-shadowing'
         ]).optional(),
+        type_check: z.enum([
+            'floating-promise'
+        ]).optional(),
         threshold: z.number().optional(),
     }),
     fix: z.object({
