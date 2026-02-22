@@ -52,6 +52,12 @@ export const RuleSchema = z.object({
         ]).optional(),
         threshold: z.number().optional(),
     }),
+    fix: z.object({
+        regex_replace: z.object({
+            pattern: z.string(),
+            replacement: z.string()
+        }).optional()
+    }).optional(),
     message: z.string(),
     docs_url: z.string().optional(),
 });

@@ -1,0 +1,2985 @@
+{
+  "version": "2.1.0",
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Slopless",
+          "informationUri": "https://github.com/fabriziosalmi/slopless",
+          "version": "1.0.0",
+          "rules": [
+            {
+              "id": "VBC-001",
+              "name": "hardcoded-secret",
+              "shortDescription": {
+                "text": "hardcoded-secret"
+              },
+              "fullDescription": {
+                "text": "Hardcoded credential or secret '{match}' detected at line {line}. Use environment variables for all secrets."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-001.md",
+              "properties": {
+                "tags": [
+                  "security",
+                  "secrets"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-002",
+              "name": "committed-env",
+              "shortDescription": {
+                "text": "committed-env"
+              },
+              "fullDescription": {
+                "text": "Environment file (.env) detected in staged files. This is a security risk."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-002.md",
+              "properties": {
+                "tags": [
+                  "security",
+                  "git"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-003",
+              "name": "chmod-777",
+              "shortDescription": {
+                "text": "chmod-777"
+              },
+              "fullDescription": {
+                "text": "Insecure chmod 777 detected at line {line}"
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-003.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-004",
+              "name": "sql-injection-concatenation",
+              "shortDescription": {
+                "text": "sql-injection-concatenation"
+              },
+              "fullDescription": {
+                "text": "Potential SQL injection detected at line {line}. Use parameterized queries instead of string concatenation."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-004.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "security"
+              }
+            },
+            {
+              "id": "VBC-005",
+              "name": "use-var",
+              "shortDescription": {
+                "text": "use-var"
+              },
+              "fullDescription": {
+                "text": "Use of 'var' detected at line {line}. Use 'let' or 'const' instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-005.md",
+              "properties": {
+                "tags": [
+                  "best-practice"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-013",
+              "name": "empty-catch",
+              "shortDescription": {
+                "text": "empty-catch"
+              },
+              "fullDescription": {
+                "text": "Empty catch block detected at line {line}. Swallowing errors makes debugging impossible."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-013.md",
+              "properties": {
+                "tags": [
+                  "robustness"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-015",
+              "name": "magic-numbers",
+              "shortDescription": {
+                "text": "magic-numbers"
+              },
+              "fullDescription": {
+                "text": "Magic number '{match}' detected at line {line}. Consider using a named constant (e.g., SECONDS_IN_DAY)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-015.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-016",
+              "name": "commented-out-code",
+              "shortDescription": {
+                "text": "commented-out-code"
+              },
+              "fullDescription": {
+                "text": "Potential commented-out code detected at line {line}. If the code is no longer needed, delete it. Use Git for history."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-016.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-018",
+              "name": "console-logs-detected",
+              "shortDescription": {
+                "text": "console-logs-detected"
+              },
+              "fullDescription": {
+                "text": "Production code with console usage '{match}' found at line {line}. Consider a professional logging library."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-018.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-019",
+              "name": "absolute-paths",
+              "shortDescription": {
+                "text": "absolute-paths"
+              },
+              "fullDescription": {
+                "text": "Hardcoded absolute path '{match}' detected at line {line}. This breaks system portability and leaks local structure."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-019.md",
+              "properties": {
+                "tags": [
+                  "security",
+                  "portability"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-025",
+              "name": "missing-gitignore",
+              "shortDescription": {
+                "text": "missing-gitignore"
+              },
+              "fullDescription": {
+                "text": "Missing .gitignore file. This often lead to committed dependencies or secrets."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-025.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "project-health"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-026",
+              "name": "empty-file",
+              "shortDescription": {
+                "text": "empty-file"
+              },
+              "fullDescription": {
+                "text": "Empty code file detected. This clutters the repository."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-026.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "project-health"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-028",
+              "name": "function-params-limit",
+              "shortDescription": {
+                "text": "function-params-limit"
+              },
+              "fullDescription": {
+                "text": "Function has too many parameters ({count}). Max allowed is {threshold}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-028.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-032",
+              "name": "css-important",
+              "shortDescription": {
+                "text": "css-important"
+              },
+              "fullDescription": {
+                "text": "Global '!important' detected in CSS at line {line}. This breaks the cascade."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-032.md",
+              "properties": {
+                "tags": [
+                  "style",
+                  "css"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-034",
+              "name": "http-not-https",
+              "shortDescription": {
+                "text": "http-not-https"
+              },
+              "fullDescription": {
+                "text": "Insecure http:// link detected at line {line}. Use https:// instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-034.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "security"
+              }
+            },
+            {
+              "id": "VBC-039",
+              "name": "use-eval",
+              "shortDescription": {
+                "text": "use-eval"
+              },
+              "fullDescription": {
+                "text": "Use of 'eval()' detected at line {line}. This is a massive security risk."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-039.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-042",
+              "name": "too-many-comments",
+              "shortDescription": {
+                "text": "too-many-comments"
+              },
+              "fullDescription": {
+                "text": "Too many consecutive comment lines at line {line}. Code should be self-documenting."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-042.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-045",
+              "name": "missing-license",
+              "shortDescription": {
+                "text": "missing-license"
+              },
+              "fullDescription": {
+                "text": "Missing LICENSE file. Every open source project should define its terms of use."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-045.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "project-health"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-046",
+              "name": "binary-files-in-git",
+              "shortDescription": {
+                "text": "binary-files-in-git"
+              },
+              "fullDescription": {
+                "text": "Binary file committed to Git. Large binaries should use Git LFS or be stored externally."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-046.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "performance"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-048",
+              "name": "meaningless-variable-names",
+              "shortDescription": {
+                "text": "meaningless-variable-names"
+              },
+              "fullDescription": {
+                "text": "Meaningless variable name '{match}' detected at line {line}. Use descriptive names that convey intent."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-048.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-049",
+              "name": "magic-boolean",
+              "shortDescription": {
+                "text": "magic-boolean"
+              },
+              "fullDescription": {
+                "text": "Magic boolean passed as first argument at line {line}. Use named parameters or a descriptive variable."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-049.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-051",
+              "name": "mixed-casing",
+              "shortDescription": {
+                "text": "mixed-casing"
+              },
+              "fullDescription": {
+                "text": "Mixing snake_case and camelCase in the same file detected at line {line}. Standardize on one (usually camelCase for JS/TS)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-051.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "style"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-052",
+              "name": "single-letter-variables",
+              "shortDescription": {
+                "text": "single-letter-variables"
+              },
+              "fullDescription": {
+                "text": "Single-letter variable name detected at line {line}. Use more descriptive names."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-052.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-053",
+              "name": "redundant-interpolation",
+              "shortDescription": {
+                "text": "redundant-interpolation"
+              },
+              "fullDescription": {
+                "text": "Redundant string interpolation detected at line {line}. Use the variable directly."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-053.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-054",
+              "name": "unnecessary-else",
+              "shortDescription": {
+                "text": "unnecessary-else"
+              },
+              "fullDescription": {
+                "text": "Unnecessary 'else' after 'return' at line {line}. Remove the else and flatten the code."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-054.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-056",
+              "name": "stale-todo",
+              "shortDescription": {
+                "text": "stale-todo"
+              },
+              "fullDescription": {
+                "text": "TODO comment found at line {line}. Ensure it isn't abandoned debt."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-056.md",
+              "properties": {
+                "tags": [
+                  "docs"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-057",
+              "name": "use-any",
+              "shortDescription": {
+                "text": "use-any"
+              },
+              "fullDescription": {
+                "text": "Avoid using 'any' type at line {line}. Use a more specific type or 'unknown'."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-057.md",
+              "properties": {
+                "tags": [
+                  "typescript"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-058",
+              "name": "overly-long-variable-name",
+              "shortDescription": {
+                "text": "overly-long-variable-name"
+              },
+              "fullDescription": {
+                "text": "Overly long variable name (>35 chars) detected at line {line}. This is getting too vibey."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-058.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-059",
+              "name": "file-length-limit",
+              "shortDescription": {
+                "text": "file-length-limit"
+              },
+              "fullDescription": {
+                "text": "File is too long ({count} lines). Consider splitting it into smaller modules. Max recommended: {threshold}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-059.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-063-B",
+              "name": "empty-block",
+              "shortDescription": {
+                "text": "empty-block"
+              },
+              "fullDescription": {
+                "text": "Empty block detected at line {line}. This code does nothing."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-063-B.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-063",
+              "name": "empty-else",
+              "shortDescription": {
+                "text": "empty-else"
+              },
+              "fullDescription": {
+                "text": "Empty else block detected at line {line}. This clutters the code."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-063.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-065",
+              "name": "hadouken-nested-logic",
+              "shortDescription": {
+                "text": "hadouken-nested-logic"
+              },
+              "fullDescription": {
+                "text": "Hadouken! Nested logic is too deep ({count}). Max allowed: {threshold} levels."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-065.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-066",
+              "name": "redundant-if-true",
+              "shortDescription": {
+                "text": "redundant-if-true"
+              },
+              "fullDescription": {
+                "text": "Redundant 'if(true)' detected at line {line}. This logic is either debug code or unnecessary."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-066.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-068",
+              "name": "overuse-ternary",
+              "shortDescription": {
+                "text": "overuse-ternary"
+              },
+              "fullDescription": {
+                "text": "Potentially nested or overused ternary operators detected at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-068.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-070",
+              "name": "use-innerhtml",
+              "shortDescription": {
+                "text": "use-innerhtml"
+              },
+              "fullDescription": {
+                "text": "Use of 'innerHTML' detected at line {line}. Use 'textContent' or a sanitizer to avoid XSS."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-070.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-077",
+              "name": "deceptive-function-name",
+              "shortDescription": {
+                "text": "deceptive-function-name"
+              },
+              "fullDescription": {
+                "text": "Lying function name detected: '{name}' implies a non-mutating action but contains side-effect keywords (set, delete, update). This is major vibecoding."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-077.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "heuristics"
+              }
+            },
+            {
+              "id": "VBC-079",
+              "name": "debugger-statements",
+              "shortDescription": {
+                "text": "debugger-statements"
+              },
+              "fullDescription": {
+                "text": "debugger; statement found at line {line}. This should never reach production."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-079.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-080",
+              "name": "browser-alert",
+              "shortDescription": {
+                "text": "browser-alert"
+              },
+              "fullDescription": {
+                "text": "Avoid using alert() at line {line}. Use a modern UI notification system."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-080.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-084",
+              "name": "long-line-limit",
+              "shortDescription": {
+                "text": "long-line-limit"
+              },
+              "fullDescription": {
+                "text": "Line is too long ({count} characters). Consider wrapping it. Max recommended: 120."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-084.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-086",
+              "name": "target-blank-rel",
+              "shortDescription": {
+                "text": "target-blank-rel"
+              },
+              "fullDescription": {
+                "text": "target='_blank' without rel='noopener' detected at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-086.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-090",
+              "name": "passive-aggressive-comments",
+              "shortDescription": {
+                "text": "passive-aggressive-comments"
+              },
+              "fullDescription": {
+                "text": "Questionable language or 'vibey' term '{match}' detected in comments at line {line}. Be professional and explicit."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-090.md",
+              "properties": {
+                "tags": [
+                  "team-culture"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-096",
+              "name": "complex-regex-no-comment",
+              "shortDescription": {
+                "text": "complex-regex-no-comment"
+              },
+              "fullDescription": {
+                "text": "Complex regex found at line {line} without preceding comment explanation."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-096.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-097",
+              "name": "br-tags-for-layout",
+              "shortDescription": {
+                "text": "br-tags-for-layout"
+              },
+              "fullDescription": {
+                "text": "Multiple <br> tags used for layout. Use CSS margin or padding instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-097.md",
+              "properties": {
+                "tags": [
+                  "html",
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-098",
+              "name": "z-index-war",
+              "shortDescription": {
+                "text": "z-index-war"
+              },
+              "fullDescription": {
+                "text": "Extremely high z-index value detected at line {line} (z-index wars)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-098.md",
+              "properties": {
+                "tags": [
+                  "css"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-101",
+              "name": "img-missing-alt",
+              "shortDescription": {
+                "text": "img-missing-alt"
+              },
+              "fullDescription": {
+                "text": "Image missing 'alt' attribute at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-101.md",
+              "properties": {
+                "tags": [
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-102",
+              "name": "multi-statement-one-liner",
+              "shortDescription": {
+                "text": "multi-statement-one-liner"
+              },
+              "fullDescription": {
+                "text": "Multiple statements on a single line detected. This reduces readability."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-102.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-103",
+              "name": "ascii-art-header",
+              "shortDescription": {
+                "text": "ascii-art-header"
+              },
+              "fullDescription": {
+                "text": "ASCII art or excessive separator detected at line {line}. Use standard headers for clarity."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-103.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "style"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-104",
+              "name": "inconsistent-import",
+              "shortDescription": {
+                "text": "inconsistent-import"
+              },
+              "fullDescription": {
+                "text": "Mixing 'require' and 'import' in the same file at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-104.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-106",
+              "name": "spaces-in-filenames",
+              "shortDescription": {
+                "text": "spaces-in-filenames"
+              },
+              "fullDescription": {
+                "text": "Filename '{file}' contains spaces. This causes issues on some operating systems and CLI tools."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-106.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "cross-platform"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-112",
+              "name": "scroll-hijacking",
+              "shortDescription": {
+                "text": "scroll-hijacking"
+              },
+              "fullDescription": {
+                "text": "Potential scroll hijacking or forced smooth scrolling detected at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-112.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-113",
+              "name": "disable-zoom",
+              "shortDescription": {
+                "text": "disable-zoom"
+              },
+              "fullDescription": {
+                "text": "Disabling pinch-to-zoom is an accessibility violation."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-113.md",
+              "properties": {
+                "tags": [
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-117",
+              "name": "block-paste",
+              "shortDescription": {
+                "text": "block-paste"
+              },
+              "fullDescription": {
+                "text": "Blocking paste in input fields harms both UX and security (password managers)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-117.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "security"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-123",
+              "name": "placeholder-as-label",
+              "shortDescription": {
+                "text": "placeholder-as-label"
+              },
+              "fullDescription": {
+                "text": "Using placeholder as the only label at line {line} is bad for accessibility."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-123.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-131",
+              "name": "video-background",
+              "shortDescription": {
+                "text": "video-background"
+              },
+              "fullDescription": {
+                "text": "Autoplay video backgrounds can be distracting and impact performance."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-131.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-150",
+              "name": "production-todo",
+              "shortDescription": {
+                "text": "production-todo"
+              },
+              "fullDescription": {
+                "text": "Unresolved '{match}' detected at line {line}. Resolve these before production."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-150.md",
+              "properties": {
+                "tags": [
+                  "maintenance"
+                ],
+                "category": "core"
+              }
+            },
+            {
+              "id": "VBC-153",
+              "name": "sudo-setup",
+              "shortDescription": {
+                "text": "sudo-setup"
+              },
+              "fullDescription": {
+                "text": "Setup instructions requiring sudo detected at line {line}. Use local environments instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-153.md",
+              "properties": {
+                "tags": [
+                  "dx",
+                  "security"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-158",
+              "name": "fouc-prevention",
+              "shortDescription": {
+                "text": "fouc-prevention"
+              },
+              "fullDescription": {
+                "text": "Use of @import in CSS can cause Flash of Unstyled Content (FOUC)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-158.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-161",
+              "name": "oversized-sticky-header",
+              "shortDescription": {
+                "text": "oversized-sticky-header"
+              },
+              "fullDescription": {
+                "text": "Oversized sticky header (>30vh) detected at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-161.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-172",
+              "name": "hamburger-on-desktop",
+              "shortDescription": {
+                "text": "hamburger-on-desktop"
+              },
+              "fullDescription": {
+                "text": "Hamburger menu detected on desktop resolutions at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-172.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-197",
+              "name": "hardcoded-node-version",
+              "shortDescription": {
+                "text": "hardcoded-node-version"
+              },
+              "fullDescription": {
+                "text": "Hardcoded system version check detected at line {line}. Use an .nvmrc or engine field in package.json instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-197.md",
+              "properties": {
+                "tags": [
+                  "dx",
+                  "portability"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-201",
+              "name": "redundant-async",
+              "shortDescription": {
+                "text": "redundant-async"
+              },
+              "fullDescription": {
+                "text": "Redundant 'async' detected. Function does not use 'await'. Remove 'async' to avoid promise overhead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-201.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "performance"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-206",
+              "name": "pure-black-background",
+              "shortDescription": {
+                "text": "pure-black-background"
+              },
+              "fullDescription": {
+                "text": "Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark grey (e.g., #121212)."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-206.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "design"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-208",
+              "name": "hardcoded-colors",
+              "shortDescription": {
+                "text": "hardcoded-colors"
+              },
+              "fullDescription": {
+                "text": "Hardcoded color value detected at line {line}. Consider using a CSS variable or theme token."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-208.md",
+              "properties": {
+                "tags": [
+                  "design",
+                  "maintainability"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-212",
+              "name": "keyboard-focus-awareness",
+              "shortDescription": {
+                "text": "keyboard-focus-awareness"
+              },
+              "fullDescription": {
+                "text": "Suppressing focus outline without providing an alternative at line {line}. This makes keyboard navigation impossible."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-212.md",
+              "properties": {
+                "tags": [
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-215",
+              "name": "global-pollutant",
+              "shortDescription": {
+                "text": "global-pollutant"
+              },
+              "fullDescription": {
+                "text": "Global variable pollution detected (window.prop = ...). Use modules or proper state management."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-215.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "security"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-305",
+              "name": "hardcoded-font-size",
+              "shortDescription": {
+                "text": "hardcoded-font-size"
+              },
+              "fullDescription": {
+                "text": "Hardcoded font size '{match}' detected at line {line}. Use relative units (rem/em) for better accessibility and user scale preferences."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-305.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-324",
+              "name": "condescending-language",
+              "shortDescription": {
+                "text": "condescending-language"
+              },
+              "fullDescription": {
+                "text": "Condescending or vague language '{match}' detected at line {line}. Be direct and avoid assumptions about the reader's knowledge."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-324.md",
+              "properties": {
+                "tags": [
+                  "docs"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-334",
+              "name": "ai-generated-fluff",
+              "shortDescription": {
+                "text": "ai-generated-fluff"
+              },
+              "fullDescription": {
+                "text": "Potential AI-generated fluff or overused cliché '{match}' detected at line {line}. Keep documentation concise and human-centric."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-334.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "content"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-338",
+              "name": "non-inclusive-terminology",
+              "shortDescription": {
+                "text": "non-inclusive-terminology"
+              },
+              "fullDescription": {
+                "text": "Non-inclusive terminology found at line {line}. Consider alternatives like main/primary, replica/secondary, allowlist/blocklist, and integrity check."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-338.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "inclusive-language"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-340",
+              "name": "gendered-address",
+              "shortDescription": {
+                "text": "gendered-address"
+              },
+              "fullDescription": {
+                "text": "Gendered language detected at line {line}. Use 'folks', 'everyone', or 'they'."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-340.md",
+              "properties": {
+                "tags": [
+                  "inclusive-language"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-344",
+              "name": "non-iso-date",
+              "shortDescription": {
+                "text": "non-iso-date"
+              },
+              "fullDescription": {
+                "text": "Non-ISO 8601 date found at line {line}. Use YYYY-MM-DD to avoid regional confusion."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-344.md",
+              "properties": {
+                "tags": [
+                  "docs"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-347",
+              "name": "passive-voice",
+              "shortDescription": {
+                "text": "passive-voice"
+              },
+              "fullDescription": {
+                "text": "Potential passive voice at line {line}. Consider using active voice for clarity."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-347.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "style"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-348",
+              "name": "click-here-links",
+              "shortDescription": {
+                "text": "click-here-links"
+              },
+              "fullDescription": {
+                "text": "Vague link text found at line {line}. Describe the destination for better accessibility."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-348.md",
+              "properties": {
+                "tags": [
+                  "accessibility",
+                  "docs"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-385",
+              "name": "success-message-grammar",
+              "shortDescription": {
+                "text": "success-message-grammar"
+              },
+              "fullDescription": {
+                "text": "Improper success message grammar at line {line}. Use 'Data saved successfully'."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-385.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "copy"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-398",
+              "name": "panic-punctuation",
+              "shortDescription": {
+                "text": "panic-punctuation"
+              },
+              "fullDescription": {
+                "text": "Excessive punctuation at line {line}. Professional copy should avoid multiple symbols like '!!!'."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-398.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "copy"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-401",
+              "name": "broken-links",
+              "shortDescription": {
+                "text": "broken-links"
+              },
+              "fullDescription": {
+                "text": "Broken link '{match}' ({url}) detected at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-401.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "maintenance"
+                ],
+                "category": "heuristics"
+              }
+            },
+            {
+              "id": "VBC-414",
+              "name": "please-in-cli",
+              "shortDescription": {
+                "text": "please-in-cli"
+              },
+              "fullDescription": {
+                "text": "Avoid using 'Please' in technical instructions at line {line}. Use direct imperative mood (e.g., 'Run...' instead of 'Please run...')."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-414.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "cli"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-421",
+              "name": "filler-words",
+              "shortDescription": {
+                "text": "filler-words"
+              },
+              "fullDescription": {
+                "text": "Filler word detected at line {line}. Be more direct in your documentation."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-421.md",
+              "properties": {
+                "tags": [
+                  "docs",
+                  "style"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-501",
+              "name": "boolean-naming-vibes",
+              "shortDescription": {
+                "text": "boolean-naming-vibes"
+              },
+              "fullDescription": {
+                "text": "Boolean variable '{name}' has no standard prefix. Consider is{name}, has{name}, or can{name} for clarity."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-501.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "semantic"
+              }
+            },
+            {
+              "id": "VBC-502",
+              "name": "redundant-boolean-logic",
+              "shortDescription": {
+                "text": "redundant-boolean-logic"
+              },
+              "fullDescription": {
+                "text": "Redundant boolean return detected. This if/else block can be replaced by a single 'return' with a boolean expression."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-502.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "semantic"
+              }
+            },
+            {
+              "id": "VBC-503",
+              "name": "collection-naming-vibes",
+              "shortDescription": {
+                "text": "collection-naming-vibes"
+              },
+              "fullDescription": {
+                "text": "Array named '{name}' is missing a plural 's' or a collection suffix (List, Array). This makes code less intuitive."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-503.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "semantic"
+              }
+            },
+            {
+              "id": "VBC-504",
+              "name": "semantic-shadowing",
+              "shortDescription": {
+                "text": "semantic-shadowing"
+              },
+              "fullDescription": {
+                "text": "Variable '{name}' shadows a common library or system keyword. This can cause confusion during debugging."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-504.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "semantic"
+              }
+            },
+            {
+              "id": "VBC-901",
+              "name": "hardcoded-ip-v4",
+              "shortDescription": {
+                "text": "hardcoded-ip-v4"
+              },
+              "fullDescription": {
+                "text": "Hardcoded IP address detected at line {line}. Use environment variables for network configuration."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-901.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "security"
+              }
+            },
+            {
+              "id": "VBC-902",
+              "name": "document-write-slop",
+              "shortDescription": {
+                "text": "document-write-slop"
+              },
+              "fullDescription": {
+                "text": "document.write() is prohibited at line {line}. It is insecure and performance-heavy."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-902.md",
+              "properties": {
+                "tags": [
+                  "security",
+                  "performance"
+                ],
+                "category": "security"
+              }
+            },
+            {
+              "id": "VBC-903",
+              "name": "eval-like-timers",
+              "shortDescription": {
+                "text": "eval-like-timers"
+              },
+              "fullDescription": {
+                "text": "Passing strings to timers is eval-like and insecure at line {line}."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-903.md",
+              "properties": {
+                "tags": [
+                  "security"
+                ],
+                "category": "security"
+              }
+            },
+            {
+              "id": "VBC-904",
+              "name": "magic-string",
+              "shortDescription": {
+                "text": "magic-string"
+              },
+              "fullDescription": {
+                "text": "Magic string literal passed to function at line {line}. Use a named constant instead."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-904.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-905",
+              "name": "debug-console-usage",
+              "shortDescription": {
+                "text": "debug-console-usage"
+              },
+              "fullDescription": {
+                "text": "Debug console method '{line}' left in code. Remove before committing."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-905.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-906",
+              "name": "fixme-technical-debt",
+              "shortDescription": {
+                "text": "fixme-technical-debt"
+              },
+              "fullDescription": {
+                "text": "FIXME comment found at line {line}. Address this technical debt."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-906.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-907",
+              "name": "anonymous-todo",
+              "shortDescription": {
+                "text": "anonymous-todo"
+              },
+              "fullDescription": {
+                "text": "TODO without author or ticket reference at line {line}. Use TODO(author): format."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-907.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-908",
+              "name": "long-inline-style",
+              "shortDescription": {
+                "text": "long-inline-style"
+              },
+              "fullDescription": {
+                "text": "Overly long inline style attribute at line {line}. Move styles to a CSS file or component."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-908.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "css"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-909",
+              "name": "empty-interface-ts",
+              "shortDescription": {
+                "text": "empty-interface-ts"
+              },
+              "fullDescription": {
+                "text": "Empty interface detected. If intentional, add a comment; otherwise, remove it."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-909.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "typescript"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-910",
+              "name": "console-table-leaks",
+              "shortDescription": {
+                "text": "console-table-leaks"
+              },
+              "fullDescription": {
+                "text": "console.table() left in code at line {line}. Useful for debug, but clutters production logs."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-910.md",
+              "properties": {
+                "tags": [
+                  "clean-code"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-911",
+              "name": "meaningless-helper-names",
+              "shortDescription": {
+                "text": "meaningless-helper-names"
+              },
+              "fullDescription": {
+                "text": "Generic class name '{match}' detected. Use more specific semantic names (e.g., 'AuthValidator' instead of 'AuthHelper')."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-911.md",
+              "properties": {
+                "tags": [
+                  "clean-code",
+                  "semantic"
+                ],
+                "category": "clean-code"
+              }
+            },
+            {
+              "id": "VBC-913",
+              "name": "outline-none-hazard",
+              "shortDescription": {
+                "text": "outline-none-hazard"
+              },
+              "fullDescription": {
+                "text": "Removing outlines without providing a focus state at line {line} breaks keyboard accessibility."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-913.md",
+              "properties": {
+                "tags": [
+                  "accessibility",
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-914",
+              "name": "cursor-pointer-on-text",
+              "shortDescription": {
+                "text": "cursor-pointer-on-text"
+              },
+              "fullDescription": {
+                "text": "cursor: pointer applied to potentially non-interactive element at line {line}. Don't lie to the user about clickability. Only use for truly interactive components."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-914.md",
+              "properties": {
+                "tags": [
+                  "ux"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-915",
+              "name": "user-select-none-slop",
+              "shortDescription": {
+                "text": "user-select-none-slop"
+              },
+              "fullDescription": {
+                "text": "user-select: none detected at line {line}. Preventing users from copying text is usually a dark pattern."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-915.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-916",
+              "name": "vague-link-text-ux",
+              "shortDescription": {
+                "text": "vague-link-text-ux"
+              },
+              "fullDescription": {
+                "text": "Vague link text '{match}' detected at line {line}. Use descriptive labels (e.g., 'View detailed report') for clarity and screen reader accessibility."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-916.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "accessibility"
+                ],
+                "category": "ux-dx"
+              }
+            },
+            {
+              "id": "VBC-917",
+              "name": "shouting-documentation",
+              "shortDescription": {
+                "text": "shouting-documentation"
+              },
+              "fullDescription": {
+                "text": "Excessive punctuation or shouting detected at line {line}. Maintain a professional tone."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-917.md",
+              "properties": {
+                "tags": [
+                  "documentation",
+                  "style"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-918",
+              "name": "we-detected-tone",
+              "shortDescription": {
+                "text": "we-detected-tone"
+              },
+              "fullDescription": {
+                "text": "Avoid first-person collective ('We') in system messages at line {line}. Use neutral or user-centric language."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-918.md",
+              "properties": {
+                "tags": [
+                  "documentation",
+                  "style"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-920",
+              "name": "relative-link-format",
+              "shortDescription": {
+                "text": "relative-link-format"
+              },
+              "fullDescription": {
+                "text": "Relative local link missing './' prefix at line {line}. Use [link](./path/to/file) for better tool compatibility."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-920.md",
+              "properties": {
+                "tags": [
+                  "documentation",
+                  "maintenance"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-921",
+              "name": "hardcoded-outdated-year",
+              "shortDescription": {
+                "text": "hardcoded-outdated-year"
+              },
+              "fullDescription": {
+                "text": "Outdated copyright year detected at line {line}. It's 2026, stay current."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-921.md",
+              "properties": {
+                "tags": [
+                  "documentation",
+                  "maintenance"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-922",
+              "name": "too-many-staged-files",
+              "shortDescription": {
+                "text": "too-many-staged-files"
+              },
+              "fullDescription": {
+                "text": "Staging {count} files (limit: {threshold}). Large commits are harder to review. Split your work."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-922.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "dx"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-923",
+              "name": "filename-too-long-hazard",
+              "shortDescription": {
+                "text": "filename-too-long-hazard"
+              },
+              "fullDescription": {
+                "text": "Filename length {length} exceeds {threshold} characters. This might cause issues on some systems."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-923.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "cross-platform"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-924",
+              "name": "missing-readme-root",
+              "shortDescription": {
+                "text": "missing-readme-root"
+              },
+              "fullDescription": {
+                "text": "No README file found in project root. Documentation is non-negotiable."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-924.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "project-health"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-925",
+              "name": "large-file-staged",
+              "shortDescription": {
+                "text": "large-file-staged"
+              },
+              "fullDescription": {
+                "text": "File is over 1MB ({size} bytes). Consider using Git LFS or external storage."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-925.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "performance"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-926",
+              "name": "short-commit-message-check",
+              "shortDescription": {
+                "text": "short-commit-message-check"
+              },
+              "fullDescription": {
+                "text": "Commit message is likely too short. Provide more context about the 'why' of your changes."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-926.md",
+              "properties": {
+                "tags": [
+                  "git",
+                  "dx"
+                ],
+                "category": "git"
+              }
+            },
+            {
+              "id": "VBC-927",
+              "name": "vague-button-label",
+              "shortDescription": {
+                "text": "vague-button-label"
+              },
+              "fullDescription": {
+                "text": "Vague button label '{match}' detected at line {line}. Use action-oriented labels (e.g., 'Save Changes', 'Create Account')."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-927.md",
+              "properties": {
+                "tags": [
+                  "ux",
+                  "documentation"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-928",
+              "name": "lorem-ipsum-docs",
+              "shortDescription": {
+                "text": "lorem-ipsum-docs"
+              },
+              "fullDescription": {
+                "text": "Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real content before committing."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-928.md",
+              "properties": {
+                "tags": [
+                  "documentation",
+                  "slop"
+                ],
+                "category": "docs"
+              }
+            },
+            {
+              "id": "VBC-929",
+              "name": "technical-jargon-slop",
+              "shortDescription": {
+                "text": "technical-jargon-slop"
+              },
+              "fullDescription": {
+                "text": "Avoid buzzword-heavy jargon at line {line}. Be direct and clear."
+              },
+              "helpUri": "https://github.com/fabriziosalmi/slopless/blob/main/docs/rules/VBC-929.md",
+              "properties": {
+                "tags": [
+                  "documentation"
+                ],
+                "category": "docs"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "VBC-045",
+          "level": "warning",
+          "message": {
+            "text": "Missing LICENSE file. Every open source project should define its terms of use."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "project-root"
+                },
+                "region": {
+                  "startLine": 1,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-001",
+          "level": "error",
+          "message": {
+            "text": "Hardcoded credential or secret 'api_key = 'sk-1234567890' detected at line 7. Use environment variables for all secrets."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-005",
+          "level": "error",
+          "message": {
+            "text": "Use of 'var' detected at line 6. Use 'let' or 'const' instead."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-018",
+          "level": "warning",
+          "message": {
+            "text": "Production code with console usage 'console.log(' found at line 10. Consider a professional logging library."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-018",
+          "level": "warning",
+          "message": {
+            "text": "Production code with console usage 'console.log(' found at line 32. Consider a professional logging library."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 32,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-018",
+          "level": "warning",
+          "message": {
+            "text": "Production code with console usage 'console.log(' found at line 49. Consider a professional logging library."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 49,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-039",
+          "level": "error",
+          "message": {
+            "text": "Use of 'eval()' detected at line 49. This is a massive security risk."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 49,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-048",
+          "level": "warning",
+          "message": {
+            "text": "Meaningless variable name 'const data' detected at line 11. Use descriptive names that convey intent."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-048",
+          "level": "warning",
+          "message": {
+            "text": "Meaningless variable name 'const item' detected at line 22. Use descriptive names that convey intent."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 22,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-057",
+          "level": "warning",
+          "message": {
+            "text": "Avoid using 'any' type at line 9. Use a more specific type or 'unknown'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-090",
+          "level": "warning",
+          "message": {
+            "text": "Questionable language or 'vibey' term 'just' detected in comments at line 57. Be professional and explicit."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-096",
+          "level": "warning",
+          "message": {
+            "text": "Complex regex found at line 58 without preceding comment explanation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 58,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-096",
+          "level": "warning",
+          "message": {
+            "text": "Complex regex found at line 64 without preceding comment explanation."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-150",
+          "level": "warning",
+          "message": {
+            "text": "Unresolved 'FIXME' detected at line 64. Resolve these before production."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-398",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation at line 13. Professional copy should avoid multiple symbols like '!!!'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-398",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation at line 40. Professional copy should avoid multiple symbols like '!!!'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-398",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation at line 54. Professional copy should avoid multiple symbols like '!!!'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-398",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation at line 64. Professional copy should avoid multiple symbols like '!!!'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-906",
+          "level": "warning",
+          "message": {
+            "text": "FIXME comment found at line 64. Address this technical debt."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 64,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-911",
+          "level": "warning",
+          "message": {
+            "text": "Generic class name 'class DataManagerHelperBase' detected. Use more specific semantic names (e.g., 'AuthValidator' instead of 'AuthHelper')."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 67,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-013",
+          "level": "error",
+          "message": {
+            "text": "Empty catch block detected at line 50. Swallowing errors makes debugging impossible."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 50,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-028",
+          "level": "error",
+          "message": {
+            "text": "Function has too many parameters (8). Max allowed is 5."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 25,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-063-B",
+          "level": "warning",
+          "message": {
+            "text": "Empty block detected at line 54. This code does nothing."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-065",
+          "level": "error",
+          "message": {
+            "text": "Hadouken! Nested logic is too deep (5). Max allowed: 4 levels."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 25,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-066",
+          "level": "warning",
+          "message": {
+            "text": "Redundant 'if(true)' detected at line 54. This logic is either debug code or unnecessary."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 54,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-077",
+          "level": "error",
+          "message": {
+            "text": "Lying function name detected: 'get_user_data_and_mutate_it' implies a non-mutating action but contains side-effect keywords (set, delete, update). This is major vibecoding."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-909",
+          "level": "warning",
+          "message": {
+            "text": "Empty interface detected. If intentional, add a comment; otherwise, remove it."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 61,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-501",
+          "level": "warning",
+          "message": {
+            "text": "Boolean variable 'active' has no standard prefix. Consider isactive, hasactive, or canactive for clarity."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 18,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-501",
+          "level": "warning",
+          "message": {
+            "text": "Boolean variable 'admin' has no standard prefix. Consider isadmin, hasadmin, or canadmin for clarity."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 19,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-502",
+          "level": "warning",
+          "message": {
+            "text": "Redundant boolean return detected. This if/else block can be replaced by a single 'return' with a boolean expression."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 40,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-503",
+          "level": "warning",
+          "message": {
+            "text": "Array named 'item' is missing a plural 's' or a collection suffix (List, Array). This makes code less intuitive."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 22,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-504",
+          "level": "warning",
+          "message": {
+            "text": "Variable 'fs' shadows a common library or system keyword. This can cause confusion during debugging."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 57,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-504",
+          "level": "warning",
+          "message": {
+            "text": "Variable 'path' shadows a common library or system keyword. This can cause confusion during debugging."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.ts"
+                },
+                "region": {
+                  "startLine": 58,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-090",
+          "level": "warning",
+          "message": {
+            "text": "Questionable language or 'vibey' term 'Basically' detected in comments at line 9. Be professional and explicit."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-324",
+          "level": "warning",
+          "message": {
+            "text": "Condescending or vague language 'Basically' detected at line 9. Be direct and avoid assumptions about the reader's knowledge."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-334",
+          "level": "warning",
+          "message": {
+            "text": "Potential AI-generated fluff or overused cliché 'As an AI language model' detected at line 5. Keep documentation concise and human-centric."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-334",
+          "level": "warning",
+          "message": {
+            "text": "Potential AI-generated fluff or overused cliché 'It's important to remember that' detected at line 7. Keep documentation concise and human-centric."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-348",
+          "level": "warning",
+          "message": {
+            "text": "Vague link text found at line 7. Describe the destination for better accessibility."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-398",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation at line 3. Professional copy should avoid multiple symbols like '!!!'."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-917",
+          "level": "warning",
+          "message": {
+            "text": "Excessive punctuation or shouting detected at line 3. Maintain a professional tone."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 3,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-918",
+          "level": "warning",
+          "message": {
+            "text": "Avoid first-person collective ('We') in system messages at line 5. Use neutral or user-centric language."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 5,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-920",
+          "level": "warning",
+          "message": {
+            "text": "Relative local link missing './' prefix at line 13. Use [link](./path/to/file) for better tool compatibility."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 13,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-921",
+          "level": "warning",
+          "message": {
+            "text": "Outdated copyright year detected at line 11. It's 2026, stay current."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 11,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-928",
+          "level": "error",
+          "message": {
+            "text": "Placeholder text 'Lorem ipsum' detected at line 15. Replace with real content before committing."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 15,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-929",
+          "level": "warning",
+          "message": {
+            "text": "Avoid buzzword-heavy jargon at line 9. Be direct and clear."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 9,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-401",
+          "level": "warning",
+          "message": {
+            "text": "Broken link 'https://broken-link-example-123456.com/bad' (https://broken-link-example-123456.com/bad) detected at line 7."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.md"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-032",
+          "level": "warning",
+          "message": {
+            "text": "Global '!important' detected in CSS at line 4. This breaks the cascade."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-206",
+          "level": "warning",
+          "message": {
+            "text": "Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark grey (e.g., #121212)."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 8,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-208",
+          "level": "warning",
+          "message": {
+            "text": "Hardcoded color value detected at line 4. Consider using a CSS variable or theme token."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 4,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-305",
+          "level": "warning",
+          "message": {
+            "text": "Hardcoded font size 'font-size: 14px' detected at line 6. Use relative units (rem/em) for better accessibility and user scale preferences."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 6,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-913",
+          "level": "error",
+          "message": {
+            "text": "Removing outlines without providing a focus state at line 10 breaks keyboard accessibility."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 10,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-914",
+          "level": "warning",
+          "message": {
+            "text": "cursor: pointer applied to potentially non-interactive element at line 12. Don't lie to the user about clickability. Only use for truly interactive components."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 12,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "VBC-915",
+          "level": "warning",
+          "message": {
+            "text": "user-select: none detected at line 14. Preventing users from copying text is usually a dark pattern."
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "slop_suite.css"
+                },
+                "region": {
+                  "startLine": 14,
+                  "startColumn": 1
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
