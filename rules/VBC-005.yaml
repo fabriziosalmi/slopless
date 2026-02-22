@@ -10,3 +10,7 @@ match:
     - ts
 message: Use of 'var' detected at line {line}. Use 'let' or 'const' instead.
 category: core
+fix:
+  regex_replace:
+    pattern: '\bvar\b'
+    replacement: 'let'

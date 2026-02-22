@@ -15,6 +15,7 @@ import { AstChecker } from './checkers/ast-checker';
 import { HeuristicChecker } from './checkers/heuristic-checker';
 import { SemanticChecker } from './checkers/semantic-checker';
 import { formatJson, formatSarif } from './engine/formatters';
+import { CacheManager } from './engine/cache';
 
 const RULES_DIR = path.join(__dirname, '..', 'rules');
 
@@ -27,10 +28,52 @@ function getStagedFiles(): string[] {
     }
 }
 
-async function runLint(files: string[], config: SloplessConfig, format: string) {
+async function applyFixes(violations: Violation[]) {
+    const fixableViolations = violations.filter(v => v.fix);
+    if (fixableViolations.length === 0) return 0;
+
+    const byFile: Record<string, Violation[]> = {};
+    for (const v of fixableViolations) {
+        if (!byFile[v.file]) byFile[v.file] = [];
+        byFile[v.file].push(v);
+    }
+
+    let fixCount = 0;
+    for (const [file, items] of Object.entries(byFile)) {
+        if (!fs.existsSync(file)) continue;
+        const content = fs.readFileSync(file, 'utf8');
+        const lines = content.split('\n');
+
+        let modified = false;
+        for (const item of items) {
+            if (item.line > 0 && item.line <= lines.length) {
+                const lineIndex = item.line - 1;
+                const originalLine = lines[lineIndex];
+                try {
+                    const regex = new RegExp(item.fix!.pattern, 'g');
+                    const newLine = originalLine.replace(regex, item.fix!.replacement);
+                    if (originalLine !== newLine) {
+                        lines[lineIndex] = newLine;
+                        modified = true;
+                        fixCount++;
+                    }
+                } catch (e) {
+                    console.error(`Failed to apply fix for ${item.ruleId} on ${file}:${item.line}`);
+                }
+            }
+        }
+
+        if (modified) {
+            fs.writeFileSync(file, lines.join('\n'), 'utf8');
+        }
+    }
+
+    return fixCount;
+}
+
+async function runLint(files: string[], config: SloplessConfig, format: string, shouldFix: boolean, useCache: boolean) {
     let rules = RuleLoader.loadRules(RULES_DIR);
 
-    // Apply severity overrides
     if (config.rules) {
         rules = rules.map(rule => {
             const override = config.rules![rule.id];
@@ -47,18 +90,50 @@ async function runLint(files: string[], config: SloplessConfig, format: string) 
     }
 
     let allViolations: Violation[] = [];
+    const cacheManager = new CacheManager(useCache && !shouldFix); // Disable cache read if fixing
 
-    // Git Checks
     allViolations = allViolations.concat(GitChecker.checkFiles(files, rules));
 
-    // File Content & AST Checks
-    for (const file of files) {
-        if (fs.existsSync(file) && fs.lstatSync(file).isFile()) {
-            allViolations = allViolations.concat(RegexChecker.check(file, rules));
-            allViolations = allViolations.concat(AstChecker.check(file, rules));
-            allViolations = allViolations.concat(await HeuristicChecker.check(file, rules));
-            allViolations = allViolations.concat(SemanticChecker.check(file, rules));
+    // Analyze files concurrently
+    const fileChecks = files.map(async (file) => {
+        if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
+            return [];
         }
+
+        const currentHash = cacheManager.getHash(file);
+        if (currentHash) {
+            const cached = cacheManager.getCachedViolations(file, currentHash);
+            if (cached) {
+                return cached;
+            }
+        }
+
+        let fileViolations: Violation[] = [];
+        fileViolations = fileViolations.concat(RegexChecker.check(file, rules));
+        fileViolations = fileViolations.concat(AstChecker.check(file, rules));
+        fileViolations = fileViolations.concat(await HeuristicChecker.check(file, rules));
+        fileViolations = fileViolations.concat(SemanticChecker.check(file, rules));
+
+        if (currentHash) {
+            cacheManager.setCachedViolations(file, currentHash, fileViolations);
+        }
+
+        return fileViolations;
+    });
+
+    const results = await Promise.all(fileChecks);
+    for (const res of results) {
+        allViolations = allViolations.concat(res);
+    }
+
+    cacheManager.saveCache();
+
+    if (shouldFix) {
+        const fixCount = await applyFixes(allViolations);
+        if (format === 'default' && fixCount > 0) {
+            console.log(`\n🛠️  Applied ${fixCount} auto-fixes.`);
+        }
+        allViolations = allViolations.filter(v => !v.fix);
     }
 
     const errors = allViolations.filter(v => v.severity === 'error');
@@ -70,11 +145,12 @@ async function runLint(files: string[], config: SloplessConfig, format: string) 
         console.log(formatSarif(allViolations, RULES_DIR));
     } else {
         if (allViolations.length > 0) {
-            console.log('\n🚫 Anti-Vibecoding Linter found issues:\n');
+            console.log(`\n🚫 Static Analysis found ${allViolations.length} issues:\n`);
 
             allViolations.forEach(v => {
                 const icon = v.severity === 'error' ? '❌' : '⚠️';
-                console.log(`${icon} [${v.ruleId}] ${v.file}:${v.line} - ${v.message}`);
+                const fixIcon = v.fix ? ' 🔧 (fixable)' : '';
+                console.log(`${icon} [${v.ruleId}] ${v.file}:${v.line} - ${v.message}${fixIcon}`);
             });
 
             console.log(`\nSummary: ${errors.length} errors, ${warnings.length} warnings.`);
@@ -84,7 +160,7 @@ async function runLint(files: string[], config: SloplessConfig, format: string) 
     }
 
     if (errors.length > 0) {
-        if (format === 'default') console.log('\nCommit/Run blocked. Please fix the errors above.');
+        if (format === 'default') console.log('\nCommit/Run blocked. Please fix the errors above or run with --fix.');
         process.exit(1);
     }
 }
@@ -100,7 +176,9 @@ program
     .argument('[patterns...]', 'Glob patterns for files to lint. If empty, lints staged files.')
     .option('-c, --config <path>', 'Path to slopless.config.json')
     .option('-f, --format <default|json|sarif>', 'Output format', 'default')
-    .action(async (patterns: string[], options: { config?: string, format: string }) => {
+    .option('--fix', 'Automatically fix issues where possible', false)
+    .option('--no-cache', 'Disable file caching', false)
+    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean }) => {
         const config = loadConfig(options.config);
 
         let targetFiles: string[] = [];
@@ -108,7 +186,6 @@ program
         if (patterns.length > 0) {
             targetFiles = globSync(patterns, { ignore: ['node_modules/**'] });
 
-            // Apply .sloplessignore
             const ignorePath = path.join(process.cwd(), '.sloplessignore');
             if (fs.existsSync(ignorePath)) {
                 const ig = ignore().add(fs.readFileSync(ignorePath, 'utf8'));
@@ -125,7 +202,7 @@ program
             targetFiles = getStagedFiles();
         }
 
-        await runLint(targetFiles, config, options.format);
+        await runLint(targetFiles, config, options.format, options.fix, options.cache);
     });
 
 program.parseAsync();

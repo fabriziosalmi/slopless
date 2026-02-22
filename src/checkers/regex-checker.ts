@@ -8,6 +8,10 @@ export interface Violation {
     message: string;
     file: string;
     line: number;
+    fix?: {
+        pattern: string;
+        replacement: string;
+    };
 }
 
 export class RegexChecker {
@@ -44,6 +48,10 @@ export class RegexChecker {
                         }),
                         file,
                         line: index + 1,
+                        fix: rule.fix?.regex_replace ? {
+                            pattern: rule.fix.regex_replace.pattern,
+                            replacement: rule.fix.regex_replace.replacement
+                        } : undefined
                     });
                 }
                 regex.lastIndex = 0; // Reset regex index for each line

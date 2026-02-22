@@ -3,7 +3,7 @@
  * This file is designed to trigger numerous Slopless rules.
  */
 
-var insecure = "secret_password_123"; // VBC-001, VBC-005
+let insecure = "secret_password_123"; // VBC-001, VBC-005
 api_key = 'sk-1234567890'; // VBC-001 (Global leak)
 
 function get_user_data_and_mutate_it(id: any) { // VBC-057 (any), VBC-058 (not camelCase? wait, checking naming rules)
