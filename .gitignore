@@ -24,3 +24,6 @@ final_slop_results.txt
 # OS File
 .DS_Store
 Thumbs.db
+
+# Documentation
+USO.md
