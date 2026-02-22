@@ -1,0 +1,21 @@
+/* CSS SLOP SUITE */
+
+.bad-selector {
+    color: #ff0000 !important;
+    /* VBC-032, VBC-208 */
+    font-size: 14px;
+    /* VBC-305 */
+    background: #000;
+    /* VBC-206 */
+    outline: none;
+    /* VBC-913 */
+    cursor: pointer;
+    /* VBC-914 (on a class, likely text) */
+    user-select: none;
+    /* VBC-915 */
+}
+
+#id-selector {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    /* VBC-208 */
+}
