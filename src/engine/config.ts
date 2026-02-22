@@ -4,6 +4,7 @@ import * as path from 'path';
 export interface SloplessConfig {
     rules?: Record<string, 'error' | 'warning' | 'off'>;
     ignore?: string[];
+    customRulesPaths?: string[];
 }
 
 export function loadConfig(configPath?: string): SloplessConfig {

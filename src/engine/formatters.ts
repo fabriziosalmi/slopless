@@ -6,8 +6,8 @@ export function formatJson(violations: Violation[]): string {
     return JSON.stringify(violations, null, 2);
 }
 
-export function formatSarif(violations: Violation[], rulesDir: string): string {
-    const rules = RuleLoader.loadRules(rulesDir);
+export function formatSarif(violations: Violation[], rulesDirs: string[]): string {
+    const rules = RuleLoader.loadRules(rulesDirs);
 
     const sarifRules = rules.map(r => ({
         id: r.id,

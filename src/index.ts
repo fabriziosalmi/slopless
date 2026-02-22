@@ -72,7 +72,13 @@ async function applyFixes(violations: Violation[]) {
 }
 
 async function runLint(files: string[], config: SloplessConfig, format: string, shouldFix: boolean, useCache: boolean) {
-    let rules = RuleLoader.loadRules(RULES_DIR);
+    const ruleDirs = [RULES_DIR];
+    if (config.customRulesPaths) {
+        for (const p of config.customRulesPaths) {
+            ruleDirs.push(path.resolve(process.cwd(), p));
+        }
+    }
+    let rules = RuleLoader.loadRules(ruleDirs);
 
     if (config.rules) {
         rules = rules.map(rule => {
@@ -142,7 +148,7 @@ async function runLint(files: string[], config: SloplessConfig, format: string, 
     if (format === 'json') {
         console.log(formatJson(allViolations));
     } else if (format === 'sarif') {
-        console.log(formatSarif(allViolations, RULES_DIR));
+        console.log(formatSarif(allViolations, ruleDirs));
     } else {
         if (allViolations.length > 0) {
             console.log(`\n🚫 Static Analysis found ${allViolations.length} issues:\n`);
@@ -178,7 +184,28 @@ program
     .option('-f, --format <default|json|sarif>', 'Output format', 'default')
     .option('--fix', 'Automatically fix issues where possible', false)
     .option('--no-cache', 'Disable file caching', false)
-    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean }) => {
+    .option('--init', 'Initialize Slopless configuration files in the current directory')
+    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, init: boolean }) => {
+        if (options.init) {
+            const configPath = path.join(process.cwd(), 'slopless.config.json');
+            const ignorePath = path.join(process.cwd(), '.sloplessignore');
+
+            if (!fs.existsSync(configPath)) {
+                fs.writeFileSync(configPath, JSON.stringify({ rules: {}, ignore: [], customRulesPaths: [] }, null, 2));
+                console.log('✅ Created slopless.config.json');
+            } else {
+                console.log('⚠️ slopless.config.json already exists.');
+            }
+
+            if (!fs.existsSync(ignorePath)) {
+                fs.writeFileSync(ignorePath, 'node_modules/\ndist/\nbuild/\n.git/\n');
+                console.log('✅ Created .sloplessignore');
+            } else {
+                console.log('⚠️ .sloplessignore already exists.');
+            }
+            process.exit(0);
+        }
+
         const config = loadConfig(options.config);
 
         let targetFiles: string[] = [];

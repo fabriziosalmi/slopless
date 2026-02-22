@@ -19,9 +19,12 @@ export class RuleLoader {
         return fileList;
     }
 
-    static loadRules(rulesDir: string): Rule[] {
+    static loadRules(rulesDirs: string[]): Rule[] {
         const rules: Rule[] = [];
-        const files = this.walkSync(rulesDir);
+        let files: string[] = [];
+        for (const dir of rulesDirs) {
+            files = files.concat(this.walkSync(dir));
+        }
 
         for (const filePath of files) {
             const content = fs.readFileSync(filePath, 'utf8');
