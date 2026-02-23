@@ -1,0 +1,16 @@
+id: VBC-008
+name: sleep-race-condition
+severity: warning
+tags:
+  - clean-code
+  - robustness
+match:
+  regex: await\s+new\s+Promise\s*\([^)]*setTimeout
+  file_types:
+    - js
+    - ts
+message: >-
+  Using setTimeout as a sleep to paper over a race condition at line {line}.
+  This is a flaky band-aid that slows the app down. Fix the underlying async
+  coordination with proper event handling or promises instead.
+category: clean-code

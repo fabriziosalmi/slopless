@@ -32,8 +32,8 @@ export class RuleLoader {
                 const doc = yaml.load(content);
                 // If the YAML is an array of rules
                 if (Array.isArray(doc)) {
-                    for (const item of doc) {
-                        const result = RuleSchema.safeParse(item);
+                    for (const ruleData of doc) {
+                        const result = RuleSchema.safeParse(ruleData);
                         if (result.success) {
                             rules.push(result.data);
                         } else {

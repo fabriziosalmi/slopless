@@ -17,7 +17,7 @@ import { HeuristicChecker } from './checkers/heuristic-checker';
 import { SemanticChecker } from './checkers/semantic-checker';
 import { TypeCheckerEngine } from './checkers/type-checker';
 import { formatJson, formatSarif } from './engine/formatters';
-import { CacheManager } from './engine/cache';
+import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
 import * as ts from 'typescript';
 
@@ -37,9 +37,9 @@ async function applyFixes(violations: Violation[]) {
     if (fixableViolations.length === 0) return 0;
 
     const byFile: Record<string, Violation[]> = {};
-    for (const v of fixableViolations) {
-        if (!byFile[v.file]) byFile[v.file] = [];
-        byFile[v.file].push(v);
+    for (const viol of fixableViolations) {
+        if (!byFile[viol.file]) byFile[viol.file] = [];
+        byFile[viol.file].push(viol);
     }
 
     let fixCount = 0;
@@ -48,26 +48,26 @@ async function applyFixes(violations: Violation[]) {
         const content = fs.readFileSync(file, 'utf8');
         const lines = content.split('\n');
 
-        let modified = false;
-        for (const item of items) {
-            if (item.line > 0 && item.line <= lines.length) {
-                const lineIndex = item.line - 1;
+        let isModified = false;
+        for (const viol of items) {
+            if (viol.line > 0 && viol.line <= lines.length) {
+                const lineIndex = viol.line - 1;
                 const originalLine = lines[lineIndex];
                 try {
-                    const regex = new RegExp(item.fix!.pattern, 'g');
-                    const newLine = originalLine.replace(regex, item.fix!.replacement);
+                    const regex = new RegExp(viol.fix!.pattern, 'g');
+                    const newLine = originalLine.replace(regex, viol.fix!.replacement);
                     if (originalLine !== newLine) {
                         lines[lineIndex] = newLine;
-                        modified = true;
+                        isModified = true;
                         fixCount++;
                     }
                 } catch (e) {
-                    console.error(`Failed to apply fix for ${item.ruleId} on ${file}:${item.line}`);
+                    console.error(`Failed to apply fix for ${viol.ruleId} on ${file}:${viol.line}`);
                 }
             }
         }
 
-        if (modified) {
+        if (isModified) {
             fs.writeFileSync(file, lines.join('\n'), 'utf8');
         }
     }
@@ -80,6 +80,7 @@ interface LintOptions {
     shouldFix: boolean;
     useCache: boolean;
     typeCheck: boolean;
+    gitMode: boolean;
 }
 
 async function runLint(files: string[], config: SloplessConfig, options: LintOptions) {
@@ -107,7 +108,7 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     }
 
     let allViolations: Violation[] = [];
-    const cacheManager = new CacheManager(options.useCache && !options.shouldFix); // Disable cache read if fixing
+    const cacheManager = new AnalysisCache(options.useCache && !options.shouldFix); // Disable cache read if fixing
 
     let tsProgram: ts.Program | null = null;
     let checker: ts.TypeChecker | null = null;
@@ -125,7 +126,9 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         }
     }
 
-    allViolations = allViolations.concat(GitChecker.checkFiles(files, rules));
+    if (options.gitMode) {
+        allViolations = allViolations.concat(GitChecker.checkFiles(files, rules));
+    }
 
     // Analyze files concurrently with a CPU core boundary
     const results = await runWithConcurrencyLimit(files, os.cpus().length, async (file) => {
@@ -158,8 +161,8 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         return fileViolations;
     });
 
-    for (const res of results) {
-        allViolations = allViolations.concat(res);
+    for (const fileResults of results) {
+        allViolations = allViolations.concat(fileResults);
     }
 
     cacheManager.saveCache();
@@ -265,7 +268,8 @@ program
             format: options.format,
             shouldFix: options.fix,
             useCache: options.cache,
-            typeCheck: shouldTypeCheck
+            typeCheck: shouldTypeCheck,
+            gitMode: patterns.length === 0,
         });
     });
 

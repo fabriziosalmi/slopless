@@ -22,7 +22,11 @@ export const RuleSchema = z.object({
             'spaces_in_filenames',
             'too_many_staged_files',
             'filename_too_long',
-            'large_file_size'
+            'large_file_size',
+            'committed_ide_settings',
+            'missing_contributing',
+            'missing_security',
+            'missing_changelog'
         ]).optional(),
         ast_check: z.object({
             type: z.enum([

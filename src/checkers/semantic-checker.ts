@@ -29,7 +29,7 @@ export class SemanticChecker {
                     if (ts.isVariableDeclaration(node) && node.initializer) {
                         const name = node.name.getText();
                         const isBool = this.isBooleanType(node);
-                        if (isBool && !/^(is|has|can|should|was|did|do|will)/i.test(name)) {
+                        if (isBool && !new RegExp('^(is|has|can|should|was|did|do|will)', 'i').test(name)) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
                             violations.push({
                                 ruleId: rule.id,
@@ -67,7 +67,9 @@ export class SemanticChecker {
                     if (ts.isVariableDeclaration(node) && node.initializer) {
                         const name = node.name.getText();
                         const isArray = this.isArrayType(node);
-                        if (isArray && !name.endsWith('s') && !/(List|Map|Set|Collection|Array)$/i.test(name)) {
+                        const lacksCollectionSuffix = !name.endsWith('s') &&
+                            !new RegExp('(List|Map|Set|Collection|Array)$', 'i').test(name);
+                        if (isArray && lacksCollectionSuffix) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
                             violations.push({
                                 ruleId: rule.id,
@@ -83,8 +85,12 @@ export class SemanticChecker {
                 if (type === 'semantic-shadowing') {
                     if (ts.isVariableDeclaration(node)) {
                         const name = node.name.getText();
-                        // Removed 'data', 'config', 'app', 'db' as they are often too generic to be shadowing concerns
-                        const commonShadows = ['fs', 'path', 'crypto', 'http', 'https', 'express', 'req', 'res', 'os', 'child_process', 'cluster', 'dns'];
+                        // Removed 'data', 'config', 'app', 'db' as too generic to be shadowing concerns
+                        const commonShadows = [
+                            'fs', 'path', 'crypto', 'http', 'https',
+                            'express', 'req', 'res', 'os',
+                            'child_process', 'cluster', 'dns',
+                        ];
                         if (commonShadows.includes(name)) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
                             violations.push({
@@ -109,7 +115,7 @@ export class SemanticChecker {
         ts.forEachChild(node, (child) => this.traverse(child, callback));
     }
 
-    private static formatMessage(message: string, context: { [key: string]: any }): string {
+    private static formatMessage(message: string, context: Record<string, unknown>): string {
         let fmt = message;
         for (const [key, value] of Object.entries(context)) {
             fmt = fmt.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value));

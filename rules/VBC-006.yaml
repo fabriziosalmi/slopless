@@ -1,0 +1,14 @@
+id: VBC-006
+name: committed-node-modules
+severity: error
+tags:
+  - git
+  - security
+  - performance
+match:
+  git_check: node_modules
+message: >-
+  node_modules directory detected in staged files. Add node_modules/ to
+  .gitignore and use package.json for dependency management. This bloats the
+  repository and causes cross-platform dependency hell.
+category: git

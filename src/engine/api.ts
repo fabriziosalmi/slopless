@@ -15,8 +15,8 @@ export async function lintText(content: string, filePath: string, configPath?: s
 
     const ruleDirs = [RULES_DIR];
     if (config.customRulesPaths) {
-        for (const p of config.customRulesPaths) {
-            ruleDirs.push(path.resolve(process.cwd(), p));
+        for (const customPath of config.customRulesPaths) {
+            ruleDirs.push(path.resolve(process.cwd(), customPath));
         }
     }
 

@@ -8,5 +8,8 @@ match:
     (architectural paradigm|synergistic integration|leverage
     fundamental|cross-platform interoperability|holistic approach)
   flags: i
+  file_types:
+    - md
+    - txt
 message: Avoid buzzword-heavy jargon at line {line}. Be direct and clear.
 category: docs

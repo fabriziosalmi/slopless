@@ -8,7 +8,7 @@ interface CacheEntry {
     violations: Violation[];
 }
 
-export class CacheManager {
+export class AnalysisCache {
     private cacheMap: Record<string, CacheEntry> = {};
     private cachePath: string;
     private isEnabled: boolean;

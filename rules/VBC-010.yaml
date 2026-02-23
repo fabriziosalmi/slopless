@@ -1,0 +1,19 @@
+id: VBC-010
+name: div-onclick-non-semantic
+severity: error
+tags:
+  - accessibility
+  - html
+match:
+  regex: <div[^>]*\s(onclick|onClick)=
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+    - jsx
+message: >-
+  Clickable <div> with onclick handler at line {line}. Use <button> or <a> for
+  interactive elements. Non-semantic clickable divs are invisible to keyboard
+  navigation and screen readers, excluding users with disabilities.
+category: ux-dx

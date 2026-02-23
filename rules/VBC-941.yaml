@@ -1,0 +1,20 @@
+id: VBC-941
+name: missing-input-sanitization
+severity: warning
+tags:
+  - security
+  - ai-error
+match:
+  regex: >-
+    innerHTML\s*=\s*[^'"`;]+\+|innerHTML\s*=\s*`[^`]*\$\{|dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html:\s*[^'"`][^}]*\}
+  file_types:
+    - js
+    - ts
+    - jsx
+    - tsx
+message: >-
+  Unsanitized content assigned to innerHTML or dangerouslySetInnerHTML at line
+  {line}. This is a direct XSS vector. Sanitize all user-controlled content
+  with DOMPurify or equivalent before inserting into the DOM. Prefer
+  textContent for plain text and structured React rendering for HTML.
+category: security

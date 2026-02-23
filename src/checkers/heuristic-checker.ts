@@ -20,7 +20,9 @@ export class HeuristicChecker {
                                 ruleId: rule.id,
                                 name: rule.name,
                                 severity: rule.severity,
-                                message: this.formatMessage(rule.message, { url: link, match: link, line: this.getLineNumber(content, link) }),
+                                message: this.formatMessage(rule.message, {
+                                url: link, match: link, line: this.getLineNumber(content, link)
+                            }),
                                 file,
                                 line: this.getLineNumber(content, link),
                             });
@@ -64,7 +66,7 @@ export class HeuristicChecker {
         return content.substring(0, index).split('\n').length;
     }
 
-    private static formatMessage(message: string, context: { [key: string]: any }): string {
+    private static formatMessage(message: string, context: Record<string, unknown>): string {
         let fmt = message;
         for (const [key, value] of Object.entries(context)) {
             fmt = fmt.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value));

@@ -3,6 +3,13 @@ import * as fs from 'fs';
 import { Rule } from '../engine/schema';
 import { Violation } from './regex-checker';
 
+interface NodeCheckContext {
+    rule: Rule;
+    sourceFile: ts.SourceFile;
+    file: string;
+    violations: Violation[];
+}
+
 export class AstChecker {
     static check(file: string, rules: Rule[], content?: string): Violation[] {
         const violations: Violation[] = [];
@@ -24,6 +31,7 @@ export class AstChecker {
 
             const type = rule.match.ast_check.type;
             const threshold = rule.match.threshold ?? rule.match.ast_check.threshold;
+            const ctx: NodeCheckContext = { rule, sourceFile, file, violations };
 
             if (type === 'empty-file') {
                 if (sourceCode.trim().length === 0) {
@@ -56,153 +64,31 @@ export class AstChecker {
 
             this.traverse(sourceFile, (node) => {
                 if (type === 'function-params-limit' && threshold) {
-                    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
-                        if (node.parameters.length > threshold) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { threshold, count: node.parameters.length, line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkFunctionParams(node, threshold, ctx);
                 }
-
                 if (type === 'function-length-limit' && threshold) {
-                    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node) || ts.isArrowFunction(node)) {
-                        const start = sourceFile.getLineAndCharacterOfPosition(node.getStart()).line;
-                        const end = sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line;
-                        const length = end - start + 1;
-                        if (length > threshold) {
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { threshold, count: length, line: start + 1 }),
-                                file,
-                                line: start + 1,
-                            });
-                        }
-                    }
+                    this.checkFunctionLength(node, threshold, ctx);
                 }
-
                 if (type === 'empty-catch') {
-                    if (ts.isCatchClause(node)) {
-                        if (node.block.statements.length === 0) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkEmptyCatch(node, ctx);
                 }
-
                 if (type === 'nested-blocks-limit' && threshold) {
-                    this.checkNestedBlocks(node, rule, threshold, sourceFile, file, violations);
+                    this.checkNestedBlocks(node, threshold, ctx);
                 }
-
                 if (type === 'empty-block') {
-                    if (ts.isBlock(node) && node.statements.length === 0) {
-                        // Skip if it's a catch clause (handled by empty-catch)
-                        if (!ts.isCatchClause(node.parent)) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkEmptyBlock(node, ctx);
                 }
-
-                if (type === 'one-liner-limit' && threshold) {
-                    if (ts.isBlock(node)) {
-                        const linesWithStatements = new Set();
-                        node.statements.forEach(s => {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(s.getStart());
-                            linesWithStatements.add(line);
-                        });
-
-                        // This is a bit simplified, but checks if multiple statements are on same line
-                        if (node.statements.length > linesWithStatements.size) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                if (type === 'one-liner-limit') {
+                    this.checkOneLiner(node, ctx);
                 }
-
                 if (type === 'redundant-if-true') {
-                    if (ts.isIfStatement(node)) {
-                        const cond = node.expression;
-                        if (cond.kind === ts.SyntaxKind.TrueKeyword ||
-                            (ts.isBinaryExpression(cond) && cond.left.kind === ts.SyntaxKind.TrueKeyword && cond.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken)) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkRedundantIfTrue(node, ctx);
                 }
                 if (type === 'lying-function-names') {
-                    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) {
-                        const name = node.name?.getText();
-                        if (name) {
-                            const isGetter = /^(get|is|has|fetch|retrieve)/i.test(name);
-                            if (isGetter) {
-                                const body = node.body?.getText();
-                                if (body && /(delete|remove|set|update|write|modify|pop|push|shift|unshift|splice|assign)/i.test(body)) {
-                                    const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                                    violations.push({
-                                        ruleId: rule.id,
-                                        name: rule.name,
-                                        severity: rule.severity,
-                                        message: this.formatMessage(rule.message, { name, line: line + 1 }),
-                                        file,
-                                        line: line + 1,
-                                    });
-                                }
-                            }
-                        }
-                    }
+                    this.checkLyingFunctionName(node, ctx);
                 }
-
                 if (type === 'empty-interface') {
-                    if (ts.isInterfaceDeclaration(node)) {
-                        if (node.members.length === 0) {
-                            const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, { line: line + 1 }),
-                                file,
-                                line: line + 1,
-                            });
-                        }
-                    }
+                    this.checkEmptyInterface(node, ctx);
                 }
             });
         }
@@ -210,33 +96,137 @@ export class AstChecker {
         return violations;
     }
 
-    private static checkNestedBlocks(node: ts.Node, rule: Rule, threshold: number, sourceFile: ts.SourceFile, file: string, violations: Violation[]) {
+    private static checkFunctionParams(node: ts.Node, threshold: number, ctx: NodeCheckContext) {
+        if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node) && !ts.isArrowFunction(node)) return;
+        if (node.parameters.length <= threshold) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, {
+                threshold, count: node.parameters.length, line: line + 1
+            }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkFunctionLength(node: ts.Node, threshold: number, ctx: NodeCheckContext) {
+        if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node) && !ts.isArrowFunction(node)) return;
+        const start = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line;
+        const end = ctx.sourceFile.getLineAndCharacterOfPosition(node.getEnd()).line;
+        const length = end - start + 1;
+        if (length <= threshold) return;
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { threshold, count: length, line: start + 1 }),
+            file: ctx.file, line: start + 1,
+        });
+    }
+
+    private static checkEmptyCatch(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isCatchClause(node)) return;
+        if (node.block.statements.length > 0) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkEmptyBlock(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isBlock(node) || node.statements.length > 0) return;
+        // Skip catch clauses — handled by checkEmptyCatch
+        if (ts.isCatchClause(node.parent)) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkOneLiner(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isBlock(node)) return;
+        const linesWithStatements = new Set<number>();
+        node.statements.forEach(s => {
+            const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(s.getStart());
+            linesWithStatements.add(line);
+        });
+        if (node.statements.length <= linesWithStatements.size) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkRedundantIfTrue(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isIfStatement(node)) return;
+        const cond = node.expression;
+        const isTriviallyTrue = cond.kind === ts.SyntaxKind.TrueKeyword ||
+            (ts.isBinaryExpression(cond) &&
+                cond.left.kind === ts.SyntaxKind.TrueKeyword &&
+                cond.operatorToken.kind === ts.SyntaxKind.EqualsEqualsEqualsToken);
+        if (!isTriviallyTrue) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkLyingFunctionName(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node)) return;
+        const fnName = node.name?.getText();
+        if (!fnName) return;
+        // Getters that silently mutate state are deceptive
+        const isReadNamePrefix = new RegExp('^(get|is|has|fetch|retrieve)', 'i').test(fnName);
+        if (!isReadNamePrefix) return;
+        const body = node.body?.getText();
+        if (!body) return;
+        const hasMutation = new RegExp(
+            '(delete|remove|set|update|write|modify|pop|push|shift|unshift|splice|assign)', 'i'
+        ).test(body);
+        if (!hasMutation) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { name: fnName, line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkEmptyInterface(node: ts.Node, ctx: NodeCheckContext) {
+        if (!ts.isInterfaceDeclaration(node) || node.members.length > 0) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkNestedBlocks(node: ts.Node, threshold: number, ctx: NodeCheckContext) {
+        if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node)) return;
         let maxDepth = 0;
         const calculateDepth = (n: ts.Node, depth: number) => {
             maxDepth = Math.max(maxDepth, depth);
             ts.forEachChild(n, (child) => {
-                if (ts.isIfStatement(child) || ts.isForStatement(child) || ts.isWhileStatement(child) || ts.isSwitchStatement(child)) {
-                    calculateDepth(child, depth + 1);
-                } else {
-                    calculateDepth(child, depth);
-                }
+                const isControlFlow = ts.isIfStatement(child) || ts.isForStatement(child) ||
+                    ts.isWhileStatement(child) || ts.isSwitchStatement(child);
+                calculateDepth(child, isControlFlow ? depth + 1 : depth);
             });
         };
-
-        if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) {
-            calculateDepth(node, 0);
-            if (maxDepth > threshold) {
-                const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
-                violations.push({
-                    ruleId: rule.id,
-                    name: rule.name,
-                    severity: rule.severity,
-                    message: this.formatMessage(rule.message, { threshold, count: maxDepth, line: line + 1 }),
-                    file,
-                    line: line + 1,
-                });
-            }
-        }
+        calculateDepth(node, 0);
+        if (maxDepth <= threshold) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { threshold, count: maxDepth, line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
     }
 
     private static traverse(node: ts.Node, callback: (node: ts.Node) => void) {
@@ -244,7 +234,7 @@ export class AstChecker {
         ts.forEachChild(node, (child) => this.traverse(child, callback));
     }
 
-    private static formatMessage(message: string, context: { [key: string]: any }): string {
+    private static formatMessage(message: string, context: Record<string, unknown>): string {
         let fmt = message;
         for (const [key, value] of Object.entries(context)) {
             fmt = fmt.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value));

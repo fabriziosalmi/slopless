@@ -1,0 +1,18 @@
+id: VBC-936
+name: outdated-experimental-tag
+severity: warning
+tags:
+  - docs
+  - maintenance
+match:
+  regex: (\[?(EXPERIMENTAL|ALPHA|UNSTABLE)\]?|⚠️\s*(experimental|alpha|unstable)\b)
+  flags: i
+  file_types:
+    - md
+    - txt
+message: >-
+  Experimental or alpha status tag '{match}' at line {line}. If this feature
+  has been in production for more than six months, remove the disclaimer.
+  Stale warnings erode trust in documentation accuracy and prevent users from
+  adopting stable APIs.
+category: docs

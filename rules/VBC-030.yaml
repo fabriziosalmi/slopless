@@ -1,0 +1,18 @@
+id: VBC-030
+name: confetti-overuse
+severity: warning
+tags:
+  - ux
+  - performance
+match:
+  regex: (confetti\(|canvas-confetti|party\.js|tsParticles\.load)
+  flags: i
+  file_types:
+    - js
+    - ts
+message: >-
+  Confetti or particle animation library detected at line {line}. Overusing
+  celebration effects devalues them and creates visual noise. Reserve confetti
+  for genuinely significant milestones (first purchase, account creation) rather
+  than every successful action.
+category: ux-dx

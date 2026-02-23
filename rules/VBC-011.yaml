@@ -1,0 +1,16 @@
+id: VBC-011
+name: document-cookie-direct
+severity: warning
+tags:
+  - security
+  - clean-code
+match:
+  regex: document\.cookie\s*=
+  file_types:
+    - js
+    - ts
+message: >-
+  Direct document.cookie write at line {line}. Manual cookie manipulation is
+  error-prone and easy to misconfigure. Use a cookie library that enforces
+  proper security flags (HttpOnly, Secure, SameSite) by default.
+category: security

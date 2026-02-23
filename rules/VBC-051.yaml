@@ -6,7 +6,7 @@ tags:
   - style
 match:
   regex: >-
-    (\b[a-z]+_[a-z]+\b.*?\b[a-z]+[A-Z][a-z]+\b)|(\b[a-z]+[A-Z][a-z]+\b.*?\b[a-z]+_[a-z]+\b)
+    ((?<![.'"])\b[a-z]+_[a-z]+\b.*?\b[a-z]+[A-Z][a-z]+\b)|(\b[a-z]+[A-Z][a-z]+\b.*?(?<![.'"])\b[a-z]+_[a-z]+\b)
   file_types:
     - js
     - ts

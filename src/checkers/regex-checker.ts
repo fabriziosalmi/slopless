@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import { Rule } from '../engine/schema';
+import { extractProtectedRanges } from '../engine/ast-utils';
 
 export interface Violation {
     ruleId: string;
@@ -22,11 +23,7 @@ export class RegexChecker {
 
         const ext = file.split('.').pop() || '';
         const isTsOrJs = ['ts', 'tsx', 'js', 'jsx'].includes(ext);
-        const protectedRanges = isTsOrJs ? import('../engine/ast-utils').then(m => m.extractProtectedRanges(content, true)) : null;
 
-        // Load protected ranges synchronously since our scanner is synchronous
-        // To avoid async rewrite of this whole method, we just require it
-        const { extractProtectedRanges } = require('../engine/ast-utils');
         const ranges = extractProtectedRanges(content, isTsOrJs);
 
         for (const rule of rules) {
@@ -48,10 +45,11 @@ export class RegexChecker {
                     const matchStartAbsolute = absoluteOffset + match.index;
                     const matchEndAbsolute = matchStartAbsolute + match[0].length;
 
-                    // Check if match falls within a protected range (string or comment)
+                    // Check if match falls within a protected string range
+                    // (comments are NOT protected — rules can legitimately target comment content)
                     let isProtected = false;
-                    for (const r of ranges) {
-                        if (matchStartAbsolute >= r.start && matchEndAbsolute <= r.end) {
+                    for (const range of ranges) {
+                        if (range.type === 'string' && matchStartAbsolute >= range.start && matchEndAbsolute <= range.end) {
                             isProtected = true;
                             break;
                         }
@@ -86,7 +84,7 @@ export class RegexChecker {
         return violations;
     }
 
-    private static formatMessage(message: string, context: { [key: string]: any }): string {
+    private static formatMessage(message: string, context: Record<string, unknown>): string {
         let fmt = message;
         for (const [key, value] of Object.entries(context)) {
             fmt = fmt.replace(new RegExp(`\\{${key}\\}`, 'g'), String(value));

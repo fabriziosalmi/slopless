@@ -3,6 +3,7 @@ import * as ts from 'typescript';
 export interface ProtectedRange {
     start: number;
     end: number;
+    type: 'comment' | 'string';
 }
 
 /**
@@ -19,19 +20,21 @@ export function extractProtectedRanges(content: string, isTsOrJs: boolean): Prot
 
     let token = scanner.scan();
     while (token !== ts.SyntaxKind.EndOfFileToken) {
-        if (
+        const isComment =
             token === ts.SyntaxKind.SingleLineCommentTrivia ||
-            token === ts.SyntaxKind.MultiLineCommentTrivia ||
+            token === ts.SyntaxKind.MultiLineCommentTrivia;
+        const isString =
             token === ts.SyntaxKind.StringLiteral ||
             token === ts.SyntaxKind.NoSubstitutionTemplateLiteral ||
             token === ts.SyntaxKind.TemplateHead ||
             token === ts.SyntaxKind.TemplateMiddle ||
             token === ts.SyntaxKind.TemplateTail ||
-            token === ts.SyntaxKind.RegularExpressionLiteral
-        ) {
+            token === ts.SyntaxKind.RegularExpressionLiteral;
+        if (isComment || isString) {
             ranges.push({
                 start: scanner.getTokenPos(),
-                end: scanner.getTextPos()
+                end: scanner.getTextPos(),
+                type: isComment ? 'comment' : 'string',
             });
         }
         token = scanner.scan();

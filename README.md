@@ -4,12 +4,12 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 ## Architecture and Capabilities
 
-- **Rule Engine**: 111+ rigorous rules spanning security, maintainability, accessibility, and documentation integrity.
+- **Rule Engine**: 136+ rigorous rules spanning security, maintainability, accessibility, and documentation integrity.
 - **AST Inspection**: Deep structural validation to identify excessive cyclomatic complexity, parameter limits, and empty control flow blocks.
 - **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
 - **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
 - **Concurrency Pooling**: Fault-tolerant AST parsing distributed across CPU-bound boundaries to guarantee stability on massive monorepos without OOM crashes.
-- **Protected Regex Engine**: AST-aware token scanning maps all strings and comments in RAM to guarantee *zero* false positives on regex evaluations.
+- **Protected Regex Engine**: AST-aware token scanning maps all strings and comments in RAM, significantly reducing false positives on JS/TS regex evaluations.
 - **LSP IDE Integration**: Ships with `vscode-slopless` for real-time Squiggly-Line diagnostics inside VS Code and Cursor.
 
 ## Installation

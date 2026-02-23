@@ -5,9 +5,7 @@ tags:
   - team-culture
 match:
   regex: >-
-    (blame steve|fix later|sanity
-    check|simply|just|basically|whatever|hack|magic|dunno|idk|hope it
-    works|voodoo|black magic)
+    (blame \w+|fix later|hope it works|idk why this works|this is cursed|wtf is this|no idea why|pray it works|don't touch this|shouldn't work but|works on my machine)
   flags: i
   file_types:
     - js
@@ -18,6 +16,7 @@ match:
     - cpp
     - md
 message: >-
-  Questionable language or 'vibey' term '{match}' detected in comments at line
-  {line}. Be professional and explicit.
+  Passive-aggressive or helpless comment '{match}' detected at line {line}.
+  Replace with a technical explanation of the actual constraint or a link to
+  the relevant issue tracker ticket.
 category: core

@@ -7,6 +7,12 @@ tags:
 match:
   regex: Lorem ipsum dolor sit amet
   flags: i
+  file_types:
+    - md
+    - txt
+    - html
+    - js
+    - ts
 message: >-
   Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real
   content before committing.

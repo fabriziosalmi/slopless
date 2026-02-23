@@ -4,3 +4,5 @@ build/
 .git/
 docs/
 *.min.js
+slop_suite.md
+rules.md

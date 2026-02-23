@@ -1,0 +1,18 @@
+id: VBC-934
+name: personal-opinion-docs
+severity: warning
+tags:
+  - docs
+  - style
+match:
+  regex: \b(I think|I believe|I feel that|in my opinion|IMO|IMHO|personally,)\b
+  flags: i
+  file_types:
+    - md
+    - txt
+message: >-
+  Personal opinion language '{match}' in documentation at line {line}. Technical
+  documentation should be objective and factual. Personal opinions erode
+  credibility and confuse readers about whether a recommendation is a design
+  constraint or a preference. Use "this approach" or cite evidence instead.
+category: docs

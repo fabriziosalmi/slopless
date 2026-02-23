@@ -1,0 +1,15 @@
+id: VBC-932
+name: missing-changelog
+severity: warning
+tags:
+  - git
+  - project-health
+  - dx
+match:
+  git_check: missing_changelog
+message: >-
+  Missing CHANGELOG.md (or HISTORY.md) file. Developers who depend on your
+  project need to know exactly what changed between versions to assess upgrade
+  risk. Follow "Keep a Changelog" standards with Added, Changed, Deprecated,
+  Removed, Fixed, and Security sections per release.
+category: git

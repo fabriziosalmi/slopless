@@ -7,9 +7,8 @@ tags:
 match:
   regex: (!{2,}|\?{2,})
   file_types:
-    - js
-    - ts
     - md
+    - txt
 message: >-
   Excessive punctuation at line {line}. Professional copy should avoid multiple
   symbols like '!!!'.

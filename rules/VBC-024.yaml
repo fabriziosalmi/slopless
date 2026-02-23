@@ -1,0 +1,20 @@
+id: VBC-024
+name: autoplay-video-unmuted
+severity: error
+tags:
+  - ux
+  - accessibility
+match:
+  regex: <video[^>]*\bautoplay(?![^>]*\bmuted\b)[^>]*>
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+    - jsx
+message: >-
+  Autoplay video without the muted attribute at line {line}. Autoplaying audio
+  is one of the most hostile UX patterns: it embarrasses users in quiet
+  environments, eats mobile data, and is blocked by most browsers anyway. Add
+  muted or remove autoplay.
+category: ux-dx
