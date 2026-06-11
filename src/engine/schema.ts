@@ -10,6 +10,8 @@ export const RuleSchema = z.object({
         regex: z.string().optional(),
         flags: z.string().optional(),
         file_types: z.array(z.string()).optional(),
+        skip_comments: z.boolean().optional(),  // code-syntax rules: don't match inside comments
+
         exclude: z.array(z.string()).optional(),
         git_check: z.enum([
             'committed_env',

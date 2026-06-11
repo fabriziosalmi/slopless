@@ -4,7 +4,9 @@ severity: error
 tags:
   - best-practice
 match:
-  regex: \bvar\b
+  # exempt `declare var` (ambient/global declarations — `var` is the correct keyword there)
+  regex: '(?<!\bdeclare\s+)\bvar\b'
+  skip_comments: true   # never flag the word "var" inside a comment
   file_types:
     - js
     - ts
@@ -12,5 +14,5 @@ message: Use of 'var' detected at line {line}. Use 'let' or 'const' instead.
 category: core
 fix:
   regex_replace:
-    pattern: '\bvar\b'
+    pattern: '(?<!\bdeclare\s+)\bvar\b'
     replacement: 'let'

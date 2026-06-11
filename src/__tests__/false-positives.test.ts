@@ -90,4 +90,22 @@ describe('False positive regressions', () => {
             expect(checkRule('VBC-943', `try { x(); } catch (_) { }`).length).toBeGreaterThan(0);
         });
     });
+
+    describe('VBC-005 — use-var', () => {
+        it('"var" inside a line comment must not trigger', () => {
+            expect(checkRule('VBC-005', `const apiBase = base; // the Vite env var or localhost`)).toHaveLength(0);
+        });
+        it('"var" inside a block comment must not trigger', () => {
+            expect(checkRule('VBC-005', `/* reads live CSS var for canvas */\nconst x = 1;`)).toHaveLength(0);
+        });
+        it('ambient `declare var` must not trigger', () => {
+            expect(checkRule('VBC-005', `declare var AudioWorkletProcessor: object;`)).toHaveLength(0);
+        });
+        it('ambient `declare var` in a .d.ts must not trigger', () => {
+            expect(checkRule('VBC-005', `declare var sampleRate: number;`, 'global.d.ts')).toHaveLength(0);
+        });
+        it('a real `var` declaration MUST still trigger', () => {
+            expect(checkRule('VBC-005', `var count = 1;`).length).toBeGreaterThan(0);
+        });
+    });
 });

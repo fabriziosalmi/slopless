@@ -45,11 +45,14 @@ export class RegexChecker {
                     const matchStartAbsolute = absoluteOffset + match.index;
                     const matchEndAbsolute = matchStartAbsolute + match[0].length;
 
-                    // Check if match falls within a protected string range
-                    // (comments are NOT protected — rules can legitimately target comment content)
+                    // Strings are always protected. Comments are protected only when the rule
+                    // opts in via match.skip_comments — code-syntax rules (e.g. use-var) must not
+                    // fire on a keyword that merely appears in prose; comment-targeting rules
+                    // (e.g. passive-aggressive-comments) leave the flag off and still see comments.
                     let isProtected = false;
                     for (const range of ranges) {
-                        if (range.type === 'string' && matchStartAbsolute >= range.start && matchEndAbsolute <= range.end) {
+                        if (matchStartAbsolute < range.start || matchEndAbsolute > range.end) continue;
+                        if (range.type === 'string' || (range.type === 'comment' && rule.match.skip_comments)) {
                             isProtected = true;
                             break;
                         }
