@@ -21,9 +21,7 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v4
-      with: { node-version: 20 }
-    - shell: bash
+    - shell: bash   # uses the runner's node (>=18 required; every hosted runner qualifies)
       run: >
         node "${{ github.action_path }}/dist/index.js" ${{ inputs.patterns }}
         ${{ inputs.config && format('--config {0}', inputs.config) || '' }}
