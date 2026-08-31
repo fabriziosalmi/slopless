@@ -30,7 +30,7 @@ you are trusting this repository not to change under you. To remove that trust,
 pin to the commit instead — Dependabot will keep it current:
 
 ```yaml
-- uses: fabriziosalmi/slopless@<commit-sha>   # v1.1.0
+- uses: fabriziosalmi/slopless@<commit-sha>   # pin to the release you audited
 ```
 
 ## Installation
