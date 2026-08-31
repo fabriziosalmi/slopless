@@ -6,7 +6,7 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 ## Architecture and Capabilities
 
-- **Rule Engine**: 147 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
+- **Rule Engine**: 148 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
 - **AST Inspection**: Deep structural validation to identify excessive cyclomatic complexity, parameter limits, and empty control flow blocks.
 - **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
 - **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
@@ -104,7 +104,7 @@ npx @fabriziosalmi/slopless "src/**/*.ts" "docs/**/*.md"
 - **Documentation**: Detection of generated filler content, non-inclusive language, and broken external references.
 
 Full documentation at [fabriziosalmi.github.io/slopless](https://fabriziosalmi.github.io/slopless/):
-[all 147 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
+[all 148 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
 [configuration](https://fabriziosalmi.github.io/slopless/configuration) ·
 [writing a rule](https://fabriziosalmi.github.io/slopless/writing-a-rule) ·
 [the scanner bug story](https://fabriziosalmi.github.io/slopless/story)

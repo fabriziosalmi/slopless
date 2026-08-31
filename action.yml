@@ -1,5 +1,5 @@
 name: "Slopless Static Analysis"
-description: "Static analysis against AI-slop code: 147 rules, AST checkers, optional type-check, SARIF output."
+description: "Static analysis against AI-slop code: 148 rules, AST checkers, optional type-check, SARIF output."
 author: "Fabrizio Salmi"
 branding: { icon: "check-circle", color: "green" }
 inputs:

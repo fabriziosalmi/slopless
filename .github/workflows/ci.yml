@@ -24,10 +24,15 @@ jobs:
           exit 1
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
-      - name: the rule docs in git must match the rules
+      - name: the generated docs and rule counts in git must match the rules
         run: |
           npm run docs:gen
-          git diff --exit-code docs/rules || { echo "docs/rules is stale — run npm run docs:gen and commit it"; exit 1; }
+          git diff --exit-code docs/rules docs/changelog.md docs/index.md README.md action.yml || {
+            echo "Generated content is stale. Run: npm run docs:gen && git add -A"
+            echo "The rule count is quoted in prose in several files and is rewritten"
+            echo "from the real count, so adding a rule changes them all."
+            exit 1
+          }
       - name: the docs site must build
         run: npm run docs:build
   dogfood:

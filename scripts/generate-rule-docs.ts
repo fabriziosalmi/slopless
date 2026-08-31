@@ -149,6 +149,35 @@ Older entries are in [CHANGELOG.md](https://github.com/fabriziosalmi/slopless/bl
     fs.writeFileSync(path.join(__dirname, '..', 'docs', 'changelog.md'), page);
 }
 
+/**
+ * The rule count is quoted in prose in several files. Written by hand it goes
+ * stale the moment a rule is added, which it did twice in one day, so it is
+ * rewritten from the real count instead. CI fails if any of these drift.
+ */
+function syncRuleCounts(total: number) {
+    const targets: { file: string; patterns: RegExp[] }[] = [
+        { file: 'docs/index.md', patterns: [
+            /\b\d+ deterministic rules\b/g, /\bThe \d+ rules\b/g,
+            /\[ \d+ rules \]/g, /<b>\d+<\/b> rules/g,
+        ] },
+        { file: 'README.md', patterns: [/\b\d+ rigorous rules\b/g, /\ball \d+ rules\b/g] },
+        { file: 'action.yml', patterns: [/\b\d+ rules\b/g] },
+    ];
+
+    for (const { file, patterns } of targets) {
+        const full = path.join(__dirname, '..', file);
+        const before = fs.readFileSync(full, 'utf8');
+        let after = before;
+        for (const pattern of patterns) {
+            after = after.replace(pattern, match => match.replace(/\d+/, String(total)));
+        }
+        if (after !== before) {
+            fs.writeFileSync(full, after);
+            console.log(`Updated the rule count in ${file}.`);
+        }
+    }
+}
+
 function main() {
     const yamlFiles = fs.readdirSync(RULES_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
     const allRules: { id: string; name: string; category: string; severity: string;
@@ -213,6 +242,7 @@ function main() {
     fs.writeFileSync(path.join(DOCS_DIR, 'index.md'), indexContent);
 
     generateChangelog();
+    syncRuleCounts(allRules.length);
     console.log(`Generated ${allRules.length} rule documents.`);
 }
 
