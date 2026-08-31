@@ -7,7 +7,7 @@ hero:
   tagline: "147 deterministic rules · AST checkers · auto-fix · SARIF · zero network"
   actions:
     - theme: brand
-      text: npx slopless
+      text: npx @fabriziosalmi/slopless
       link: "#in-ten-seconds"
     - theme: alt
       text: The 147 rules
@@ -23,38 +23,38 @@ features:
     details: Known anti-patterns are rewritten in place. What cannot be fixed safely is only reported.
   - title: "[ --type-check ]"
     details: Opt-in deep semantics through the TypeScript compiler — inherited types, real signatures, not just tokens.
-  - title: "[ zero false noise ]"
-    details: Strings and comments are mapped out before any pattern runs. The engine only judges live code.
+  - title: "[ scoped matching ]"
+    details: Every string and comment is mapped before any pattern runs, and each rule declares the scope it judges — so an eval() rule stays quiet inside a comment, and a hardcoded-IP rule looks only inside string literals.
 ---
 
 <div class="sl-term">
-  <div class="sl-term-bar"><i></i><i></i><i></i><span>slopless on slopless — real output, run in CI on every push</span></div>
-  <pre><span class="p">$</span> npx slopless "src/**/*.ts"
+  <div class="sl-term-bar"><i></i><i></i><i></i><span>slopless on its own checkers — real output, run in CI on every push</span></div>
+  <pre><span class="p">$</span> npx @fabriziosalmi/slopless "src/checkers/*.ts"
 &nbsp;
-🚫 Static Analysis found 2 issues:
+🚫 Static Analysis found 7 issues:
 &nbsp;
-<span class="err">❌ [VBC-028]</span> src/api.ts:41 - Floating promise: attach .catch() or await it
-<span class="warn">⚠️ [VBC-084]</span> src/cli.ts:52 - Line is too long (124 characters) <span class="dim">🔧 (fixable)</span>
+<span class="warn">⚠️ [VBC-084]</span> src/checkers/semantic-checker.ts:128 - Line is too long (135 characters).
+<span class="warn">⚠️ [VBC-503]</span> src/checkers/regex-checker.ts:158 - Array named 'stack' is missing a plural 's'.
+<span class="warn">⚠️ [VBC-096]</span> src/checkers/ast-checker.ts:226 - Long regular expression literal with no explanation.
+<span class="warn">⚠️ [VBC-501]</span> src/checkers/ast-checker.ts:15 - Boolean variable 'found' has no standard prefix.
+<span class="dim">  … 3 more</span>
 &nbsp;
-Summary: 1 error, 1 warning.
-&nbsp;
-<span class="p">$</span> npx slopless "src/**/*.ts" --fix
-✅ No static analysis issues detected. Clean architecture!</pre>
+Summary: 0 errors, 7 warnings.</pre>
 </div>
 
 <div class="sl-stats">
   <span><b>147</b> rules</span>
-  <span><b>67</b> tests</span>
-  <span><b>0</b> issues on itself</span>
+  <span><b>560</b> tests</span>
+  <span><b>0</b> errors on itself</span>
   <span><b>0</b> network calls</span>
-  <span>v1.0.1</span>
+  <span>v1.1.0</span>
 </div>
 
 ## In ten seconds {#in-ten-seconds}
 
 ```bash
-npx slopless --init          # writes slopless.config.json + .sloplessignore
-npx slopless "src/**/*.ts"   # exit 1 on errors — wire it to your pre-commit
+npx @fabriziosalmi/slopless --init          # writes slopless.config.json + .sloplessignore
+npx @fabriziosalmi/slopless "src/**/*.ts"   # exit 1 on errors — wire it to your pre-commit
 ```
 
 In CI, as a GitHub Action — no install step, the bundled CLI runs directly:

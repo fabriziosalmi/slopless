@@ -28,37 +28,41 @@ Runs the bundled CLI directly — no npm install in your job. Exit code 1 on err
 ## Installation
 
 ```bash
-npm install -g slopless
-# OR
-npm install slopless --save-dev
+npm install -D @fabriziosalmi/slopless
+# or run it without installing
+npx @fabriziosalmi/slopless
 ```
+
+> The unscoped `slopless` on npm is an unrelated prose linter by another author.
+> This project publishes as **`@fabriziosalmi/slopless`**; the binary it installs
+> is still called `slopless`.
 
 ## Usage
 
 ### Instant Initialization
 ```bash
-npx slopless --init
+npx @fabriziosalmi/slopless --init
 ```
 *Creates `slopless.config.json` and `.sloplessignore` in your workspace.*
 
 ### Lint the Project
 ```bash
-npx slopless
+npx @fabriziosalmi/slopless
 ```
 
 ### Auto-Fix and Deep Semantic Check
 ```bash
-npx slopless --fix --type-check
+npx @fabriziosalmi/slopless --fix --type-check
 ```
 
 ### CI/CD Integration (SARIF)
 ```bash
-npx slopless --format sarif > gl-sast-report.json
+npx @fabriziosalmi/slopless --format sarif > gl-sast-report.json
 ```
 
 ### Lint Specific Directories
 ```bash
-npx slopless "src/**/*.ts" "docs/**/*.md"
+npx @fabriziosalmi/slopless "src/**/*.ts" "docs/**/*.md"
 ```
 
 ## Rule Taxonomy

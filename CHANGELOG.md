@@ -68,10 +68,21 @@ the scanner bug behind it, then reworks the rules the bug had been masking.
   from `Floating Promise` to `floating-promise`, matching every other rule.
 - Categories consolidated to six: `core`, `security`, `clean-code`, `ux-dx`, `docs`, `git`.
 
+## Packaging
+
+- **Published as `@fabriziosalmi/slopless`.** The unscoped `slopless` on npm belongs to
+  an unrelated prose linter by another author, so every `npm install -g slopless` and
+  `npx slopless` in the README, USO.md and the docs was pointing readers at someone
+  else's package. All install and usage commands updated. The installed binary is still
+  called `slopless`, and the GitHub Action (`uses: fabriziosalmi/slopless@v1`) is unchanged.
+
 ## Docs
 
 - Rule pages now show the scope, file types, exclusions, precedence and the executable
   examples, so the documentation cannot drift from the tested behaviour.
+- The landing page terminal was showing invented output that cited `VBC-028`
+  (function-params-limit) as a floating promise. Replaced with a real run, and the
+  stat line corrected (67 tests -> 560, "0 issues on itself" -> "0 errors on itself").
 
 # 1.0.1 — 2026-08-31
 
