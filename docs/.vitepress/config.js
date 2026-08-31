@@ -1,11 +1,14 @@
 export default {
+    appearance: 'dark',   // terminal noir: dark is the default, the toggle stays
+    head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/slopless/favicon.svg' }]],
     base: "/slopless/",   // project Pages: assets live under /slopless/, not /
-    title: "Slopless Docs",
-    description: "Static Analysis Documentation",
+    title: "slopless",
+    description: "Static analysis against AI-slop code — 146 rules, AST checkers, auto-fix, SARIF.",
     themeConfig: {
         nav: [
             { text: "Home", link: "/" },
-            { text: "Rules Reference", link: "/rules/" }
+            { text: "Rules", link: "/rules/" },
+            { text: "Action", link: "https://github.com/marketplace/actions/slopless-static-analysis" }
         ],
         sidebar: [
             {
