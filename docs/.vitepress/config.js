@@ -1,4 +1,5 @@
 export default {
+    base: "/slopless/",   // project Pages: assets live under /slopless/, not /
     title: "Slopless Docs",
     description: "Static Analysis Documentation",
     themeConfig: {
