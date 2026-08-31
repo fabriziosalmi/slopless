@@ -45,3 +45,6 @@ test_regex_protection.ts
 # build output stays out — except the bundled CLI the GitHub Action runs
 /dist/*
 !/dist/index.js
+
+# Decks ship as release assets, not as blobs in the tree.
+docs/public/*.pdf

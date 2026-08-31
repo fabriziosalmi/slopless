@@ -159,8 +159,8 @@ only that the tool ran.
 
 ---
 
-There is a slide version of this story, made for LinkedIn:
-[slopless-linkedin.pdf](/slopless/slopless-linkedin.pdf) (11 slides, 1080×1080).
+There is a slide version of this story, made for LinkedIn — 11 slides, 1080×1080:
+[download the PDF](https://github.com/fabriziosalmi/slopless/releases/download/v1.1.1/slopless-linkedin.pdf).
 
 The fix is in [ast-utils.ts](https://github.com/fabriziosalmi/slopless/blob/main/src/engine/ast-utils.ts),
 and the scope model in [regex-checker.ts](https://github.com/fabriziosalmi/slopless/blob/main/src/checkers/regex-checker.ts).
