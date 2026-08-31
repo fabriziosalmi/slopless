@@ -1,6 +1,7 @@
 id: VBC-010
 name: div-onclick-non-semantic
 severity: error
+category: ux-dx
 tags:
   - accessibility
   - html
@@ -13,7 +14,11 @@ match:
     - tsx
     - jsx
 message: >-
-  Clickable <div> with onclick handler at line {line}. Use <button> or <a> for
-  interactive elements. Non-semantic clickable divs are invisible to keyboard
-  navigation and screen readers, excluding users with disabilities.
-category: ux-dx
+  Clickable <div> with onclick handler at line {line}. Use <button> or <a> for interactive
+  elements. Non-semantic clickable divs are invisible to keyboard navigation and screen readers,
+  excluding users with disabilities.
+tests:
+  fire:
+    - <div onClick={handleClick}>Save</div>
+  quiet:
+    - <button onClick={handleClick}>Save</button>

@@ -1,6 +1,7 @@
 id: VBC-058
 name: overly-long-variable-name
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -9,6 +10,9 @@ match:
     - js
     - ts
 message: >-
-  Overly long variable name (>35 chars) detected at line {line}. This is getting
-  too vibey.
-category: clean-code
+  Overly long variable name (>35 chars) detected at line {line}. This is getting too vibey.
+tests:
+  fire:
+    - const theAbsolutelyEnormousConfigurationObject = {};
+  quiet:
+    - const config = {};

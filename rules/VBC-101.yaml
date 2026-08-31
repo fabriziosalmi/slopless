@@ -1,14 +1,23 @@
 id: VBC-101
 name: img-missing-alt
 severity: error
+category: ux-dx
 tags:
   - accessibility
 match:
-  regex: <img(?![^>]*\balt=)[^>]*>
+  regex: <img\b(?![^>]*\balt\s*=)[^>]*>
+  multiline: true
   file_types:
     - html
     - js
     - ts
     - tsx
 message: Image missing 'alt' attribute at line {line}.
-category: ux-dx
+tests:
+  fire:
+    - |
+      <img
+        src="/logo.png"
+      />
+  quiet:
+    - <img src="/logo.png" alt="Logo" />

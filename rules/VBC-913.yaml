@@ -1,18 +1,21 @@
 id: VBC-913
 name: outline-none-hazard
 severity: error
+category: ux-dx
 tags:
   - accessibility
   - ux
 match:
-  regex: outline:\s*none|outline:\s*0
+  regex: outline:\s*(?:none|0)\b
   file_types:
     - css
     - scss
-  exclude:
-    - ':focus'
-    - ':active'
 message: >-
-  Removing outlines without providing a focus state at line {line} breaks
-  keyboard accessibility.
-category: ux-dx
+  Focus outline removed at line {line} with no replacement. Keyboard users lose all sense
+  of position. If the default ring is ugly, restyle it with :focus-visible instead of deleting
+  it.
+tests:
+  fire:
+    - 'a:focus { outline: none; }'
+  quiet:
+    - 'a:focus { outline: 2px solid currentColor; }'

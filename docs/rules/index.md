@@ -1,6 +1,6 @@
-# Rules Directory
+# Rules
 
-Complete reference of all static analysis rules.
+All 147 rules, grouped by category. Every rule ships executable examples, run by `rule-fixtures.test.ts`.
 
 ## Clean-code
 - [VBC-008: sleep-race-condition](./VBC-008.md)
@@ -21,18 +21,23 @@ Complete reference of all static analysis rules.
 - [VBC-058: overly-long-variable-name](./VBC-058.md)
 - [VBC-063: empty-else](./VBC-063.md)
 - [VBC-063-B: empty-block](./VBC-063-B.md)
-- [VBC-065: hadouken-nested-logic](./VBC-065.md)
+- [VBC-065: hadouken-nested-logic](./VBC-065.md) — **error**
 - [VBC-066: redundant-if-true](./VBC-066.md)
 - [VBC-068: overuse-ternary](./VBC-068.md)
-- [VBC-079: debugger-statements](./VBC-079.md)
-- [VBC-080: browser-alert](./VBC-080.md)
+- [VBC-077: deceptive-function-name](./VBC-077.md) — **error**
+- [VBC-079: debugger-statements](./VBC-079.md) — **error**
+- [VBC-080: browser-alert](./VBC-080.md) — **error**
 - [VBC-084: long-line-limit](./VBC-084.md)
 - [VBC-096: complex-regex-no-comment](./VBC-096.md)
 - [VBC-098: z-index-war](./VBC-098.md)
 - [VBC-102: multi-statement-one-liner](./VBC-102.md)
 - [VBC-104: inconsistent-import](./VBC-104.md)
 - [VBC-201: redundant-async](./VBC-201.md)
-- [VBC-215: global-pollutant](./VBC-215.md)
+- [VBC-215: global-pollutant](./VBC-215.md) — **error**
+- [VBC-501: boolean-naming-vibes](./VBC-501.md)
+- [VBC-502: redundant-boolean-logic](./VBC-502.md)
+- [VBC-503: collection-naming-vibes](./VBC-503.md)
+- [VBC-504: semantic-shadowing](./VBC-504.md)
 - [VBC-904: magic-string](./VBC-904.md)
 - [VBC-905: debug-console-usage](./VBC-905.md)
 - [VBC-906: fixme-technical-debt](./VBC-906.md)
@@ -45,25 +50,25 @@ Complete reference of all static analysis rules.
 - [VBC-945: ai-generated-placeholder-comment](./VBC-945.md)
 
 ## Core
-- [VBC-001: hardcoded-secret](./VBC-001.md)
-- [VBC-002: committed-env](./VBC-002.md)
-- [VBC-003: chmod-777](./VBC-003.md)
-- [VBC-005: use-var](./VBC-005.md)
-- [VBC-013: empty-catch](./VBC-013.md)
-- [VBC-017: fake-test-assertion](./VBC-017.md)
-- [VBC-019: absolute-paths](./VBC-019.md)
-- [VBC-028: function-params-limit](./VBC-028.md)
+- [VBC-001: hardcoded-secret](./VBC-001.md) — **error**
+- [VBC-002: committed-env](./VBC-002.md) — **error**
+- [VBC-003: chmod-777](./VBC-003.md) — **error**
+- [VBC-005: use-var](./VBC-005.md) — **error**
+- [VBC-013: empty-catch](./VBC-013.md) — **error**
+- [VBC-017: fake-test-assertion](./VBC-017.md) — **error**
+- [VBC-019: absolute-paths](./VBC-019.md) — **error**
+- [VBC-028: function-params-limit](./VBC-028.md) — **error**
 - [VBC-032: css-important](./VBC-032.md)
-- [VBC-039: use-eval](./VBC-039.md)
+- [VBC-039: use-eval](./VBC-039.md) — **error**
 - [VBC-057: use-any](./VBC-057.md)
 - [VBC-059: file-length-limit](./VBC-059.md)
-- [VBC-070: use-innerhtml](./VBC-070.md)
-- [VBC-086: target-blank-rel](./VBC-086.md)
+- [VBC-070: use-innerhtml](./VBC-070.md) — **error**
+- [VBC-086: target-blank-rel](./VBC-086.md) — **error**
 - [VBC-090: passive-aggressive-comments](./VBC-090.md)
 - [VBC-150: production-todo](./VBC-150.md)
+- [VBC-800: floating-promise](./VBC-800.md) — **error**
 
 ## Correctness
-- [VBC-800: Floating Promise](./VBC-800.md)
 - [VBC-946: no-verification-after-operation](./VBC-946.md)
 
 ## Docs
@@ -77,6 +82,7 @@ Complete reference of all static analysis rules.
 - [VBC-348: click-here-links](./VBC-348.md)
 - [VBC-385: success-message-grammar](./VBC-385.md)
 - [VBC-398: panic-punctuation](./VBC-398.md)
+- [VBC-401: broken-links](./VBC-401.md)
 - [VBC-414: please-in-cli](./VBC-414.md)
 - [VBC-421: filler-words](./VBC-421.md)
 - [VBC-917: shouting-documentation](./VBC-917.md)
@@ -84,7 +90,7 @@ Complete reference of all static analysis rules.
 - [VBC-920: relative-link-format](./VBC-920.md)
 - [VBC-921: hardcoded-outdated-year](./VBC-921.md)
 - [VBC-927: vague-button-label](./VBC-927.md)
-- [VBC-928: lorem-ipsum-docs](./VBC-928.md)
+- [VBC-928: lorem-ipsum-docs](./VBC-928.md) — **error**
 - [VBC-929: technical-jargon-slop](./VBC-929.md)
 - [VBC-933: coming-soon-docs](./VBC-933.md)
 - [VBC-934: personal-opinion-docs](./VBC-934.md)
@@ -92,65 +98,55 @@ Complete reference of all static analysis rules.
 - [VBC-936: outdated-experimental-tag](./VBC-936.md)
 
 ## Git
-- [VBC-006: committed-node-modules](./VBC-006.md)
+- [VBC-006: committed-node-modules](./VBC-006.md) — **error**
 - [VBC-014: committed-ide-settings](./VBC-014.md)
-- [VBC-025: missing-gitignore](./VBC-025.md)
+- [VBC-025: missing-gitignore](./VBC-025.md) — **error**
 - [VBC-045: missing-license](./VBC-045.md)
 - [VBC-046: binary-files-in-git](./VBC-046.md)
-- [VBC-106: spaces-in-filenames](./VBC-106.md)
+- [VBC-106: spaces-in-filenames](./VBC-106.md) — **error**
 - [VBC-922: too-many-staged-files](./VBC-922.md)
 - [VBC-923: filename-too-long-hazard](./VBC-923.md)
-- [VBC-924: missing-readme-root](./VBC-924.md)
+- [VBC-924: missing-readme-root](./VBC-924.md) — **error**
 - [VBC-925: large-file-staged](./VBC-925.md)
 - [VBC-926: short-commit-message-check](./VBC-926.md)
 - [VBC-930: missing-contributing](./VBC-930.md)
 - [VBC-931: missing-security-policy](./VBC-931.md)
 - [VBC-932: missing-changelog](./VBC-932.md)
 
-## Heuristics
-- [VBC-077: deceptive-function-name](./VBC-077.md)
-- [VBC-401: broken-links](./VBC-401.md)
-
 ## Security
-- [VBC-004: sql-injection-concatenation](./VBC-004.md)
-- [VBC-007: float-for-currency](./VBC-007.md)
+- [VBC-004: sql-injection-concatenation](./VBC-004.md) — **error**
+- [VBC-007: float-for-currency](./VBC-007.md) — **error**
 - [VBC-011: document-cookie-direct](./VBC-011.md)
-- [VBC-034: http-not-https](./VBC-034.md)
+- [VBC-034: http-not-https](./VBC-034.md) — **error**
 - [VBC-901: hardcoded-ip-v4](./VBC-901.md)
-- [VBC-902: document-write-slop](./VBC-902.md)
-- [VBC-903: eval-like-timers](./VBC-903.md)
-- [VBC-937: client-side-auth-check](./VBC-937.md)
-- [VBC-938: command-injection-risk](./VBC-938.md)
-- [VBC-939: unrestricted-file-upload](./VBC-939.md)
-- [VBC-940: float-currency-arithmetic](./VBC-940.md)
+- [VBC-902: document-write-slop](./VBC-902.md) — **error**
+- [VBC-903: eval-like-timers](./VBC-903.md) — **error**
+- [VBC-937: client-side-auth-check](./VBC-937.md) — **error**
+- [VBC-938: command-injection-risk](./VBC-938.md) — **error**
+- [VBC-939: unrestricted-file-upload](./VBC-939.md) — **error**
+- [VBC-940: float-currency-arithmetic](./VBC-940.md) — **error**
 - [VBC-941: missing-input-sanitization](./VBC-941.md)
 - [VBC-942: missing-access-control](./VBC-942.md)
-- [VBC-944: xss-href-injection](./VBC-944.md)
-- [VBC-947: prototype-pollution-risk](./VBC-947.md)
-
-## Semantic
-- [VBC-501: boolean-naming-vibes](./VBC-501.md)
-- [VBC-502: redundant-boolean-logic](./VBC-502.md)
-- [VBC-503: collection-naming-vibes](./VBC-503.md)
-- [VBC-504: semantic-shadowing](./VBC-504.md)
+- [VBC-944: xss-href-injection](./VBC-944.md) — **error**
+- [VBC-947: prototype-pollution-risk](./VBC-947.md) — **error**
 
 ## Ux-dx
-- [VBC-010: div-onclick-non-semantic](./VBC-010.md)
+- [VBC-010: div-onclick-non-semantic](./VBC-010.md) — **error**
 - [VBC-020: justify-text-web](./VBC-020.md)
 - [VBC-021: thin-font-weight](./VBC-021.md)
 - [VBC-022: custom-cursor-css](./VBC-022.md)
-- [VBC-023: notification-permission-eager](./VBC-023.md)
-- [VBC-024: autoplay-video-unmuted](./VBC-024.md)
+- [VBC-023: notification-permission-eager](./VBC-023.md) — **error**
+- [VBC-024: autoplay-video-unmuted](./VBC-024.md) — **error**
 - [VBC-027: parallax-overuse](./VBC-027.md)
 - [VBC-029: glassmorphism-overuse](./VBC-029.md)
 - [VBC-030: confetti-overuse](./VBC-030.md)
-- [VBC-033: placeholder-image-src](./VBC-033.md)
-- [VBC-035: aria-label-icon-button](./VBC-035.md)
+- [VBC-033: placeholder-image-src](./VBC-033.md) — **error**
+- [VBC-035: aria-label-icon-button](./VBC-035.md) — **error**
 - [VBC-097: br-tags-for-layout](./VBC-097.md)
-- [VBC-101: img-missing-alt](./VBC-101.md)
+- [VBC-101: img-missing-alt](./VBC-101.md) — **error**
 - [VBC-112: scroll-hijacking](./VBC-112.md)
-- [VBC-113: disable-zoom](./VBC-113.md)
-- [VBC-117: block-paste](./VBC-117.md)
+- [VBC-113: disable-zoom](./VBC-113.md) — **error**
+- [VBC-117: block-paste](./VBC-117.md) — **error**
 - [VBC-123: placeholder-as-label](./VBC-123.md)
 - [VBC-131: video-background](./VBC-131.md)
 - [VBC-153: sudo-setup](./VBC-153.md)
@@ -162,7 +158,7 @@ Complete reference of all static analysis rules.
 - [VBC-208: hardcoded-colors](./VBC-208.md)
 - [VBC-212: keyboard-focus-awareness](./VBC-212.md)
 - [VBC-305: hardcoded-font-size](./VBC-305.md)
-- [VBC-913: outline-none-hazard](./VBC-913.md)
+- [VBC-913: outline-none-hazard](./VBC-913.md) — **error**
 - [VBC-914: cursor-pointer-on-text](./VBC-914.md)
 - [VBC-915: user-select-none-slop](./VBC-915.md)
 - [VBC-916: vague-link-text-ux](./VBC-916.md)

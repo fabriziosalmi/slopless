@@ -1,11 +1,17 @@
 id: VBC-028
 name: function-params-limit
 severity: error
+category: core
 tags:
   - clean-code
 match:
   ast_check:
     type: function-params-limit
     threshold: 5
-message: Function has too many parameters ({count}). Max allowed is {threshold}.
-category: core
+message: >-
+  Function has too many parameters ({count}). Max allowed is {threshold}.
+tests:
+  fire:
+    - function build(a, b, c, d, e, f) { return a; }
+  quiet:
+    - function build(a, b) { return a + b; }

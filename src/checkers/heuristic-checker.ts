@@ -8,30 +8,28 @@ export class HeuristicChecker {
         const content = rawContent !== undefined ? rawContent : fs.readFileSync(file, 'utf8');
 
         for (const rule of rules) {
-            if (!rule.match.heuristic_check) continue;
-
-            if (rule.match.heuristic_check === 'link-checker') {
-                if (file.endsWith('.md')) {
-                    const links = this.extractLinks(content);
-                    for (const link of links) {
-                        const isOk = await this.checkLink(link);
-                        if (!isOk) {
-                            violations.push({
-                                ruleId: rule.id,
-                                name: rule.name,
-                                severity: rule.severity,
-                                message: this.formatMessage(rule.message, {
-                                url: link, match: link, line: this.getLineNumber(content, link)
-                            }),
-                                file,
-                                line: this.getLineNumber(content, link),
-                            });
-                        }
-                    }
-                }
-            }
+            if (rule.match.heuristic_check !== 'link-checker') continue;
+            if (!file.endsWith('.md')) continue;
+            violations.push(...await this.findBrokenLinks(file, content, rule));
         }
 
+        return violations;
+    }
+
+    private static async findBrokenLinks(file: string, content: string, rule: Rule): Promise<Violation[]> {
+        const violations: Violation[] = [];
+        for (const link of this.extractLinks(content)) {
+            if (await this.checkLink(link)) continue;
+            const line = this.getLineNumber(content, link);
+            violations.push({
+                ruleId: rule.id,
+                name: rule.name,
+                severity: rule.severity,
+                message: this.formatMessage(rule.message, { url: link, match: link, line }),
+                file,
+                line,
+            });
+        }
         return violations;
     }
 

@@ -1,16 +1,22 @@
 id: VBC-084
 name: long-line-limit
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
   regex: ^.{120,}$
+  scan: all
   file_types:
     - js
     - ts
     - py
     - go
 message: >-
-  Line is too long ({count} characters). Consider wrapping it. Max recommended:
-  120.
-category: clean-code
+  Line is too long ({count} characters). Consider wrapping it. Max recommended: 120.
+tests:
+  fire:
+    - >-
+      const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+  quiet:
+    - const message = "short";

@@ -1,6 +1,7 @@
 id: VBC-943
 name: ignored-catch-variable
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - ai-error
@@ -10,9 +11,12 @@ match:
     - js
     - ts
 message: >-
-  Catch clause with ignored error variable at line {line}. Using '_' as the
-  catch binding signals the exception is intentionally discarded. AI-generated
-  code often silently suppresses errors this way, hiding failures in
-  production. Either log the error, re-throw with context, or add an explicit
-  comment explaining why suppression is safe here.
-category: clean-code
+  Catch clause with ignored error variable at line {line}. Using '_' as the catch binding
+  signals the exception is intentionally discarded. AI-generated code often silently suppresses
+  errors this way, hiding failures in production. Either log the error, re-throw with context,
+  or add an explicit comment explaining why suppression is safe here.
+tests:
+  fire:
+    - try { risky(); } catch (_e) { fallback(); }
+  quiet:
+    - try { risky(); } catch (error) { report(error); }

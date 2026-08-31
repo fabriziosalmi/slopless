@@ -1,6 +1,7 @@
 id: VBC-916
 name: vague-link-text-ux
 severity: warning
+category: ux-dx
 tags:
   - ux
   - accessibility
@@ -12,6 +13,12 @@ match:
     - tsx
     - jsx
 message: >-
-  Vague link text '{match}' detected at line {line}. Use descriptive labels
-  (e.g., 'View detailed report') for clarity and screen reader accessibility.
-category: ux-dx
+  Vague link text '{match}' detected at line {line}. Use descriptive labels (e.g., 'View detailed
+  report') for clarity and screen reader accessibility.
+tests:
+  fire:
+    - file: fixture.html
+      code: <a href="/x">click here</a>
+  quiet:
+    - file: fixture.html
+      code: <a href="/x">the deployment guide</a>

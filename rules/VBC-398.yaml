@@ -1,15 +1,21 @@
 id: VBC-398
 name: panic-punctuation
 severity: warning
+category: docs
 tags:
   - ux
   - copy
 match:
-  regex: (!{2,}|\?{2,})
+  regex: \w[!?]{2,}(?=[\s)\]\"'`]|$)
   file_types:
     - md
     - txt
 message: >-
-  Excessive punctuation at line {line}. Professional copy should avoid multiple
-  symbols like '!!!'.
-category: docs
+  Excessive punctuation at line {line}. Professional copy should avoid multiple symbols like
+  '!!!'.
+tests:
+  fire:
+    - This matters!!!
+  quiet:
+    - This matters.
+    - const value = a ?? b;

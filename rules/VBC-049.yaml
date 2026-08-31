@@ -1,6 +1,7 @@
 id: VBC-049
 name: magic-boolean
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -9,6 +10,10 @@ match:
     - js
     - ts
 message: >-
-  Magic boolean passed as first argument at line {line}. Use named parameters or
-  a descriptive variable.
-category: clean-code
+  Magic boolean passed as first argument at line {line}. Use named parameters or a descriptive
+  variable.
+tests:
+  fire:
+    - renderList(true, items);
+  quiet:
+    - 'renderList({ compact: true }, items);'

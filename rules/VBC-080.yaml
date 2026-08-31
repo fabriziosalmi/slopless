@@ -1,6 +1,7 @@
 id: VBC-080
 name: browser-alert
 severity: error
+category: clean-code
 tags:
   - ux
 match:
@@ -8,5 +9,10 @@ match:
   file_types:
     - js
     - ts
-message: Avoid using alert() at line {line}. Use a modern UI notification system.
-category: clean-code
+message: >-
+  Avoid using alert() at line {line}. Use a modern UI notification system.
+tests:
+  fire:
+    - alert("saved");
+  quiet:
+    - showToast("saved");

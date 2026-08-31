@@ -1,15 +1,33 @@
 id: VBC-201
 name: redundant-async
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - performance
 match:
-  regex: async\s+function.*?\{((?!!await).)*?\}
   file_types:
-    - js
     - ts
+    - tsx
+    - js
+    - jsx
+  ast_check:
+    type: async-without-await
 message: >-
-  Redundant 'async' detected. Function does not use 'await'. Remove 'async' to
-  avoid promise overhead.
-category: clean-code
+  async function with no await at line {line}. The async keyword only wraps the return value
+  in a Promise here; drop it or await something.
+tests:
+  fire:
+    - |
+      async function load() {
+        return cached;
+      }
+  quiet:
+    - |
+      async function load() {
+        return await fetchIt();
+      }
+    - |
+      function load() {
+        return cached;
+      }

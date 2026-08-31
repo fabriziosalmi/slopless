@@ -1,21 +1,31 @@
 id: VBC-914
 name: cursor-pointer-on-text
 severity: warning
+category: ux-dx
 tags:
   - ux
 match:
   regex: cursor:\s*pointer
   file_types:
     - css
-  exclude:
+  exclude_selectors:
     - button
     - a
+    - summary
+    - label
     - '[role=''button'']'
+    - '[role="button"]'
     - input[type='submit']
     - input[type='button']
-    - label
+    - .btn
+    - .button
+    - .clickable
 message: >-
-  cursor: pointer applied to potentially non-interactive element at line {line}.
-  Don't lie to the user about clickability. Only use for truly interactive
-  components.
-category: ux-dx
+  cursor: pointer applied to potentially non-interactive element at line {line}. Don't lie
+  to the user about clickability. Only use for truly interactive components.
+tests:
+  fire:
+    - '.card { cursor: pointer; }'
+  quiet:
+    - 'button { cursor: pointer; }'
+    - 'a:hover { cursor: pointer; }'

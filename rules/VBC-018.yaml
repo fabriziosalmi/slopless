@@ -1,6 +1,7 @@
 id: VBC-018
 name: console-logs-detected
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -9,6 +10,10 @@ match:
     - js
     - ts
 message: >-
-  Production code with console usage '{match}' found at line {line}. Consider a
-  professional logging library.
-category: clean-code
+  Production code with console usage '{match}' found at line {line}. Consider a professional
+  logging library.
+tests:
+  fire:
+    - console.log("debug me");
+  quiet:
+    - logger.info("started");

@@ -1,17 +1,23 @@
 id: VBC-324
 name: condescending-language
 severity: warning
+category: docs
 tags:
   - docs
 match:
   regex: >-
-    \b(simply|just|basically|easily|obviously|clearly|everyone knows|as anyone
-    can see)\b
+    \b(?:simply|basically|obviously|clearly|everyone knows|as anyone can see)\b|\bjust\s+(?:run|do|add|use|call|type|install|click|open|set)\b|\beasily\b
   flags: i
   file_types:
     - md
     - txt
 message: >-
-  Condescending or vague language '{match}' detected at line {line}. Be direct
-  and avoid assumptions about the reader's knowledge.
-category: docs
+  Condescending or vague language '{match}' detected at line {line}. Be direct and avoid assumptions
+  about the reader's knowledge.
+tests:
+  fire:
+    - Simply run the installer.
+    - Just run npm install.
+  quiet:
+    - Run the installer.
+    - We just released version 2.

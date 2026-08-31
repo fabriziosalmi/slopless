@@ -1,12 +1,24 @@
 id: VBC-104
 name: inconsistent-import
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: (require\(.*?\).*?import.*?)|(import.*?.*?require\(.*?\))
+  regex: >-
+    ^\s*import\s[\s\S]*?^\s*(?:const|let|var)\s[^\n]*=\s*require\(|^\s*(?:const|let|var)\s[^\n]*=\s*require\([\s\S]*?^\s*import\s
+  flags: m
+  multiline: true
   file_types:
     - js
     - ts
 message: Mixing 'require' and 'import' in the same file at line {line}.
-category: clean-code
+tests:
+  fire:
+    - |
+      import fs from 'fs';
+      const path = require('path');
+  quiet:
+    - |
+      import fs from 'fs';
+      import path from 'path';

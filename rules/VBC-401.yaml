@@ -1,10 +1,12 @@
 id: VBC-401
 name: broken-links
 severity: warning
+category: docs
 tags:
   - docs
   - maintenance
 match:
   heuristic_check: link-checker
 message: Broken link '{match}' ({url}) detected at line {line}.
-category: heuristics
+tests:
+  external: heuristic-checker.test.ts — resolves links against the filesystem

@@ -1,12 +1,16 @@
 id: VBC-013
 name: empty-catch
 severity: error
+category: core
 tags:
   - robustness
 match:
   ast_check:
     type: empty-catch
 message: >-
-  Empty catch block detected at line {line}. Swallowing errors makes debugging
-  impossible.
-category: core
+  Empty catch block detected at line {line}. Swallowing errors makes debugging impossible.
+tests:
+  fire:
+    - try { risky(); } catch (error) {}
+  quiet:
+    - try { risky(); } catch (error) { report(error); }

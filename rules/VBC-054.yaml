@@ -1,14 +1,29 @@
 id: VBC-054
 name: unnecessary-else
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: return.*?\}.*?else\s*\{
+  regex: \breturn\b[^\n]*;?\s*\n?\s*\}\s*else\s*\{
+  multiline: true
   file_types:
     - js
     - ts
 message: >-
-  Unnecessary 'else' after 'return' at line {line}. Remove the else and flatten
-  the code.
-category: clean-code
+  Unnecessary 'else' after 'return' at line {line}. Remove the else and flatten the code.
+tests:
+  fire:
+    - |
+      if (ready) {
+        return 1;
+      } else {
+        return 2;
+      }
+  quiet:
+    - |
+      if (ready) {
+        start();
+      } else {
+        stop();
+      }

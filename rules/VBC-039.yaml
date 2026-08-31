@@ -1,6 +1,7 @@
 id: VBC-039
 name: use-eval
 severity: error
+category: core
 tags:
   - security
 match:
@@ -8,5 +9,10 @@ match:
   file_types:
     - js
     - ts
-message: Use of 'eval()' detected at line {line}. This is a massive security risk.
-category: core
+message: >-
+  Use of 'eval()' detected at line {line}. This is a massive security risk.
+tests:
+  fire:
+    - eval(userInput);
+  quiet:
+    - JSON.parse(userInput);

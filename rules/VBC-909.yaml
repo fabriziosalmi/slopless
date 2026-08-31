@@ -1,11 +1,21 @@
 id: VBC-909
 name: empty-interface-ts
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - typescript
 match:
   ast_check:
     type: empty-interface
-message: Empty interface detected. If intentional, add a comment; otherwise, remove it.
-category: clean-code
+message: >-
+  Empty interface detected. If intentional, add a comment; otherwise, remove it.
+tests:
+  fire:
+    - file: fixture.ts
+      code: interface Options {}
+  quiet:
+    - file: fixture.ts
+      code: interface Options extends BaseOptions {}
+    - file: fixture.ts
+      code: 'interface Options { retries: number; }'

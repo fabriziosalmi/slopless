@@ -1,6 +1,7 @@
 id: VBC-421
 name: filler-words
 severity: warning
+category: docs
 tags:
   - docs
   - style
@@ -9,5 +10,10 @@ match:
   flags: i
   file_types:
     - md
-message: Filler word detected at line {line}. Be more direct in your documentation.
-category: docs
+message: >-
+  Filler word detected at line {line}. Be more direct in your documentation.
+tests:
+  fire:
+    - This is essentially a cache.
+  quiet:
+    - This is a cache.

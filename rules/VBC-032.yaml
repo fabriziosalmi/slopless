@@ -1,6 +1,7 @@
 id: VBC-032
 name: css-important
 severity: warning
+category: core
 tags:
   - style
   - css
@@ -10,5 +11,10 @@ match:
     - css
     - scss
     - less
-message: Global '!important' detected in CSS at line {line}. This breaks the cascade.
-category: core
+message: >-
+  Global '!important' detected in CSS at line {line}. This breaks the cascade.
+tests:
+  fire:
+    - '.card { color: red !important; }'
+  quiet:
+    - '.card { color: red; }'

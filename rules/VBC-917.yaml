@@ -1,15 +1,20 @@
 id: VBC-917
 name: shouting-documentation
 severity: warning
+category: docs
 tags:
   - documentation
   - style
 match:
-  regex: '!!!|\?\?\?|IMPORTANT\!'
+  regex: \b[A-Z]{3,}\b(?:\s+\b[A-Z]{2,}\b){3,}
   file_types:
     - md
     - txt
 message: >-
-  Excessive punctuation or shouting detected at line {line}. Maintain a
-  professional tone.
-category: docs
+  Sustained all-caps text at line {line}. Shouting does not add emphasis, it costs readability.
+  Use bold or a callout instead.
+tests:
+  fire:
+    - READ THIS BEFORE YOU DEPLOY ANYTHING
+  quiet:
+    - Read this before you deploy.

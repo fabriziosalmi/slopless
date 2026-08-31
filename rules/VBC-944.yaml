@@ -1,12 +1,14 @@
 id: VBC-944
 name: xss-href-injection
 severity: error
+category: security
 tags:
   - security
   - ai-error
 match:
   regex: >-
     href\s*=\s*\{[^}]*\+|href\s*=\s*[`'"][^`'"]*\$\{|href\s*=\s*\{\s*`[^`]*\$\{
+  scan: all
   file_types:
     - js
     - ts
@@ -14,8 +16,11 @@ match:
     - tsx
     - html
 message: >-
-  Dynamic href constructed with string interpolation at line {line}. If the
-  value originates from user input or an untrusted source, this is a
-  javascript: URL injection vector. Validate that URLs begin with http(s)://
-  or are relative paths before assigning to href.
-category: security
+  Dynamic href constructed with string interpolation at line {line}. If the value originates
+  from user input or an untrusted source, this is a javascript: URL injection vector. Validate
+  that URLs begin with http(s):// or are relative paths before assigning to href.
+tests:
+  fire:
+    - const link = `href="${untrusted}"`;
+  quiet:
+    - <a href="/static/page">page</a>

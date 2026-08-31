@@ -1,17 +1,25 @@
 id: VBC-935
 name: colloquial-language
 severity: warning
+category: docs
 tags:
   - docs
   - style
 match:
-  regex: \b(touch base|circle back|deep dive|low-hanging fruit|move the needle|game changer|paradigm shift|the whole nine yards|ballpark figure|boil the ocean|drink the kool-aid|drink the koolaid)\b
+  regex: >-
+    \b(touch base|circle back|deep dive|low-hanging fruit|move the needle|game changer|paradigm
+    shift|the whole nine yards|ballpark figure|boil the ocean|drink the kool-aid|drink the
+    koolaid)\b
   flags: i
   file_types:
     - md
     - txt
 message: >-
-  Corporate colloquialism or buzzword '{match}' in documentation at line {line}.
-  Jargon and idioms are confusing for non-native English speakers and make
-  documentation sound unprofessional. Use plain, direct language.
-category: docs
+  Corporate colloquialism or buzzword '{match}' in documentation at line {line}. Jargon and
+  idioms are confusing for non-native English speakers and make documentation sound unprofessional.
+  Use plain, direct language.
+tests:
+  fire:
+    - Let's circle back on the deep dive.
+  quiet:
+    - We will review the design on Tuesday.

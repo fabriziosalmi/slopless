@@ -1,20 +1,28 @@
 id: VBC-941
 name: missing-input-sanitization
 severity: warning
+category: security
 tags:
   - security
   - ai-error
 match:
   regex: >-
-    innerHTML\s*=\s*[^'"`;]+\+|innerHTML\s*=\s*`[^`]*\$\{|dangerouslySetInnerHTML\s*=\s*\{\s*\{\s*__html:\s*[^'"`][^}]*\}
+    dangerouslySetInnerHTML\s*=\s*\{\{[^}]*__html\s*:\s*(?!\s|['\"`])|\.outerHTML\s*=(?!=)|\.insertAdjacentHTML\s*\(\s*[^,]+,\s*(?!\s|['\"`])
   file_types:
     - js
     - ts
     - jsx
     - tsx
+supersedes:
+  - VBC-070
 message: >-
-  Unsanitized content assigned to innerHTML or dangerouslySetInnerHTML at line
-  {line}. This is a direct XSS vector. Sanitize all user-controlled content
-  with DOMPurify or equivalent before inserting into the DOM. Prefer
-  textContent for plain text and structured React rendering for HTML.
-category: security
+  Unsanitized HTML sink at line {line}. dangerouslySetInnerHTML, outerHTML and insertAdjacentHTML
+  all bypass framework escaping. Sanitize with a library such as DOMPurify before assigning
+  untrusted markup.
+tests:
+  fire:
+    - '<div dangerouslySetInnerHTML={{ __html: userHtml }} />'
+    - el.outerHTML = markup;
+  quiet:
+    - '<div dangerouslySetInnerHTML={{ __html: "<b>static</b>" }} />'
+    - el.textContent = text;

@@ -1,6 +1,7 @@
 id: VBC-939
 name: unrestricted-file-upload
 severity: error
+category: security
 tags:
   - security
   - ai-error
@@ -11,8 +12,12 @@ match:
     - js
     - ts
 message: >-
-  File upload handler at line {line} may lack type/size restrictions. Without
-  validating MIME type, file extension, and size, attackers can upload
-  malicious executables or exhaust disk space. Add allowlist-based extension
-  validation and a strict size limit before processing any uploaded file.
-category: security
+  File upload handler at line {line} may lack type/size restrictions. Without validating MIME
+  type, file extension, and size, attackers can upload malicious executables or exhaust disk
+  space. Add allowlist-based extension validation and a strict size limit before processing
+  any uploaded file.
+tests:
+  fire:
+    - 'const upload = multer({ dest: "uploads/" });'
+  quiet:
+    - const upload = multer(storageConfig);

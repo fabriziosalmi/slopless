@@ -5,6 +5,7 @@ import { AstChecker } from '../checkers/ast-checker';
 import { HeuristicChecker } from '../checkers/heuristic-checker';
 import { SemanticChecker } from '../checkers/semantic-checker';
 import { TypeCheckerEngine } from '../checkers/type-checker';
+import { applyPrecedence } from './precedence';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -43,5 +44,5 @@ export async function lintText(content: string, filePath: string, configPath?: s
     // For now, we skip deep typechecking on unsaved purely text-based lintText calls.
     // Typecheck can be done on the whole project via the CLI.
 
-    return violations;
+    return applyPrecedence(violations, rules);
 }

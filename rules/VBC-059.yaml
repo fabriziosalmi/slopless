@@ -1,6 +1,7 @@
 id: VBC-059
 name: file-length-limit
 severity: warning
+category: core
 tags:
   - clean-code
 match:
@@ -8,6 +9,13 @@ match:
     type: file-length-limit
     threshold: 500
 message: >-
-  File is too long ({count} lines). Consider splitting it into smaller modules.
-  Max recommended: {threshold}.
-category: core
+  File is too long ({count} lines). Consider splitting it into smaller modules. Max recommended:
+  {threshold}.
+tests:
+  fire:
+    - code: |
+        const line = 1;
+      repeat: 520
+  quiet:
+    - |
+      const line = 1;

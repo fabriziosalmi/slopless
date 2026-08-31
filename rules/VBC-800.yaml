@@ -1,0 +1,17 @@
+id: VBC-800
+name: floating-promise
+severity: error
+category: core
+tags:
+  - correctness
+  - async
+match:
+  file_types:
+    - ts
+    - tsx
+  type_check: floating-promise
+message: >-
+  Unawaited Promise detected. Expected await or return, but got {match}. Floating promises
+  can cause unhandled rejections and race conditions.
+tests:
+  external: type-checker.test.ts — needs a ts.Program and TypeChecker

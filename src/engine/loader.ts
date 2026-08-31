@@ -19,6 +19,31 @@ export class RuleLoader {
         return fileList;
     }
 
+    private static collectRule(ruleData: unknown, filePath: string, rules: Rule[]): void {
+        const result = RuleSchema.safeParse(ruleData);
+        if (result.success) {
+            rules.push(result.data);
+            return;
+        }
+        console.warn(`Invalid rule in ${filePath}:`, result.error.issues);
+    }
+
+    private static loadFile(filePath: string, rules: Rule[]): void {
+        let doc: unknown;
+        try {
+            doc = yaml.load(fs.readFileSync(filePath, 'utf8'));
+        } catch (e) {
+            console.error(`Error parsing ${filePath}:`, e);
+            return;
+        }
+        // A file holds either one rule or a list of them.
+        if (Array.isArray(doc)) {
+            doc.forEach(ruleData => this.collectRule(ruleData, filePath, rules));
+        } else if (doc) {
+            this.collectRule(doc, filePath, rules);
+        }
+    }
+
     static loadRules(rulesDirs: string[]): Rule[] {
         const rules: Rule[] = [];
         let files: string[] = [];
@@ -27,31 +52,7 @@ export class RuleLoader {
         }
 
         for (const filePath of files) {
-            const content = fs.readFileSync(filePath, 'utf8');
-            try {
-                const doc = yaml.load(content);
-                // If the YAML is an array of rules
-                if (Array.isArray(doc)) {
-                    for (const ruleData of doc) {
-                        const result = RuleSchema.safeParse(ruleData);
-                        if (result.success) {
-                            rules.push(result.data);
-                        } else {
-                            console.warn(`Invalid rule in ${filePath}:`, result.error.issues);
-                        }
-                    }
-                } else if (doc) {
-                    // If it's a single rule
-                    const result = RuleSchema.safeParse(doc);
-                    if (result.success) {
-                        rules.push(result.data);
-                    } else {
-                        console.warn(`Invalid rule in ${filePath}:`, result.error.issues);
-                    }
-                }
-            } catch (e) {
-                console.error(`Error parsing ${filePath}:`, e);
-            }
+            this.loadFile(filePath, rules);
         }
 
         return rules;

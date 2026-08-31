@@ -1,6 +1,7 @@
 id: VBC-029
 name: glassmorphism-overuse
 severity: warning
+category: ux-dx
 tags:
   - ux
   - performance
@@ -11,8 +12,11 @@ match:
     - scss
     - less
 message: >-
-  backdrop-filter:blur() (glassmorphism) at line {line}. This effect forces GPU
-  compositing on every frame, severely impacting performance on low-end and
-  mobile devices. It also frequently reduces text contrast below accessibility
-  thresholds. Use sparingly and test on real hardware.
-category: ux-dx
+  backdrop-filter:blur() (glassmorphism) at line {line}. This effect forces GPU compositing
+  on every frame, severely impacting performance on low-end and mobile devices. It also frequently
+  reduces text contrast below accessibility thresholds. Use sparingly and test on real hardware.
+tests:
+  fire:
+    - '.card { backdrop-filter: blur(12px); }'
+  quiet:
+    - '.card { background: var(--surface); }'

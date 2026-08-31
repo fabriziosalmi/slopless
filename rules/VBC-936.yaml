@@ -1,18 +1,24 @@
 id: VBC-936
 name: outdated-experimental-tag
 severity: warning
+category: docs
 tags:
   - docs
   - maintenance
 match:
-  regex: (\[?(EXPERIMENTAL|ALPHA|UNSTABLE)\]?|⚠️\s*(experimental|alpha|unstable)\b)
-  flags: i
+  regex: >-
+    \[\s*(?:EXPERIMENTAL|ALPHA|UNSTABLE|PREVIEW)\s*\]|(?:⚠️|:warning:)\s*\*{0,2}(?:experimental|alpha|unstable)\b|^\s*>\s*\*{0,2}(?:experimental|unstable)\b
+  flags: im
   file_types:
     - md
     - txt
 message: >-
-  Experimental or alpha status tag '{match}' at line {line}. If this feature
-  has been in production for more than six months, remove the disclaimer.
-  Stale warnings erode trust in documentation accuracy and prevent users from
-  adopting stable APIs.
-category: docs
+  Experimental or alpha status tag '{match}' at line {line}. If this feature has been in production
+  for more than six months, remove the disclaimer. Stale warnings erode trust in documentation
+  accuracy and prevent users from adopting stable APIs.
+tests:
+  fire:
+    - '[EXPERIMENTAL] The plugin API may change.'
+  quiet:
+    - Sort the entries in alphabetical order.
+    - The plugin API is stable.

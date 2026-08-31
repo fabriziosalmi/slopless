@@ -1,6 +1,7 @@
 id: VBC-905
 name: debug-console-usage
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -9,4 +10,8 @@ match:
     - js
     - ts
 message: Debug console method '{line}' left in code. Remove before committing.
-category: clean-code
+tests:
+  fire:
+    - console.time("boot");
+  quiet:
+    - metrics.start("boot");

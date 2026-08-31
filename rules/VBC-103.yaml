@@ -1,17 +1,22 @@
 id: VBC-103
 name: ascii-art-header
 severity: warning
+category: docs
 tags:
   - docs
   - style
 match:
   regex: '[#*]{10,}|[\-/]{10,}'
+  scan: comments
   file_types:
     - js
     - ts
     - py
     - sh
 message: >-
-  ASCII art or excessive separator detected at line {line}. Use standard headers
-  for clarity.
-category: docs
+  ASCII art or excessive separator detected at line {line}. Use standard headers for clarity.
+tests:
+  fire:
+    - // ----------------
+  quiet:
+    - // - handles retries

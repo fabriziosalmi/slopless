@@ -1,6 +1,7 @@
 id: VBC-063
 name: empty-else
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -10,4 +11,8 @@ match:
     - ts
     - py
 message: Empty else block detected at line {line}. This clutters the code.
-category: clean-code
+tests:
+  fire:
+    - if (ready) { start(); } else {}
+  quiet:
+    - if (ready) { start(); } else { stop(); }

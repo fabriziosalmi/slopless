@@ -1,6 +1,7 @@
 id: VBC-918
 name: we-detected-tone
 severity: warning
+category: docs
 tags:
   - documentation
   - style
@@ -11,6 +12,10 @@ match:
     - md
     - txt
 message: >-
-  Avoid first-person collective ('We') in system messages at line {line}. Use
-  neutral or user-centric language.
-category: docs
+  Avoid first-person collective ('We') in system messages at line {line}. Use neutral or user-centric
+  language.
+tests:
+  fire:
+    - We detected a problem with your configuration.
+  quiet:
+    - The configuration is missing a database URL.

@@ -1,15 +1,22 @@
 id: VBC-015
 name: magic-numbers
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: (?<!\w)(86400|3600|1000|60)(?!\w)
+  regex: >-
+    (?<!\w)(?<!(?:const|let|var|static|final)\s{1,4}[A-Za-z_$][\w$]{0,60}\s{0,4}=\s{0,4})(?:86400|3600|1000|60)(?![\w.])
   file_types:
     - js
     - ts
     - py
 message: >-
-  Magic number '{match}' detected at line {line}. Consider using a named
-  constant (e.g., SECONDS_IN_DAY).
-category: clean-code
+  Magic number '{match}' detected at line {line}. Consider using a named constant (e.g., SECONDS_IN_DAY).
+tests:
+  fire:
+    - setTimeout(retry, 1000);
+    - const expiry = now + 86400;
+  quiet:
+    - const ONE_SECOND_MS = 1000;
+    - const port = 10001;

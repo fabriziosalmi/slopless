@@ -1,6 +1,7 @@
 id: VBC-020
 name: justify-text-web
 severity: warning
+category: ux-dx
 tags:
   - ux
   - accessibility
@@ -11,8 +12,11 @@ match:
     - scss
     - less
 message: >-
-  text-align:justify detected at line {line}. Justified text creates uneven
-  "rivers of white space" between words that make text significantly harder to
-  read, particularly for users with dyslexia. Use left-aligned text for body
-  copy.
-category: ux-dx
+  text-align:justify detected at line {line}. Justified text creates uneven "rivers of white
+  space" between words that make text significantly harder to read, particularly for users
+  with dyslexia. Use left-aligned text for body copy.
+tests:
+  fire:
+    - 'p { text-align: justify; }'
+  quiet:
+    - 'p { text-align: left; }'

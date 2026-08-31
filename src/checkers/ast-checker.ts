@@ -10,6 +10,36 @@ interface NodeCheckContext {
     violations: Violation[];
 }
 
+/** True if the body awaits anything itself, ignoring awaits inside nested functions. */
+function containsAwait(body: ts.Node): boolean {
+    let found = false;
+    const walk = (n: ts.Node) => {
+        if (found) return;
+        if (ts.isAwaitExpression(n) || ts.isForOfStatement(n) && n.awaitModifier) {
+            found = true;
+            return;
+        }
+        // A nested function has its own async contract.
+        if (n !== body && isFunctionLikeWithBody(n)) return;
+        ts.forEachChild(n, walk);
+    };
+    walk(body);
+    return found;
+}
+
+function functionBody(node: ts.Node): ts.Node | undefined {
+    if (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)
+        || ts.isFunctionExpression(node) || ts.isArrowFunction(node)
+        || ts.isConstructorDeclaration(node) || ts.isGetAccessor(node) || ts.isSetAccessor(node)) {
+        return node.body;
+    }
+    return undefined;
+}
+
+function isFunctionLikeWithBody(node: ts.Node): boolean {
+    return functionBody(node) !== undefined;
+}
+
 export class AstChecker {
     static check(file: string, rules: Rule[], content?: string): Violation[] {
         const violations: Violation[] = [];
@@ -90,6 +120,9 @@ export class AstChecker {
                 if (type === 'empty-interface') {
                     this.checkEmptyInterface(node, ctx);
                 }
+                if (type === 'async-without-await') {
+                    this.checkAsyncWithoutAwait(node, ctx);
+                }
             });
         }
 
@@ -137,6 +170,8 @@ export class AstChecker {
         if (!ts.isBlock(node) || node.statements.length > 0) return;
         // Skip catch clauses — handled by checkEmptyCatch
         if (ts.isCatchClause(node.parent)) return;
+        // `constructor(private readonly deps: Deps) {}` does its work in the signature.
+        if (ts.isConstructorDeclaration(node.parent)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
@@ -186,10 +221,12 @@ export class AstChecker {
         if (!isReadNamePrefix) return;
         const body = node.body?.getText();
         if (!body) return;
-        const hasMutation = new RegExp(
-            '(delete|remove|set|update|write|modify|pop|push|shift|unshift|splice|assign)', 'i'
-        ).test(body);
-        if (!hasMutation) return;
+        // Match mutating *calls* and assignments, not substrings: plain word matching
+        // treated `offset`, `dataset`, `asset` and `reset` as mutations.
+        const mutatingCall = /\.(?:set|delete|remove|update|write|modify|pop|push|shift|unshift|splice|clear|add|sort|reverse)\s*\(/;
+        const selfAssignment = /\bthis\.[A-Za-z_$][\w$]*\s*(?:=[^=]|\+\+|--|\+=|-=)/;
+        const objectMutation = /\bObject\.assign\s*\(|\bdelete\s+[A-Za-z_$]/;
+        if (!mutatingCall.test(body) && !selfAssignment.test(body) && !objectMutation.test(body)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
@@ -200,6 +237,24 @@ export class AstChecker {
 
     private static checkEmptyInterface(node: ts.Node, ctx: NodeCheckContext) {
         if (!ts.isInterfaceDeclaration(node) || node.members.length > 0) return;
+        // `interface Props extends BaseProps {}` is the standard way to re-export or
+        // merge a type, not an unfinished declaration.
+        if (node.heritageClauses && node.heritageClauses.length > 0) return;
+        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        ctx.violations.push({
+            ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
+            message: this.formatMessage(ctx.rule.message, { line: line + 1 }),
+            file: ctx.file, line: line + 1,
+        });
+    }
+
+    private static checkAsyncWithoutAwait(node: ts.Node, ctx: NodeCheckContext) {
+        const body = functionBody(node);
+        if (!body) return;
+        const modifiers = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
+        const isAsync = modifiers?.some(m => m.kind === ts.SyntaxKind.AsyncKeyword) ?? false;
+        if (!isAsync) return;
+        if (containsAwait(body)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
@@ -209,13 +264,24 @@ export class AstChecker {
     }
 
     private static checkNestedBlocks(node: ts.Node, threshold: number, ctx: NodeCheckContext) {
-        if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node)) return;
+        if (!isFunctionLikeWithBody(node)) return;
         let maxDepth = 0;
         const calculateDepth = (n: ts.Node, depth: number) => {
             maxDepth = Math.max(maxDepth, depth);
             ts.forEachChild(n, (child) => {
-                const isControlFlow = ts.isIfStatement(child) || ts.isForStatement(child) ||
-                    ts.isWhileStatement(child) || ts.isSwitchStatement(child);
+                // A nested function starts its own budget rather than inheriting ours.
+                if (isFunctionLikeWithBody(child)) {
+                    calculateDepth(child, 0);
+                    return;
+                }
+                // `else if` is an IfStatement in the else branch; counting it as nesting
+                // reported a flat five-branch chain as five levels deep.
+                const isElseIf = ts.isIfStatement(child) && ts.isIfStatement(n)
+                    && n.elseStatement === child;
+                const isControlFlow = !isElseIf && (ts.isIfStatement(child) || ts.isForStatement(child) ||
+                    ts.isForOfStatement(child) || ts.isForInStatement(child) ||
+                    ts.isWhileStatement(child) || ts.isDoStatement(child) ||
+                    ts.isSwitchStatement(child) || ts.isTryStatement(child));
                 calculateDepth(child, isControlFlow ? depth + 1 : depth);
             });
         };

@@ -1,14 +1,28 @@
 id: VBC-056
 name: stale-todo
 severity: warning
+category: clean-code
 tags:
   - docs
 match:
-  regex: 'TODO:'
+  regex: >-
+    \b(?:TODO|FIXME|HACK)\b[^\n]{0,90}?\b(?:temporar\w+|for now|quick fix|before (?:launch|release|prod\w*)|remove
+    (?:this|later|before)|revisit|come back)\b
+  flags: i
+  scan: comments
   file_types:
     - js
     - ts
     - py
     - sh
-message: TODO comment found at line {line}. Ensure it isn't abandoned debt.
-category: clean-code
+supersedes:
+  - VBC-907
+  - VBC-150
+message: >-
+  Debt marker that admits it is temporary at line {line}. Temporary code that ships is permanent
+  code. Give it an owner and a deadline, or finish it.
+tests:
+  fire:
+    - '// TODO: temporary shim until the new API lands'
+  quiet:
+    - '// TODO(fab): rework the cache key'

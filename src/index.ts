@@ -19,6 +19,7 @@ import { TypeCheckerEngine } from './checkers/type-checker';
 import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
+import { applyPrecedence } from './engine/precedence';
 import * as ts from 'typescript';
 
 const RULES_DIR = path.join(__dirname, '..', 'rules');
@@ -32,7 +33,37 @@ function getStagedFiles(): string[] {
     }
 }
 
-async function applyFixes(violations: Violation[]) {
+/** Rewrites one line in place. Returns true when the line actually changed. */
+function applyFixToLine(lines: string[], viol: Violation, file: string): boolean {
+    if (viol.line <= 0 || viol.line > lines.length) return false;
+    const lineIndex = viol.line - 1;
+    const originalLine = lines[lineIndex];
+    try {
+        const regex = new RegExp(viol.fix!.pattern, 'g');
+        const newLine = originalLine.replace(regex, viol.fix!.replacement);
+        if (originalLine === newLine) return false;
+        lines[lineIndex] = newLine;
+        return true;
+    } catch (e) {
+        console.error(`Failed to apply fix for ${viol.ruleId} on ${file}:${viol.line}`);
+        return false;
+    }
+}
+
+function applyFixesToFile(file: string, items: Violation[]): number {
+    if (!fs.existsSync(file)) return 0;
+    const lines = fs.readFileSync(file, 'utf8').split('\n');
+
+    let fixCount = 0;
+    for (const viol of items) {
+        if (applyFixToLine(lines, viol, file)) fixCount++;
+    }
+
+    if (fixCount > 0) fs.writeFileSync(file, lines.join('\n'), 'utf8');
+    return fixCount;
+}
+
+function applyFixes(violations: Violation[]): number {
     const fixableViolations = violations.filter(v => v.fix);
     if (fixableViolations.length === 0) return 0;
 
@@ -44,32 +75,7 @@ async function applyFixes(violations: Violation[]) {
 
     let fixCount = 0;
     for (const [file, items] of Object.entries(byFile)) {
-        if (!fs.existsSync(file)) continue;
-        const content = fs.readFileSync(file, 'utf8');
-        const lines = content.split('\n');
-
-        let isModified = false;
-        for (const viol of items) {
-            if (viol.line > 0 && viol.line <= lines.length) {
-                const lineIndex = viol.line - 1;
-                const originalLine = lines[lineIndex];
-                try {
-                    const regex = new RegExp(viol.fix!.pattern, 'g');
-                    const newLine = originalLine.replace(regex, viol.fix!.replacement);
-                    if (originalLine !== newLine) {
-                        lines[lineIndex] = newLine;
-                        isModified = true;
-                        fixCount++;
-                    }
-                } catch (e) {
-                    console.error(`Failed to apply fix for ${viol.ruleId} on ${file}:${viol.line}`);
-                }
-            }
-        }
-
-        if (isModified) {
-            fs.writeFileSync(file, lines.join('\n'), 'utf8');
-        }
+        fixCount += applyFixesToFile(file, items);
     }
 
     return fixCount;
@@ -165,10 +171,12 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         allViolations = allViolations.concat(fileResults);
     }
 
+    allViolations = applyPrecedence(allViolations, rules);
+
     cacheManager.saveCache();
 
     if (options.shouldFix) {
-        const fixCount = await applyFixes(allViolations);
+        const fixCount = applyFixes(allViolations);
         if (options.format === 'default' && fixCount > 0) {
             console.log(`\n🛠️  Applied ${fixCount} auto-fixes.`);
         }

@@ -1,6 +1,7 @@
 id: VBC-022
 name: custom-cursor-css
 severity: warning
+category: ux-dx
 tags:
   - ux
 match:
@@ -10,7 +11,11 @@ match:
     - scss
     - less
 message: >-
-  Custom cursor via CSS url() at line {line}. Custom cursors are often laggy,
-  pixel-inaccurate, and confusing for users who rely on their cursor to interact
-  with native OS elements. This is a hallmark of style-over-function design.
-category: ux-dx
+  Custom cursor via CSS url() at line {line}. Custom cursors are often laggy, pixel-inaccurate,
+  and confusing for users who rely on their cursor to interact with native OS elements. This
+  is a hallmark of style-over-function design.
+tests:
+  fire:
+    - 'body { cursor: url(cat.png), auto; }'
+  quiet:
+    - 'body { cursor: default; }'

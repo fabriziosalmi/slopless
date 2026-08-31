@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+/** A snippet: either bare source, or source plus the filename it must be judged as. */
+const TestCaseSchema = z.union([
+    z.string(),
+    z.object({
+        file: z.string().optional(),
+        code: z.string(),
+        /** Repeat `code` this many times, for thresholds measured in lines. */
+        repeat: z.number().int().positive().optional(),
+    }),
+]);
+
+export type RuleTestCase = z.infer<typeof TestCaseSchema>;
+
 export const RuleSchema = z.object({
     id: z.string(),
     name: z.string(),
@@ -10,7 +23,22 @@ export const RuleSchema = z.object({
         regex: z.string().optional(),
         flags: z.string().optional(),
         file_types: z.array(z.string()).optional(),
-        exclude: z.array(z.string()).optional(),
+        /**
+         * Which lexical scope a regex match must live in. Only enforced for
+         * TS/JS, where strings and comments can be located reliably; other
+         * languages are always scanned as a whole.
+         *   code     - the match must not start inside a string or a comment (default)
+         *   strings  - the match must start inside a string or template literal
+         *   comments - the match must start inside a comment
+         *   all      - no scope filtering
+         */
+        scan: z.enum(['code', 'strings', 'comments', 'all']).optional(),
+        /** Evaluate the regex against the whole file instead of line by line. */
+        multiline: z.boolean().optional(),
+        /** Glob patterns; a file whose path matches any of them is skipped. */
+        exclude_files: z.array(z.string()).optional(),
+        /** Substrings; a CSS match whose enclosing selector contains any of them is skipped. */
+        exclude_selectors: z.array(z.string()).optional(),
         git_check: z.enum([
             'committed_env',
             'binary_file',
@@ -40,6 +68,7 @@ export const RuleSchema = z.object({
                 'redundant-if-true',
                 'lying-function-names',
                 'empty-interface',
+                'async-without-await',
                 'empty-file'
             ]),
             threshold: z.number().optional(),
@@ -64,6 +93,21 @@ export const RuleSchema = z.object({
             pattern: z.string(),
             replacement: z.string()
         }).optional()
+    }).optional(),
+    /**
+     * Rule ids this rule is a more specific case of. When both fire on the same
+     * line, only this one is reported.
+     */
+    supersedes: z.array(z.string()).optional(),
+    /**
+     * Executable examples. Every rule carries at least one snippet it must flag
+     * and one it must leave alone; `rule-fixtures.test.ts` runs them all.
+     */
+    tests: z.object({
+        fire: z.array(TestCaseSchema).optional(),
+        quiet: z.array(TestCaseSchema).optional(),
+        /** Why this rule cannot be exercised from a text snippet. */
+        external: z.string().optional(),
     }).optional(),
     message: z.string(),
     docs_url: z.string().optional(),

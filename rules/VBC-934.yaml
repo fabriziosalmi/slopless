@@ -1,6 +1,7 @@
 id: VBC-934
 name: personal-opinion-docs
 severity: warning
+category: docs
 tags:
   - docs
   - style
@@ -11,8 +12,12 @@ match:
     - md
     - txt
 message: >-
-  Personal opinion language '{match}' in documentation at line {line}. Technical
-  documentation should be objective and factual. Personal opinions erode
-  credibility and confuse readers about whether a recommendation is a design
-  constraint or a preference. Use "this approach" or cite evidence instead.
-category: docs
+  Personal opinion language '{match}' in documentation at line {line}. Technical documentation
+  should be objective and factual. Personal opinions erode credibility and confuse readers
+  about whether a recommendation is a design constraint or a preference. Use "this approach"
+  or cite evidence instead.
+tests:
+  fire:
+    - I think this is the better default.
+  quiet:
+    - This is the default because it is safer.

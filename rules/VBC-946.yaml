@@ -1,18 +1,26 @@
 id: VBC-946
 name: no-verification-after-operation
 severity: warning
+category: correctness
 tags:
   - correctness
   - ai-error
 match:
   regex: >-
     await\s+\w+\.(delete|remove|drop|truncate|destroy|unlink|rmdir|rm)\s*\([^)]*\)\s*;(?!\s*(?:\/\/|if|const|let|var|throw|assert|expect|check|verify|log))
+  multiline: true
   file_types:
     - js
     - ts
 message: >-
-  Destructive async operation at line {line} with no verification of success.
-  AI agents frequently execute irreversible actions (delete, drop, rm) based
-  on assumed success without checking the return value or catching errors.
-  Always verify the outcome of destructive operations before proceeding.
-category: correctness
+  Destructive async operation at line {line} with no verification of success. AI agents frequently
+  execute irreversible actions (delete, drop, rm) based on assumed success without checking
+  the return value or catching errors. Always verify the outcome of destructive operations
+  before proceeding.
+tests:
+  fire:
+    - await db.delete(id);
+  quiet:
+    - |-
+      await db.delete(id);
+      if (!(await db.find(id))) throw new Error("gone");

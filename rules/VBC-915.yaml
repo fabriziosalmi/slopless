@@ -1,6 +1,7 @@
 id: VBC-915
 name: user-select-none-slop
 severity: warning
+category: ux-dx
 tags:
   - ux
   - accessibility
@@ -9,6 +10,10 @@ match:
   file_types:
     - css
 message: >-
-  user-select: none detected at line {line}. Preventing users from copying text
-  is usually a dark pattern.
-category: ux-dx
+  user-select: none detected at line {line}. Preventing users from copying text is usually
+  a dark pattern.
+tests:
+  fire:
+    - 'body { user-select: none; }'
+  quiet:
+    - 'body { user-select: text; }'

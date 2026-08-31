@@ -1,19 +1,23 @@
 id: VBC-334
 name: ai-generated-fluff
 severity: warning
+category: docs
 tags:
   - docs
   - content
 match:
   regex: >-
-    (As an AI language model|It's important to remember that|In
-    conclusion,|Let's dive into|the landscape of|tapestry of|delve
-    into|unleash|unlocking|delving into|testament to)
+    (As an AI language model|It's important to remember that|In conclusion,|Let's dive into|the
+    landscape of|tapestry of|delve into|unleash|unlocking|delving into|testament to)
   flags: i
   file_types:
     - md
     - txt
 message: >-
-  Potential AI-generated fluff or overused cliché '{match}' detected at line
-  {line}. Keep documentation concise and human-centric.
-category: docs
+  Potential AI-generated fluff or overused cliché '{match}' detected at line {line}. Keep
+  documentation concise and human-centric.
+tests:
+  fire:
+    - Let's dive into the tapestry of configuration.
+  quiet:
+    - This section covers configuration.

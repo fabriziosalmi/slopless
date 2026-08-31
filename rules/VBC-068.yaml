@@ -1,12 +1,21 @@
 id: VBC-068
 name: overuse-ternary
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: \?.*?\?.*?:.*?:.*?
+  regex: >-
+    \?(?![.:])[^\n]*?:[^\n]*?\?(?![.:])[^\n]*?:|\?(?![.:])[^\n]*?\?(?![.:])[^\n]*?:[^\n]*?:
   file_types:
     - js
     - ts
-message: Potentially nested or overused ternary operators detected at line {line}.
-category: clean-code
+message: >-
+  Chained or nested ternary at line {line}. Stacked conditionals are hard to read and hard
+  to debug; use an if/else block or a lookup table.
+tests:
+  fire:
+    - 'const size = big ? ''lg'' : medium ? ''md'' : ''sm'';'
+  quiet:
+    - 'const size = big ? ''lg'' : ''sm'';'
+    - 'function f(a?: string, b?: number) {}'

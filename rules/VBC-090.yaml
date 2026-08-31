@@ -1,12 +1,15 @@
 id: VBC-090
 name: passive-aggressive-comments
 severity: warning
+category: core
 tags:
   - team-culture
 match:
   regex: >-
-    (blame \w+|fix later|hope it works|idk why this works|this is cursed|wtf is this|no idea why|pray it works|don't touch this|shouldn't work but|works on my machine)
+    (blame \w+|fix later|hope it works|idk why this works|this is cursed|wtf is this|no idea
+    why|pray it works|don't touch this|shouldn't work but|works on my machine)
   flags: i
+  scan: comments
   file_types:
     - js
     - ts
@@ -16,7 +19,10 @@ match:
     - cpp
     - md
 message: >-
-  Passive-aggressive or helpless comment '{match}' detected at line {line}.
-  Replace with a technical explanation of the actual constraint or a link to
-  the relevant issue tracker ticket.
-category: core
+  Passive-aggressive or helpless comment '{match}' detected at line {line}. Replace with a
+  technical explanation of the actual constraint or a link to the relevant issue tracker ticket.
+tests:
+  fire:
+    - // fix later, hope it works
+  quiet:
+    - // retries three times, then gives up

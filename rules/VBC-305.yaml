@@ -1,6 +1,7 @@
 id: VBC-305
 name: hardcoded-font-size
 severity: warning
+category: ux-dx
 tags:
   - ux
   - accessibility
@@ -10,6 +11,10 @@ match:
     - css
     - scss
 message: >-
-  Hardcoded font size '{match}' detected at line {line}. Use relative units
-  (rem/em) for better accessibility and user scale preferences.
-category: ux-dx
+  Hardcoded font size '{match}' detected at line {line}. Use relative units (rem/em) for better
+  accessibility and user scale preferences.
+tests:
+  fire:
+    - 'body { font-size: 14px; }'
+  quiet:
+    - 'body { font-size: 1rem; }'

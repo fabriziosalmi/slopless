@@ -1,6 +1,7 @@
 id: VBC-003
 name: chmod-777
 severity: error
+category: core
 tags:
   - security
 match:
@@ -10,4 +11,8 @@ match:
     - py
     - js
 message: Insecure chmod 777 detected at line {line}
-category: core
+tests:
+  fire:
+    - chmod 777 /srv/app
+  quiet:
+    - chmod 640 /srv/app

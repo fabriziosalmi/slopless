@@ -1,6 +1,7 @@
 id: VBC-153
 name: sudo-setup
 severity: warning
+category: ux-dx
 tags:
   - dx
   - security
@@ -10,6 +11,11 @@ match:
     - md
     - sh
 message: >-
-  Setup instructions requiring sudo detected at line {line}. Use local
-  environments instead.
-category: ux-dx
+  Setup instructions requiring sudo detected at line {line}. Use local environments instead.
+tests:
+  fire:
+    - file: fixture.md
+      code: Run `sudo npm install -g slopless`.
+  quiet:
+    - file: fixture.md
+      code: Run `npm install -D slopless`.

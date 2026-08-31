@@ -1,6 +1,7 @@
 id: VBC-030
 name: confetti-overuse
 severity: warning
+category: ux-dx
 tags:
   - ux
   - performance
@@ -11,8 +12,11 @@ match:
     - js
     - ts
 message: >-
-  Confetti or particle animation library detected at line {line}. Overusing
-  celebration effects devalues them and creates visual noise. Reserve confetti
-  for genuinely significant milestones (first purchase, account creation) rather
-  than every successful action.
-category: ux-dx
+  Confetti or particle animation library detected at line {line}. Overusing celebration effects
+  devalues them and creates visual noise. Reserve confetti for genuinely significant milestones
+  (first purchase, account creation) rather than every successful action.
+tests:
+  fire:
+    - 'confetti({ particleCount: 120 });'
+  quiet:
+    - showSuccessToast();

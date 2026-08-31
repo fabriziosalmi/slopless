@@ -1,16 +1,30 @@
 id: VBC-035
 name: aria-label-icon-button
 severity: error
+category: ux-dx
 tags:
   - accessibility
 match:
-  regex: <button(?![^>]*(aria-label|aria-labelledby|title))[^>]*>\s*<svg
+  regex: <button\b(?![^>]*(?:aria-label|aria-labelledby|title))[^>]*>\s*<svg
+  multiline: true
   file_types:
     - html
     - tsx
     - jsx
 message: >-
-  Icon-only button without aria-label at line {line}. A button containing only
-  an SVG icon has no accessible name, making it completely opaque to screen
-  readers. Add aria-label="Descriptive action" to every icon-only button.
-category: ux-dx
+  Icon-only button without aria-label at line {line}. A button containing only an SVG icon
+  has no accessible name, making it completely opaque to screen readers. Add aria-label="Descriptive
+  action" to every icon-only button.
+tests:
+  fire:
+    - file: fixture.tsx
+      code: |
+        <button onClick={close}>
+          <svg viewBox="0 0 24 24" />
+        </button>
+  quiet:
+    - file: fixture.tsx
+      code: |
+        <button aria-label="Close" onClick={close}>
+          <svg viewBox="0 0 24 24" />
+        </button>

@@ -1,12 +1,18 @@
 id: VBC-057
 name: use-any
 severity: warning
+category: core
 tags:
   - typescript
 match:
-  regex: ':\s*any\b'
+  regex: :\s*any\b
   file_types:
     - ts
     - tsx
-message: Avoid using 'any' type at line {line}. Use a more specific type or 'unknown'.
-category: core
+message: >-
+  Avoid using 'any' type at line {line}. Use a more specific type or 'unknown'.
+tests:
+  fire:
+    - 'function parse(input: any) { return input; }'
+  quiet:
+    - 'function parse(input: unknown) { return input; }'

@@ -1,15 +1,29 @@
 id: VBC-123
 name: placeholder-as-label
 severity: warning
+category: ux-dx
 tags:
   - ux
   - accessibility
 match:
-  regex: <input(?!.*<label).*?placeholder=
+  regex: >-
+    <input\b(?![^>]*(?:aria-label|aria-labelledby|\bid\s*=))[^>]*\bplaceholder\s*=
+  multiline: true
   file_types:
     - html
     - js
     - ts
     - tsx
-message: Using placeholder as the only label at line {line} is bad for accessibility.
-category: ux-dx
+message: >-
+  Using placeholder as the only label at line {line} is bad for accessibility.
+tests:
+  fire:
+    - |
+      <input
+        type="email"
+        placeholder="Email"
+      />
+  quiet:
+    - |
+      <label for="email">Email</label>
+      <input id="email" placeholder="you@example.com" />

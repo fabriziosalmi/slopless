@@ -1,6 +1,7 @@
 id: VBC-911
 name: meaningless-helper-names
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - semantic
@@ -11,6 +12,10 @@ match:
     - ts
     - py
 message: >-
-  Generic class name '{match}' detected. Use more specific semantic names (e.g.,
-  'AuthValidator' instead of 'AuthHelper').
-category: clean-code
+  Generic class name '{match}' detected. Use more specific semantic names (e.g., 'AuthValidator'
+  instead of 'AuthHelper').
+tests:
+  fire:
+    - class UserManager {}
+  quiet:
+    - class UserRepository {}

@@ -1,10 +1,13 @@
 id: VBC-901
 name: hardcoded-ip-v4
 severity: warning
+category: security
 tags:
   - security
 match:
-  regex: \b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b
+  regex: >-
+    \b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
+  scan: strings
   file_types:
     - js
     - ts
@@ -14,6 +17,11 @@ match:
     - json
     - env
 message: >-
-  Hardcoded IP address detected at line {line}. Use environment variables for
-  network configuration.
-category: security
+  Hardcoded IP address detected at line {line}. Use environment variables for network configuration.
+tests:
+  fire:
+    - const host = '192.168.1.50';
+    - const dns = "8.8.8.8";
+  quiet:
+    - const host = process.env.DB_HOST;
+    - const version = '1.2';

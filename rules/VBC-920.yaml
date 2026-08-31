@@ -1,6 +1,7 @@
 id: VBC-920
 name: relative-link-format
 severity: warning
+category: docs
 tags:
   - documentation
   - maintenance
@@ -9,6 +10,11 @@ match:
   file_types:
     - md
 message: >-
-  Relative local link missing './' prefix at line {line}. Use
-  [link](./path/to/file) for better tool compatibility.
-category: docs
+  Relative local link missing './' prefix at line {line}. Use [link](./path/to/file) for better
+  tool compatibility.
+tests:
+  fire:
+    - See [the guide](guide.md).
+  quiet:
+    - See [the guide](./guide.md).
+    - See [the site](https://example.com).

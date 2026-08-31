@@ -1,18 +1,25 @@
 id: VBC-007
 name: float-for-currency
 severity: error
+category: security
 tags:
   - security
   - clean-code
 match:
-  regex: \b(price|amount|cost|fee|balance|payment|subtotal|tax)\b\s*[*]\s*0\.[0-9]+
+  regex: >-
+    [A-Za-z_$]*(?:price|amount|cost|fee|balance|payment|subtotal|tax)[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
   flags: i
   file_types:
     - js
     - ts
     - py
 message: >-
-  Floating-point arithmetic for currency detected at line {line}. Floating-point
-  errors will silently steal or add pennies. Use integers (minor currency units)
-  or a Decimal library instead.
-category: security
+  Monetary value declared as a floating point literal at line {line}. Binary floats cannot
+  represent decimal cents exactly. Store money as integer minor units or use a decimal type.
+tests:
+  fire:
+    - const unitPrice = 19.99;
+    - let taxAmount = 0.22;
+  quiet:
+    - const unitPriceCents = 1999;
+    - const ratio = 0.22;

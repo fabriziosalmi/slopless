@@ -1,10 +1,20 @@
 id: VBC-102
 name: multi-statement-one-liner
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
   ast_check:
     type: one-liner-limit
-message: Multiple statements on a single line detected. This reduces readability.
-category: clean-code
+message: >-
+  Multiple statements on a single line detected. This reduces readability.
+tests:
+  fire:
+    - function run() { start(); stop(); }
+  quiet:
+    - |
+      function run() {
+        start();
+        stop();
+      }

@@ -1,16 +1,21 @@
 id: VBC-385
 name: success-message-grammar
 severity: warning
+category: docs
 tags:
   - ux
   - copy
 match:
   regex: '[''"]Data save success[''"]|[''"]Save success[''"]'
   flags: i
+  scan: strings
   file_types:
     - js
     - ts
 message: >-
-  Improper success message grammar at line {line}. Use 'Data saved
-  successfully'.
-category: docs
+  Improper success message grammar at line {line}. Use 'Data saved successfully'.
+tests:
+  fire:
+    - toast('Data save success');
+  quiet:
+    - toast('Data saved successfully');

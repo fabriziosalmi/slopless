@@ -1,6 +1,7 @@
 id: VBC-940
 name: float-currency-arithmetic
 severity: error
+category: security
 tags:
   - security
   - correctness
@@ -12,9 +13,15 @@ match:
     - js
     - ts
     - py
+supersedes:
+  - VBC-007
 message: >-
-  Floating-point arithmetic on monetary value '{match}' at line {line}.
-  Float imprecision causes rounding errors in financial calculations (e.g.
-  0.1 + 0.2 != 0.3). Use integer cents/minor units or a dedicated decimal
-  library (decimal.js, big.js, Python's Decimal) for all money math.
-category: security
+  Floating-point arithmetic on monetary value '{match}' at line {line}. Float imprecision
+  causes rounding errors in financial calculations (e.g. 0.1 + 0.2 != 0.3). Use integer cents/minor
+  units or a dedicated decimal library (decimal.js, big.js, Python's Decimal) for all money
+  math.
+tests:
+  fire:
+    - const total = price * 0.22;
+  quiet:
+    - const totalCents = priceCents * 22;

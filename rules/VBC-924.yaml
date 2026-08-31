@@ -1,10 +1,12 @@
 id: VBC-924
 name: missing-readme-root
 severity: error
+category: git
 tags:
   - git
   - project-health
 match:
   git_check: missing_readme
 message: No README file found in project root. Documentation is non-negotiable.
-category: git
+tests:
+  external: git-checker.test.ts — needs a repository working tree

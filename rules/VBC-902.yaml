@@ -1,6 +1,7 @@
 id: VBC-902
 name: document-write-slop
 severity: error
+category: security
 tags:
   - security
   - performance
@@ -10,6 +11,9 @@ match:
     - js
     - ts
 message: >-
-  document.write() is prohibited at line {line}. It is insecure and
-  performance-heavy.
-category: security
+  document.write() is prohibited at line {line}. It is insecure and performance-heavy.
+tests:
+  fire:
+    - document.write("<p>hi</p>");
+  quiet:
+    - container.append(paragraph);

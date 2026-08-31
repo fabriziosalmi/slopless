@@ -1,6 +1,7 @@
 id: VBC-937
 name: client-side-auth-check
 severity: error
+category: security
 tags:
   - security
   - ai-error
@@ -13,8 +14,11 @@ match:
     - jsx
     - tsx
 message: >-
-  Authentication token or role stored/read from browser storage at line {line}.
-  Client-side auth logic is trivially bypassable. Validate identity server-side
-  on every request. Never trust data in localStorage or sessionStorage for
-  access control decisions.
-category: security
+  Authentication token or role stored/read from browser storage at line {line}. Client-side
+  auth logic is trivially bypassable. Validate identity server-side on every request. Never
+  trust data in localStorage or sessionStorage for access control decisions.
+tests:
+  fire:
+    - const role = localStorage.getItem('role');
+  quiet:
+    - const theme = localStorage.getItem('theme');

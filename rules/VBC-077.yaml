@@ -1,6 +1,7 @@
 id: VBC-077
 name: deceptive-function-name
 severity: error
+category: clean-code
 tags:
   - clean-code
   - semantic
@@ -8,6 +9,21 @@ match:
   ast_check:
     type: lying-function-names
 message: >-
-  Lying function name detected: '{name}' implies a non-mutating action but
-  contains side-effect keywords (set, delete, update). This is major vibecoding.
-category: heuristics
+  Lying function name detected: '{name}' implies a non-mutating action but contains side-effect
+  keywords (set, delete, update). This is major vibecoding.
+tests:
+  fire:
+    - |
+      function getUser(id) {
+        this.cache.set(id, 1);
+        return id;
+      }
+  quiet:
+    - |
+      function getUser(id) {
+        return this.users[id];
+      }
+    - |
+      function getOffset(node) {
+        return node.dataset.offset;
+      }

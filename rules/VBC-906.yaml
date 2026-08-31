@@ -1,15 +1,29 @@
 id: VBC-906
 name: fixme-technical-debt
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: 'FIXME:'
+  regex: >-
+    \bFIXME\b[^\n]{0,90}?\b(?:broken|crash\w*|leak\w*|race|deadlock|security|vulnerab\w+|data
+    ?loss|corrupt\w*|unsafe)\b
+  flags: i
+  scan: comments
   file_types:
     - js
     - ts
     - py
     - sh
     - css
-message: FIXME comment found at line {line}. Address this technical debt.
-category: clean-code
+supersedes:
+  - VBC-907
+  - VBC-150
+message: >-
+  FIXME describing a live defect at line {line}. This is not style debt, it is a known bug
+  in shipped code. Open an issue and fix it.
+tests:
+  fire:
+    - // FIXME the parser crashes on empty input
+  quiet:
+    - '// FIXME(fab): tidy the parser'

@@ -1,6 +1,7 @@
 id: VBC-910
 name: console-table-leaks
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
@@ -9,6 +10,9 @@ match:
     - js
     - ts
 message: >-
-  console.table() left in code at line {line}. Useful for debug, but clutters
-  production logs.
-category: clean-code
+  console.table() left in code at line {line}. Useful for debug, but clutters production logs.
+tests:
+  fire:
+    - console.table(rows);
+  quiet:
+    - renderTable(rows);

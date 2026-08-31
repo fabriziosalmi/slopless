@@ -1,12 +1,23 @@
 id: VBC-502
 name: redundant-boolean-logic
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - semantic
 match:
   semantic_check: boolean-redundancy
 message: >-
-  Redundant boolean return detected. This if/else block can be replaced by a
-  single 'return' with a boolean expression.
-category: semantic
+  Redundant boolean return detected. This if/else block can be replaced by a single 'return'
+  with a boolean expression.
+tests:
+  fire:
+    - |
+      function check(a) {
+        if (a) { return true; } else { return false; }
+      }
+  quiet:
+    - |
+      function check(a) {
+        return Boolean(a);
+      }

@@ -1,16 +1,23 @@
 id: VBC-017
 name: fake-test-assertion
 severity: error
+category: core
 tags:
   - testing
   - clean-code
 match:
-  regex: (expect\(true\)\.(toBe|toEqual|toStrictEqual)\(true\)|expect\(1\)\.(toBe|toEqual)\(1\)|assert\.equal\(true,\s*true\)|assert\.ok\(true\)|assert\.isTrue\(true\))
+  regex: >-
+    (expect\(true\)\.(toBe|toEqual|toStrictEqual)\(true\)|expect\(1\)\.(toBe|toEqual)\(1\)|assert\.equal\(true,\s*true\)|assert\.ok\(true\)|assert\.isTrue\(true\))
   file_types:
     - js
     - ts
 message: >-
-  Trivially true test assertion at line {line}. This test always passes
-  regardless of the code under test and provides zero confidence. Write a real
-  assertion that can actually fail when the implementation is broken.
-category: core
+  Trivially true test assertion at line {line}. This test always passes regardless of the
+  code under test and provides zero confidence. Write a real assertion that can actually fail
+  when the implementation is broken.
+tests:
+  fire:
+    - expect(true).toBe(true);
+    - assert.ok(true);
+  quiet:
+    - expect(sum(1, 2)).toBe(3);

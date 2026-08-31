@@ -1,18 +1,23 @@
 id: VBC-942
 name: missing-access-control
 severity: warning
+category: security
 tags:
   - security
   - ai-error
 match:
   regex: >-
-    (router\.(get|post|put|delete|patch)|app\.(get|post|put|delete|patch))\s*\(\s*['"][^'"]+['"]\s*,\s*async?\s*(req|request)\s*=>|@(Get|Post|Put|Delete|Patch)\s*\([^)]*\)\s*\n\s*(?!.*@(Auth|Guard|Roles|UseGuards|Protected|Secure|Middleware))
+    (?:router|app)\.(?:get|post|put|delete|patch)\s*\(\s*['\"][^'\"]+['\"]\s*,\s*(?:async\s+)?\(?\s*(?:req|request)\b[^)]*\)?\s*(?:=>|\{)
   file_types:
     - js
     - ts
 message: >-
-  Route handler at line {line} may be missing authentication middleware.
-  AI-generated route handlers frequently omit auth guards. Ensure every
-  non-public endpoint is protected with authentication and authorization
-  middleware before the handler runs.
-category: security
+  Route handler at line {line} may be missing authentication middleware. AI-generated route
+  handlers frequently omit auth guards. Ensure every non-public endpoint is protected with
+  authentication and authorization middleware before the handler runs.
+tests:
+  fire:
+    - router.get('/users', async (req, res) => res.json(users));
+  quiet:
+    - >-
+      router.get('/users', requireAuth, async (req, res) => res.json(users));

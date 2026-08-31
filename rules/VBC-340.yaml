@@ -1,13 +1,22 @@
 id: VBC-340
 name: gendered-address
 severity: warning
+category: docs
 tags:
   - inclusive-language
 match:
-  regex: \b(guys|he|she)\b
+  regex: >-
+    \b(?:hey|you)\s+guys\b|\bguys\b|\bhe\s*/\s*she\b|\bhis\s*/\s*her\b|\bs\s*/\s*he\b
   flags: i
   file_types:
     - md
     - txt
-message: Gendered language detected at line {line}. Use 'folks', 'everyone', or 'they'.
-category: docs
+message: >-
+  Gendered language detected at line {line}. Use 'folks', 'everyone', or 'they'.
+tests:
+  fire:
+    - Hey guys, run the migration first.
+    - The reviewer must confirm he/she read it.
+  quiet:
+    - Run the migration first.
+    - She reviewed the pull request.

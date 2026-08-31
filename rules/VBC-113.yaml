@@ -1,11 +1,19 @@
 id: VBC-113
 name: disable-zoom
 severity: error
+category: ux-dx
 tags:
   - accessibility
 match:
-  regex: user-scalable=no|maximum-scale=1
+  regex: user-scalable\s*=\s*(?:no|0)\b|maximum-scale\s*=\s*1(?:\.0+)?(?![\d.])
+  flags: i
   file_types:
     - html
 message: Disabling pinch-to-zoom is an accessibility violation.
-category: ux-dx
+tests:
+  fire:
+    - <meta name="viewport" content="width=device-width, user-scalable=no">
+    - <meta name="viewport" content="width=device-width, maximum-scale=1">
+  quiet:
+    - <meta name="viewport" content="width=device-width, initial-scale=1">
+    - <meta name="viewport" content="maximum-scale=10">

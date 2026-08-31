@@ -1,6 +1,7 @@
 id: VBC-051
 name: mixed-casing
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - style
@@ -11,6 +12,10 @@ match:
     - js
     - ts
 message: >-
-  Mixing snake_case and camelCase in the same file detected at line {line}.
-  Standardize on one (usually camelCase for JS/TS).
-category: clean-code
+  Mixing snake_case and camelCase in the same file detected at line {line}. Standardize on
+  one (usually camelCase for JS/TS).
+tests:
+  fire:
+    - const user_name = userName;
+  quiet:
+    - const userName = firstName;

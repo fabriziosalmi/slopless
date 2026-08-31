@@ -1,12 +1,14 @@
 id: VBC-106
 name: spaces-in-filenames
 severity: error
+category: git
 tags:
   - git
   - cross-platform
 match:
   git_check: spaces_in_filenames
 message: >-
-  Filename '{file}' contains spaces. This causes issues on some operating
-  systems and CLI tools.
-category: git
+  Filename '{file}' contains spaces. This causes issues on some operating systems and CLI
+  tools.
+tests:
+  external: git-checker.test.ts — needs a staged file list

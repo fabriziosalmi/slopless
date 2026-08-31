@@ -1,6 +1,7 @@
 id: VBC-344
 name: non-iso-date
 severity: warning
+category: docs
 tags:
   - docs
 match:
@@ -10,6 +11,9 @@ match:
     - md
     - txt
 message: >-
-  Non-ISO 8601 date found at line {line}. Use YYYY-MM-DD to avoid regional
-  confusion.
-category: docs
+  Non-ISO 8601 date found at line {line}. Use YYYY-MM-DD to avoid regional confusion.
+tests:
+  fire:
+    - Released on 03/14/2026.
+  quiet:
+    - Released on 2026-03-14.

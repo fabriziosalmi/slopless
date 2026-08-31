@@ -1,15 +1,20 @@
 id: VBC-347
 name: passive-voice
 severity: warning
+category: docs
 tags:
   - docs
   - style
 match:
-  regex: \b(is|was|were|be|been|being)\s+([a-z]+ed)\b
+  regex: \b(?:is|are|was|were|be|been|being)\s+(?:\w+\s+)?\w+ed\s+by\b
   flags: i
   file_types:
     - md
 message: >-
-  Potential passive voice at line {line}. Consider using active voice for
-  clarity.
-category: docs
+  Potential passive voice at line {line}. Consider using active voice for clarity.
+tests:
+  fire:
+    - The schema is validated by the loader.
+  quiet:
+    - The loader validates the schema.
+    - The cache is advanced automatically.

@@ -1,6 +1,7 @@
 id: VBC-112
 name: scroll-hijacking
 severity: warning
+category: ux-dx
 tags:
   - ux
 match:
@@ -9,5 +10,11 @@ match:
     - js
     - ts
     - css
-message: Potential scroll hijacking or forced smooth scrolling detected at line {line}.
-category: ux-dx
+message: >-
+  Potential scroll hijacking or forced smooth scrolling detected at line {line}.
+tests:
+  fire:
+    - window.addEventListener('wheel', onWheel);
+    - 'html { scroll-behavior: smooth; }'
+  quiet:
+    - window.addEventListener('scroll', onScroll);

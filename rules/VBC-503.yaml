@@ -1,12 +1,18 @@
 id: VBC-503
 name: collection-naming-vibes
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - semantic
 match:
   semantic_check: collection-suffix
 message: >-
-  Array named '{name}' is missing a plural 's' or a collection suffix (List,
-  Array). This makes code less intuitive.
-category: semantic
+  Array named '{name}' is missing a plural 's' or a collection suffix (List, Array). This
+  makes code less intuitive.
+tests:
+  fire:
+    - const user = [1, 2, 3];
+  quiet:
+    - const users = [1, 2, 3];
+    - const userList = [1];

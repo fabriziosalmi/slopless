@@ -1,12 +1,19 @@
 id: VBC-096
 name: complex-regex-no-comment
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: "(?<==\\s*)/(?:[^/\\\\n]|\\\\.)*\\|(?:[^/\\\\n]|\\\\.)+/[gimsuy]*"
+  regex: /(?:[^/\n\\]|\\.){30,}/[dgimsuvy]*
   file_types:
     - js
     - ts
-message: Complex regex found at line {line} without preceding comment explanation.
-category: clean-code
+message: >-
+  Long regular expression literal at line {line} with no explanation. Add a comment stating
+  what it matches, or build it from named parts.
+tests:
+  fire:
+    - const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/;
+  quiet:
+    - const re = /^\d+$/;

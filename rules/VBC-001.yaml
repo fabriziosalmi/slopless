@@ -1,6 +1,7 @@
 id: VBC-001
 name: hardcoded-secret
 severity: error
+category: core
 tags:
   - security
   - secrets
@@ -16,6 +17,12 @@ match:
     - yaml
     - json
 message: >-
-  Hardcoded credential or secret '{match}' detected at line {line}. Use
-  environment variables for all secrets.
-category: core
+  Hardcoded credential or secret '{match}' detected at line {line}. Use environment variables
+  for all secrets.
+tests:
+  fire:
+    - const password = "hunter2abc";
+    - 'api_key: "AKIAIOSFODNN7EXAMPLE"'
+  quiet:
+    - const password = process.env.PASSWORD;
+    - const token = "";

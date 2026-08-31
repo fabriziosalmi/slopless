@@ -1,12 +1,14 @@
 id: VBC-027
 name: parallax-overuse
 severity: warning
+category: ux-dx
 tags:
   - ux
   - performance
   - accessibility
 match:
-  regex: (scrollY\s*\*\s*0\.[0-9]+|\.parallax\b|parallax[-_]container|data-parallax)
+  regex: >-
+    (scrollY\s*\*\s*0\.[0-9]+|\.parallax\b|parallax[-_]container|data-parallax)
   flags: i
   file_types:
     - js
@@ -14,8 +16,12 @@ match:
     - css
     - scss
 message: >-
-  Parallax scrolling effect detected at line {line}. Parallax effects can
-  trigger vestibular disorders (nausea, dizziness) in sensitive users, carry
-  significant GPU cost, and break on mobile. Respect prefers-reduced-motion and
-  consider whether the effect adds genuine value.
-category: ux-dx
+  Parallax scrolling effect detected at line {line}. Parallax effects can trigger vestibular
+  disorders (nausea, dizziness) in sensitive users, carry significant GPU cost, and break
+  on mobile. Respect prefers-reduced-motion and consider whether the effect adds genuine value.
+tests:
+  fire:
+    - el.style.top = scrollY * 0.4 + "px";
+    - '.parallax { top: 0; }'
+  quiet:
+    - el.style.top = offset + "px";

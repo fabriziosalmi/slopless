@@ -1,6 +1,7 @@
 id: VBC-023
 name: notification-permission-eager
 severity: error
+category: ux-dx
 tags:
   - ux
   - security
@@ -10,8 +11,12 @@ match:
     - js
     - ts
 message: >-
-  Notification.requestPermission() detected at line {line}. Requesting browser
-  notification permissions immediately on page load is hostile UX that causes
-  most users to click "Block" by default. Only request permissions in direct
-  response to an explicit user action that requires notifications.
-category: ux-dx
+  Notification.requestPermission() detected at line {line}. Requesting browser notification
+  permissions immediately on page load is hostile UX that causes most users to click "Block"
+  by default. Only request permissions in direct response to an explicit user action that
+  requires notifications.
+tests:
+  fire:
+    - Notification.requestPermission();
+  quiet:
+    - button.addEventListener("click", askForNotifications);

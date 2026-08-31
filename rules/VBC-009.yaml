@@ -1,6 +1,7 @@
 id: VBC-009
 name: jquery-modern-project
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - performance
@@ -12,8 +13,12 @@ match:
     - tsx
     - jsx
 message: >-
-  jQuery dependency detected at line {line}. In 2026, native DOM APIs
-  (querySelector, fetch, classList, addEventListener) are sufficient and far
-  lighter. Dropping jQuery reduces bundle size and removes an unnecessary
-  abstraction layer.
-category: clean-code
+  jQuery dependency detected at line {line}. In 2026, native DOM APIs (querySelector, fetch,
+  classList, addEventListener) are sufficient and far lighter. Dropping jQuery reduces bundle
+  size and removes an unnecessary abstraction layer.
+tests:
+  fire:
+    - import $ from 'jquery';
+    - const $ = require('jquery');
+  quiet:
+    - import { render } from 'react-dom';

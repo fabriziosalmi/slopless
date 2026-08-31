@@ -1,6 +1,7 @@
 id: VBC-908
 name: long-inline-style
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - css
@@ -12,6 +13,10 @@ match:
     - ts
     - tsx
 message: >-
-  Overly long inline style attribute at line {line}. Move styles to a CSS file
-  or component.
-category: clean-code
+  Overly long inline style attribute at line {line}. Move styles to a CSS file or component.
+tests:
+  fire:
+    - >-
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px">x</div>
+  quiet:
+    - <div className="row">x</div>

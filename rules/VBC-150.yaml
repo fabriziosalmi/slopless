@@ -1,10 +1,13 @@
 id: VBC-150
 name: production-todo
 severity: warning
+category: core
 tags:
   - maintenance
 match:
-  regex: \b(TODO|FIXME|HACK|DEBUG|XXX)\b
+  regex: >-
+    \b(?:TODO|FIXME|HACK|XXX)\b(?=\s*[\(\[][^)\]\n]+[\)\]]|\s*:?\s*(?:#\d+|[A-Z][A-Z0-9]+-\d+))
+  scan: comments
   file_types:
     - js
     - ts
@@ -12,5 +15,13 @@ match:
     - sh
     - c
     - cpp
-message: Unresolved '{match}' detected at line {line}. Resolve these before production.
-category: core
+message: >-
+  Tracked debt marker still in the code at line {line}. It is attributed, so close the ticket
+  or delete the marker before shipping.
+tests:
+  fire:
+    - '// TODO(fab): rework the cache key'
+    - '// FIXME #1234 flaky under load'
+  quiet:
+    - '// TODO: rework the cache key'
+    - // explains the cache key

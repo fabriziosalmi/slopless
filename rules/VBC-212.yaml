@@ -1,14 +1,19 @@
 id: VBC-212
 name: keyboard-focus-awareness
 severity: warning
+category: ux-dx
 tags:
   - accessibility
 match:
-  regex: ':focus\s*\{.*?outline:\s*none'
+  regex: :focus\s*\{.*?outline:\s*none
   file_types:
     - css
     - scss
 message: >-
-  Suppressing focus outline without providing an alternative at line {line}.
-  This makes keyboard navigation impossible.
-category: ux-dx
+  Suppressing focus outline without providing an alternative at line {line}. This makes keyboard
+  navigation impossible.
+tests:
+  fire:
+    - 'a:focus { outline: none; }'
+  quiet:
+    - 'a:focus { outline: 2px solid; }'

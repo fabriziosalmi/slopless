@@ -1,14 +1,21 @@
 id: VBC-016
 name: commented-out-code
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: ^\s*//\s*(function|const|let|var|if|for|while|return|class|export|import)\b
+  regex: >-
+    ^\s*//\s*(function|const|let|var|if|for|while|return|class|export|import)\b
+  scan: comments
   file_types:
     - js
     - ts
 message: >-
-  Potential commented-out code detected at line {line}. If the code is no longer
-  needed, delete it. Use Git for history.
-category: clean-code
+  Potential commented-out code detected at line {line}. If the code is no longer needed, delete
+  it. Use Git for history.
+tests:
+  fire:
+    - // const legacy = compute();
+  quiet:
+    - // computes the running total

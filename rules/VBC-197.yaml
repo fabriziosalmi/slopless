@@ -1,6 +1,7 @@
 id: VBC-197
 name: hardcoded-node-version
 severity: warning
+category: ux-dx
 tags:
   - dx
   - portability
@@ -10,6 +11,12 @@ match:
     - sh
     - json
 message: >-
-  Hardcoded system version check detected at line {line}. Use an .nvmrc or
-  engine field in package.json instead.
-category: ux-dx
+  Hardcoded system version check detected at line {line}. Use an .nvmrc or engine field in
+  package.json instead.
+tests:
+  fire:
+    - file: fixture.sh
+      code: node -v
+  quiet:
+    - file: fixture.sh
+      code: node build.js

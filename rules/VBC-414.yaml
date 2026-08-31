@@ -1,6 +1,7 @@
 id: VBC-414
 name: please-in-cli
 severity: warning
+category: docs
 tags:
   - ux
   - cli
@@ -11,6 +12,12 @@ match:
     - md
     - sh
 message: >-
-  Avoid using 'Please' in technical instructions at line {line}. Use direct
-  imperative mood (e.g., 'Run...' instead of 'Please run...').
-category: docs
+  Avoid using 'Please' in technical instructions at line {line}. Use direct imperative mood
+  (e.g., 'Run...' instead of 'Please run...').
+tests:
+  fire:
+    - file: fixture.md
+      code: Please run the migration first.
+  quiet:
+    - file: fixture.md
+      code: Run the migration first.

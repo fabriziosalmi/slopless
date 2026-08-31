@@ -1,6 +1,7 @@
 id: VBC-938
 name: command-injection-risk
 severity: error
+category: security
 tags:
   - security
   - ai-error
@@ -12,8 +13,11 @@ match:
     - ts
     - py
 message: >-
-  Potential command injection at line {line}. Shell commands constructed with
-  string interpolation or concatenation allow attackers to execute arbitrary
-  commands. Use parameterized commands (e.g. execFile with an args array) and
-  never interpolate untrusted input into shell strings.
-category: security
+  Potential command injection at line {line}. Shell commands constructed with string interpolation
+  or concatenation allow attackers to execute arbitrary commands. Use parameterized commands
+  (e.g. execFile with an args array) and never interpolate untrusted input into shell strings.
+tests:
+  fire:
+    - exec(`ls ${userDir}`);
+  quiet:
+    - execFile('ls', [userDir]);

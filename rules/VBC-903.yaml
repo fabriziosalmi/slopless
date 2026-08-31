@@ -1,6 +1,7 @@
 id: VBC-903
 name: eval-like-timers
 severity: error
+category: security
 tags:
   - security
 match:
@@ -9,4 +10,8 @@ match:
     - js
     - ts
 message: Passing strings to timers is eval-like and insecure at line {line}.
-category: security
+tests:
+  fire:
+    - setTimeout("poll()", 100);
+  quiet:
+    - setTimeout(poll, 100);

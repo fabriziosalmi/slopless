@@ -1,15 +1,24 @@
 id: VBC-921
 name: hardcoded-outdated-year
 severity: warning
+category: docs
 tags:
   - documentation
   - maintenance
 match:
-  regex: Copyright.*?(202[0-3])
+  regex: (?:©|\(c\)|Copyright)\s*(?:19|20)\d{2}(?!\s*[-–—]\s*(?:19|20)?\d{2})
+  flags: i
+  scan: all
   file_types:
     - md
     - txt
     - js
     - ts
-message: Outdated copyright year detected at line {line}. It's 2026, stay current.
-category: docs
+message: >-
+  Copyright notice pinned to a single year at line {line}. It is stale the moment the year
+  turns. Use a range (2020-present) or generate the year at build time.
+tests:
+  fire:
+    - Copyright 2024 Acme Ltd.
+  quiet:
+    - Copyright 2020-2026 Acme Ltd.

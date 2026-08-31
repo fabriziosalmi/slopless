@@ -1,14 +1,23 @@
 id: VBC-034
 name: http-not-https
 severity: error
+category: security
 tags:
   - security
 match:
-  regex: http://(?!localhost|127\.0\.0\.1)
+  regex: >-
+    http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
+  scan: strings
   file_types:
     - js
     - ts
     - py
     - html
 message: Insecure http:// link detected at line {line}. Use https:// instead.
-category: security
+tests:
+  fire:
+    - const api = 'http://api.example.com/v1';
+  quiet:
+    - const api = 'https://api.example.com/v1';
+    - const dev = 'http://localhost:3000';
+    - const svg = 'http://www.w3.org/2000/svg';

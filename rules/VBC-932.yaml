@@ -1,6 +1,7 @@
 id: VBC-932
 name: missing-changelog
 severity: warning
+category: git
 tags:
   - git
   - project-health
@@ -8,8 +9,8 @@ tags:
 match:
   git_check: missing_changelog
 message: >-
-  Missing CHANGELOG.md (or HISTORY.md) file. Developers who depend on your
-  project need to know exactly what changed between versions to assess upgrade
-  risk. Follow "Keep a Changelog" standards with Added, Changed, Deprecated,
-  Removed, Fixed, and Security sections per release.
-category: git
+  Missing CHANGELOG.md (or HISTORY.md) file. Developers who depend on your project need to
+  know exactly what changed between versions to assess upgrade risk. Follow "Keep a Changelog"
+  standards with Added, Changed, Deprecated, Removed, Fixed, and Security sections per release.
+tests:
+  external: git-checker.test.ts — needs a repository working tree

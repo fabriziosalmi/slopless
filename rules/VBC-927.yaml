@@ -1,6 +1,7 @@
 id: VBC-927
 name: vague-button-label
 severity: warning
+category: docs
 tags:
   - ux
   - documentation
@@ -12,6 +13,12 @@ match:
     - tsx
     - jsx
 message: >-
-  Vague button label '{match}' detected at line {line}. Use action-oriented
-  labels (e.g., 'Save Changes', 'Create Account').
-category: docs
+  Vague button label '{match}' detected at line {line}. Use action-oriented labels (e.g.,
+  'Save Changes', 'Create Account').
+tests:
+  fire:
+    - file: fixture.html
+      code: <button>Submit</button>
+  quiet:
+    - file: fixture.html
+      code: <button>Create account</button>

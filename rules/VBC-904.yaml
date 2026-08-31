@@ -1,14 +1,21 @@
 id: VBC-904
 name: magic-string
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: \b[a-zA-Z0-9_]+\(\s*['"][a-zA-Z0-9_\s]{10,}['"]\s*\)
+  regex: >-
+    (?<![.\w$])(?!(?:Error|TypeError|RangeError|SyntaxError|EvalError|URIError|log|info|warn|error|debug|trace|assert|describe|it|test|expect|require|import|t|_|gettext|translate|print)\s*\()[a-zA-Z_$][\w$]*\(\s*['\"][a-zA-Z0-9_\s]{10,}['\"]\s*\)
   file_types:
     - js
     - ts
 message: >-
-  Magic string literal passed to function at line {line}. Use a named constant
-  instead.
-category: clean-code
+  Magic string literal passed to function at line {line}. Use a named constant instead.
+tests:
+  fire:
+    - configure("some long option value");
+  quiet:
+    - throw new Error('failed to reach the database');
+    - console.log('worker pool started');
+    - describe('the retry scheduler', run);

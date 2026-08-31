@@ -1,12 +1,14 @@
 id: VBC-338
 name: non-inclusive-terminology
 severity: warning
+category: docs
 tags:
   - docs
   - inclusive-language
 match:
   regex: \b(master|slave|blacklist|whitelist|sanity check)\b
   flags: i
+  scan: all
   file_types:
     - md
     - txt
@@ -14,6 +16,12 @@ match:
     - ts
     - py
 message: >-
-  Non-inclusive terminology found at line {line}. Consider alternatives like
-  main/primary, replica/secondary, allowlist/blocklist, and integrity check.
-category: docs
+  Non-inclusive terminology found at line {line}. Consider alternatives like main/primary,
+  replica/secondary, allowlist/blocklist, and integrity check.
+tests:
+  fire:
+    - Push to the master branch.
+    - Add the host to the whitelist.
+  quiet:
+    - Push to the main branch.
+    - Add the host to the allowlist.

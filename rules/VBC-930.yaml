@@ -1,6 +1,7 @@
 id: VBC-930
 name: missing-contributing
 severity: warning
+category: git
 tags:
   - git
   - project-health
@@ -8,8 +9,8 @@ tags:
 match:
   git_check: missing_contributing
 message: >-
-  Missing CONTRIBUTING.md file. Without contribution guidelines, external
-  contributors must guess how to set up the dev environment, run tests, and
-  submit pull requests. A CONTRIBUTING.md reduces friction and sets expectations
-  for code quality standards.
-category: git
+  Missing CONTRIBUTING.md file. Without contribution guidelines, external contributors must
+  guess how to set up the dev environment, run tests, and submit pull requests. A CONTRIBUTING.md
+  reduces friction and sets expectations for code quality standards.
+tests:
+  external: git-checker.test.ts — needs a repository working tree

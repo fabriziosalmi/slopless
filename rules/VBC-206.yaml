@@ -1,6 +1,7 @@
 id: VBC-206
 name: pure-black-background
 severity: warning
+category: ux-dx
 tags:
   - ux
   - design
@@ -9,6 +10,10 @@ match:
   file_types:
     - css
 message: >-
-  Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark
-  grey (e.g., #121212).
-category: ux-dx
+  Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark grey (e.g.,
+  #121212).
+tests:
+  fire:
+    - 'body { background-color: #000000; }'
+  quiet:
+    - 'body { background-color: #12151b; }'

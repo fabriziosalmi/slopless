@@ -1,12 +1,19 @@
 id: VBC-504
 name: semantic-shadowing
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - semantic
 match:
   semantic_check: semantic-shadowing
 message: >-
-  Variable '{name}' shadows a common library or system keyword. This can cause
-  confusion during debugging.
-category: semantic
+  Variable '{name}' shadows a common library or system keyword. This can cause confusion during
+  debugging.
+tests:
+  fire:
+    - const path = req.query.path;
+    - const fs = createFakeFs();
+  quiet:
+    - const filePath = req.query.path;
+    - const fakeFs = createFakeFs();

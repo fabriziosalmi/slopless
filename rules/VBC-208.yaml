@@ -1,6 +1,7 @@
 id: VBC-208
 name: hardcoded-colors
 severity: warning
+category: ux-dx
 tags:
   - design
   - maintainability
@@ -9,10 +10,18 @@ match:
   file_types:
     - css
     - scss
-  exclude:
+  exclude_files:
     - '**/theme.css'
     - '**/vars.css'
+    - '**/variables.css'
+    - '**/tokens.css'
+    - '**/*.tokens.*'
 message: >-
-  Hardcoded color value detected at line {line}. Consider using a CSS variable
-  or theme token.
-category: ux-dx
+  Hardcoded color value detected at line {line}. Consider using a CSS variable or theme token.
+tests:
+  fire:
+    - '.card { color: #ff0044; }'
+  quiet:
+    - '.card { color: var(--text); }'
+    - file: theme.css
+      code: '.card { color: #ff0044; }'

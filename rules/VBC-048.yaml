@@ -1,16 +1,23 @@
 id: VBC-048
 name: meaningless-variable-names
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
   regex: >-
-    \b(let|const|var)\s+(temp|data|obj|variable|thing|tmp|arr|val|arg|item|foo|bar|baz)\b
+    \b(?:let|const|var)\s+(?:temp|tmp|obj|variable|thing|stuff|foo|bar|baz|qux|myVar|test1|data2)\b
   file_types:
     - js
     - ts
     - py
 message: >-
-  Meaningless variable name '{match}' detected at line {line}. Use descriptive
-  names that convey intent.
-category: clean-code
+  Meaningless variable name '{match}' detected at line {line}. Use descriptive names that
+  convey intent.
+tests:
+  fire:
+    - const temp = load();
+    - let thing = compute();
+  quiet:
+    - const invoiceTotal = load();
+    - const data = await response.json();

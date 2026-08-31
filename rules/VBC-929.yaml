@@ -1,15 +1,20 @@
 id: VBC-929
 name: technical-jargon-slop
 severity: warning
+category: docs
 tags:
   - documentation
 match:
   regex: >-
-    (architectural paradigm|synergistic integration|leverage
-    fundamental|cross-platform interoperability|holistic approach)
+    (architectural paradigm|synergistic integration|leverage fundamental|cross-platform interoperability|holistic
+    approach)
   flags: i
   file_types:
     - md
     - txt
 message: Avoid buzzword-heavy jargon at line {line}. Be direct and clear.
-category: docs
+tests:
+  fire:
+    - A holistic approach to synergistic integration.
+  quiet:
+    - The loader reads YAML rules from disk.

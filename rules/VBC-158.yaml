@@ -1,6 +1,7 @@
 id: VBC-158
 name: fouc-prevention
 severity: warning
+category: ux-dx
 tags:
   - ux
 match:
@@ -8,4 +9,8 @@ match:
   file_types:
     - css
 message: Use of @import in CSS can cause Flash of Unstyled Content (FOUC).
-category: ux-dx
+tests:
+  fire:
+    - '@import url("theme.css");'
+  quiet:
+    - '.card { color: red; }'

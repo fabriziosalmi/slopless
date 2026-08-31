@@ -1,16 +1,24 @@
 id: VBC-907
 name: anonymous-todo
 severity: warning
+category: clean-code
 tags:
   - clean-code
 match:
-  regex: TODO(?![\s\(].*?[\)])
+  regex: >-
+    \b(?:TODO|FIXME|HACK|XXX)\b(?!\s*[\(\[][^)\]\n]+[\)\]])(?!\s*:?\s*(?:#\d+|[A-Z][A-Z0-9]+-\d+))
+  scan: comments
   file_types:
     - js
     - ts
     - py
     - sh
 message: >-
-  TODO without author or ticket reference at line {line}. Use TODO(author):
-  format.
-category: clean-code
+  Unattributed debt marker at line {line}. Nobody owns it, so nobody will fix it. Use TODO(owner):
+  or reference an issue such as TODO: #123.
+tests:
+  fire:
+    - '// TODO: wire up retries'
+  quiet:
+    - '// TODO(fab): wire up retries'
+    - '// TODO: #123 wire up retries'

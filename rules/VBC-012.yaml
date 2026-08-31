@@ -1,6 +1,7 @@
 id: VBC-012
 name: redundant-promise-constructor
 severity: warning
+category: clean-code
 tags:
   - clean-code
   - performance
@@ -10,7 +11,11 @@ match:
     - js
     - ts
 message: >-
-  Redundant Promise constructor wrapping at line {line}. This is an
-  anti-pattern called "Promise constructor anti-pattern". Use Promise.resolve()
-  directly or return the value/promise without wrapping it.
-category: clean-code
+  Redundant Promise constructor wrapping at line {line}. This is an anti-pattern called "Promise
+  constructor anti-pattern". Use Promise.resolve() directly or return the value/promise without
+  wrapping it.
+tests:
+  fire:
+    - const p = new Promise(resolve => resolve(value));
+  quiet:
+    - const p = Promise.resolve(value);

@@ -1,14 +1,19 @@
 id: VBC-070
 name: use-innerhtml
 severity: error
+category: core
 tags:
   - security
 match:
-  regex: \.innerHTML\s*=
+  regex: \.innerHTML\s*=(?!=)
   file_types:
     - js
     - ts
 message: >-
-  Use of 'innerHTML' detected at line {line}. Use 'textContent' or a sanitizer
-  to avoid XSS.
-category: core
+  Use of 'innerHTML' detected at line {line}. Use 'textContent' or a sanitizer to avoid XSS.
+tests:
+  fire:
+    - el.innerHTML = markup;
+  quiet:
+    - el.textContent = text;
+    - if (el.innerHTML === "") { init(); }

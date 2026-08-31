@@ -8,29 +8,25 @@ editLink: false
 <badge type="warning" text="warning" />
 
 **Category:** clean-code  
-**Tags:** clean-code
+**Analysis:** `AST`  
+**Tags:** `clean-code`
 
-## Message
-```text
+## What it reports
+
 Empty block detected at line {line}. This code does nothing.
+
+## Flagged
+
+```ts
+function noop() {}
 ```
 
-## Analysis Mode
+## Not flagged
 
-`AST`
+```ts
+function run() { start(); }
+```
 
+## AST check
 
-
-
-## Description
-This rule helps maintain code quality by detecting specific anti-patterns or vibecoding behaviors.
-
-
-
-### AST Check Configuration
 - **Type:** `empty-block`
-
-
-
-## Tags
-`clean-code`

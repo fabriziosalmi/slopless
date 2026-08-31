@@ -1,14 +1,20 @@
 id: VBC-131
 name: video-background
 severity: warning
+category: ux-dx
 tags:
   - ux
 match:
-  regex: <video.*?autoplay.*?loop.*?muted
+  regex: <video\b(?=[^>]*\bautoplay\b)(?=[^>]*\bloop\b)(?=[^>]*\bmuted\b)[^>]*>
+  multiline: true
   file_types:
     - html
     - js
     - ts
     - tsx
 message: Autoplay video backgrounds can be distracting and impact performance.
-category: ux-dx
+tests:
+  fire:
+    - <video autoplay loop muted src="bg.mp4"></video>
+  quiet:
+    - <video controls src="talk.mp4"></video>

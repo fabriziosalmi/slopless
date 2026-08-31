@@ -1,6 +1,7 @@
 id: VBC-079
 name: debugger-statements
 severity: error
+category: clean-code
 tags:
   - clean-code
 match:
@@ -8,5 +9,10 @@ match:
   file_types:
     - js
     - ts
-message: debugger; statement found at line {line}. This should never reach production.
-category: clean-code
+message: >-
+  debugger; statement found at line {line}. This should never reach production.
+tests:
+  fire:
+    - debugger;
+  quiet:
+    - inspect(state);

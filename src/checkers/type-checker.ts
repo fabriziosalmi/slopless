@@ -51,22 +51,11 @@ export class TypeCheckerEngine {
 
         if (!isPromise) return;
 
-        const parent = node.parent;
-        if (!ts.isExpressionStatement(parent) || ts.isAwaitExpression(parent) || ts.isReturnStatement(parent.parent)) {
-            return;
-        }
+        // Only a bare statement drops the promise. Awaiting it, returning it,
+        // assigning it or marking it with `void` are all deliberate.
+        if (!ts.isExpressionStatement(node.parent)) return;
 
-        let hasCatch = false;
-        let current: ts.Node = node;
-        while (ts.isCallExpression(current.parent) || ts.isPropertyAccessExpression(current.parent)) {
-            current = current.parent;
-            if (ts.isPropertyAccessExpression(current) && current.name.text === 'catch') {
-                hasCatch = true;
-                break;
-            }
-        }
-
-        if (!hasCatch) {
+        if (!this.isHandled(node)) {
             const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
             ctx.violations.push({
                 ruleId: ctx.rule.id,
@@ -77,5 +66,22 @@ export class TypeCheckerEngine {
                 line: line + 1
             });
         }
+    }
+
+    /**
+     * Rejection handlers hang off the callee chain, which runs inward through
+     * `save().then(...).catch(...)`, not outward through the node's parents.
+     */
+    private static isHandled(node: ts.CallExpression): boolean {
+        let current: ts.Expression = node;
+        while (ts.isCallExpression(current)) {
+            const callee = current.expression;
+            if (!ts.isPropertyAccessExpression(callee)) return false;
+            const method = callee.name.text;
+            if (method === 'catch' || method === 'finally') return true;
+            if (method === 'then' && current.arguments.length >= 2) return true;
+            current = callee.expression;
+        }
+        return false;
     }
 }
