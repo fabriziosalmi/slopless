@@ -9,4 +9,4 @@ match:
   git_check: missing_readme
 message: No README file found in project root. Documentation is non-negotiable.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

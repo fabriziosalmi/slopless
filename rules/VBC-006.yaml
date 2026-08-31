@@ -13,4 +13,4 @@ message: >-
   package.json for dependency management. This bloats the repository and causes cross-platform
   dependency hell.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

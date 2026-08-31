@@ -12,4 +12,4 @@ message: >-
   Committing personal IDE settings enforces your preferences on the entire team and creates
   unnecessary merge conflicts.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

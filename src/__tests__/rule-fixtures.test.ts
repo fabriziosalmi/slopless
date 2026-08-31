@@ -51,7 +51,8 @@ describe('rule fixtures — every rule ships executable examples', () => {
                     `${rule.id} is a git/heuristic/type check: set tests.external to name its test file`)
                     .toBeTruthy();
                 // The pointer has to be real, or it is just a comment that lets a rule ship untested.
-                const testFile = (declared as string).split(/\s/)[0];
+                // Take the filename itself, whatever punctuation separates it from the note.
+                const testFile = (declared as string).match(/^[\w.\-/]+/)?.[0] ?? '';
                 const testPath = path.join(__dirname, testFile);
                 expect(fs.existsSync(testPath), `${rule.id} points at missing ${testFile}`).toBe(true);
                 expect(fs.readFileSync(testPath, 'utf8'),

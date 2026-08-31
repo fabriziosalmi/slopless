@@ -1,6 +1,6 @@
 ---
 title: The template literal that switched off 116 rules
-description: How a missing reScanTemplateToken call made a TypeScript static analyser report zero findings on its own source — and what it took to notice.
+description: How a missing reScanTemplateToken call made a TypeScript static analyser report zero findings on its own source, and what it took to notice.
 head:
   - ["meta", { property: "og:title", content: "The template literal that switched off 116 rules" }]
   - ["meta", { property: "og:description", content: "A missing reScanTemplateToken call made every regex rule go quiet after the first ${} in a file. The linter reported zero issues on its own source." }]
@@ -21,8 +21,8 @@ pass, it was a symptom.
 
 ## What the engine was supposed to do
 
-Regex rules produce false positives when they match inside strings and comments —
-a rule about `eval(` should not fire on a line that only mentions it in prose. So
+Regex rules produce false positives when they match inside strings and comments.
+A rule about `eval(` should not fire on a line that only mentions it in prose. So
 before any pattern runs, the engine scans the file with the TypeScript scanner and
 records the character ranges of every string and comment.
 
@@ -86,7 +86,7 @@ while (token !== ts.SyntaxKind.EndOfFileToken) {
 ```
 
 `reScanTemplateToken` is the piece that was missing. Without it, one interpolated
-string silently disabled 116 of the 147 rules for the rest of the file — and
+string silently disabled 116 of the 147 rules for the rest of the file, and
 template literals are everywhere in modern TypeScript.
 
 ## Why it was hard to see
@@ -108,7 +108,7 @@ made it measurable:
 | a file containing nothing but commented-out code | 5 | 2 |
 
 `http://` in a licence comment: reported. A hardcoded IP in a config string:
-invisible. The security rules had the same shape — SQL injection built as
+invisible. The security rules had the same shape: SQL injection built as
 `query("SELECT ... " + id)` was missed, while `'Update ' + count + ' items'` was
 reported as an injection, at error severity.
 
@@ -127,7 +127,7 @@ match:
   scan: strings     # a hardcoded IP only ever lives in a literal
 ```
 
-Four scopes — `code`, `strings`, `comments`, `all` — turned a class of bug into a
+Four scopes (`code`, `strings`, `comments`, `all`) turned a class of bug into a
 declaration each rule makes about itself.
 
 ## The guardrail
@@ -154,12 +154,12 @@ logging.
 ## What to take from it
 
 A passing check is a claim, not evidence. If your tool cannot demonstrate that it
-still fails on a known-bad input, a green result tells you nothing about the code —
+still fails on a known-bad input, a green result tells you nothing about the code,
 only that the tool ran.
 
 ---
 
-There is a slide version of this story, made for LinkedIn — 11 slides, 1080×1080:
+There is a slide version of this story, made for LinkedIn, 11 slides at 1080×1080:
 [download the PDF](https://github.com/fabriziosalmi/slopless/releases/download/v1.1.1/slopless-linkedin.pdf).
 
 The fix is in [ast-utils.ts](https://github.com/fabriziosalmi/slopless/blob/main/src/engine/ast-utils.ts),

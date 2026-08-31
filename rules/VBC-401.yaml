@@ -9,4 +9,4 @@ match:
   heuristic_check: link-checker
 message: Broken link '{match}' ({url}) detected at line {line}.
 tests:
-  external: heuristic-checker.test.ts — resolves links against the filesystem
+  external: 'heuristic-checker.test.ts: resolves links against the filesystem'

@@ -11,4 +11,4 @@ match:
 message: >-
   Commit message is likely too short. Provide more context about the 'why' of your changes.
 tests:
-  external: git-checker.test.ts — needs .git/COMMIT_EDITMSG
+  external: 'git-checker.test.ts: needs .git/COMMIT_EDITMSG'

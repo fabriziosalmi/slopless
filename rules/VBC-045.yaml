@@ -10,4 +10,4 @@ match:
 message: >-
   Missing LICENSE file. Every open source project should define its terms of use.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

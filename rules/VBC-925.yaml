@@ -11,4 +11,4 @@ match:
 message: >-
   File is over 1MB ({size} bytes). Consider using Git LFS or external storage.
 tests:
-  external: git-checker.test.ts — needs files on disk
+  external: 'git-checker.test.ts: needs files on disk'

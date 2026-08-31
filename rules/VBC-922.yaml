@@ -12,4 +12,4 @@ message: >-
   Staging {count} files (limit: {threshold}). Large commits are harder to review. Split your
   work.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

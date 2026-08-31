@@ -12,4 +12,4 @@ message: >-
   Filename length {length} exceeds {threshold} characters. This might cause issues on some
   systems.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

@@ -22,13 +22,13 @@ features:
   - title: "[ --fix ]"
     details: Known anti-patterns are rewritten in place. What cannot be fixed safely is only reported.
   - title: "[ --type-check ]"
-    details: Opt-in deep semantics through the TypeScript compiler — inherited types, real signatures, not just tokens.
+    details: "Opt-in deep semantics through the TypeScript compiler: inherited types, real signatures, not just tokens."
   - title: "[ scoped matching ]"
-    details: Every string and comment is mapped before any pattern runs, and each rule declares the scope it judges — so an eval() rule stays quiet inside a comment, and a hardcoded-IP rule looks only inside string literals.
+    details: Every string and comment is mapped before any pattern runs, and each rule declares the scope it judges, so an eval() rule stays quiet inside a comment, and a hardcoded-IP rule looks only inside string literals.
 ---
 
 <div class="sl-term">
-  <div class="sl-term-bar"><i></i><i></i><i></i><span>slopless on its own checkers — real output, run in CI on every push</span></div>
+  <div class="sl-term-bar"><i></i><i></i><i></i><span>slopless on its own checkers &middot; real output, run in CI on every push</span></div>
   <pre><span class="p">$</span> npx @fabriziosalmi/slopless "src/checkers/*.ts"
 &nbsp;
 🚫 Static Analysis found 7 issues:
@@ -55,10 +55,10 @@ Summary: 0 errors, 7 warnings.</pre>
 
 ```bash
 npx @fabriziosalmi/slopless --init          # writes slopless.config.json + .sloplessignore
-npx @fabriziosalmi/slopless "src/**/*.ts"   # exit 1 on errors — wire it to your pre-commit
+npx @fabriziosalmi/slopless "src/**/*.ts"   # exit 1 on errors; wire it to your pre-commit
 ```
 
-In CI, as a GitHub Action — no install step, the bundled CLI runs directly:
+In CI, as a GitHub Action. No install step, the bundled CLI runs directly:
 
 ```yaml
 - uses: fabriziosalmi/slopless@v1
@@ -70,6 +70,6 @@ In CI, as a GitHub Action — no install step, the bundled CLI runs directly:
 
 Generated code ships with a signature: swallowed promises, apologetic comments, dead
 branches nobody asked for, `var` in 2026. Slopless is the reviewer that never gets tired
-of pointing it out — deterministic rules, readable output, and an exit code your CI can act on.
+of pointing it out: deterministic rules, readable output, and an exit code your CI can act on.
 
 It runs on itself, on every push. That is the standard it holds you to.

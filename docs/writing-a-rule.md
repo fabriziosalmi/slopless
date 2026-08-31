@@ -1,6 +1,6 @@
 ---
 title: Writing a rule
-description: The YAML schema for a slopless rule — scan scopes, multiline matching, precedence, and the executable examples every rule must carry.
+description: "The YAML schema for a slopless rule: scan scopes, multiline matching, precedence, and the executable examples every rule must carry."
 ---
 
 # Writing a rule
@@ -46,7 +46,7 @@ only where they actually appear.
 
 | Value | Match must start |
 | --- | --- |
-| `code` | outside every string and comment — **the default** |
+| `code` | outside every string and comment (**the default**) |
 | `strings` | inside a string or template literal |
 | `comments` | inside a comment |
 | `all` | anywhere; no filtering |
@@ -57,7 +57,7 @@ Scopes are resolved with the TypeScript scanner, so they apply to `.ts`, `.tsx`,
 ### multiline
 
 By default a regex is evaluated line by line, which is fast and keeps `^`/`$`
-anchored to a line. Set `multiline: true` to run it against the whole file — the
+anchored to a line. Set `multiline: true` to run it against the whole file, the
 only way to match something that spans lines, like a JSX element with its
 attributes on separate rows.
 
@@ -78,7 +78,7 @@ makes the reader go looking for the reason.
 ## supersedes
 
 A list of rule ids this rule is a more specific case of. When both fire on the
-same line, only this one is reported — which is how a single `// TODO: implement
+same line, only this one is reported, which is how a single `// TODO: implement
 this` produces one finding rather than four.
 
 ## tests
@@ -109,7 +109,7 @@ the file exists and mentions the rule:
 
 ```yaml
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: git-checker.test.ts: needs a staged file list
 ```
 
 ## Running your rule

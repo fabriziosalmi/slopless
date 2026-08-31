@@ -10,4 +10,4 @@ match:
 message: >-
   Missing .gitignore file. This often lead to committed dependencies or secrets.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

@@ -10,4 +10,4 @@ match:
 message: >-
   Environment file (.env) detected in staged files. This is a security risk.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

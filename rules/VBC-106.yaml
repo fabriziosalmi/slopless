@@ -11,4 +11,4 @@ message: >-
   Filename '{file}' contains spaces. This causes issues on some operating systems and CLI
   tools.
 tests:
-  external: git-checker.test.ts — needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'

@@ -1,8 +1,8 @@
 # Rules
 
-All 147 rules. **42** are errors and fail the run; the remaining 105 are warnings and only report.
+All 148 rules. **42** are errors and fail the run; the remaining 106 are warnings and only report.
 
-Every rule ships a snippet it must flag and one it must ignore, executed on every commit — open any rule to see both.
+Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
 Use the search box above to find a rule by what it catches.
 
@@ -112,6 +112,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-934](./VBC-934.md)<br>`personal-opinion-docs` | Personal opinion language in documentation | warning | Regex |
 | [VBC-935](./VBC-935.md)<br>`colloquial-language` | Corporate colloquialism or buzzword in documentation | warning | Regex |
 | [VBC-936](./VBC-936.md)<br>`outdated-experimental-tag` | Experimental or alpha status tag | warning | Regex |
+| [VBC-948](./VBC-948.md)<br>`em-dash-prose` | Em dash | warning | Regex |
 
 ## Git
 

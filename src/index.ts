@@ -81,6 +81,32 @@ function applyFixes(violations: Violation[]): number {
     return fixCount;
 }
 
+/**
+ * `ignore` only accepts paths relative to the working directory and throws on
+ * anything else, so an absolute path on the command line crashed the whole run.
+ * Paths outside the project cannot be matched by a .sloplessignore rule at all,
+ * so they pass through untouched.
+ */
+export function applyIgnoreRules(files: string[], configIgnore?: string[]): string[] {
+    const patterns: string[] = [];
+    const ignorePath = path.join(process.cwd(), '.sloplessignore');
+    if (fs.existsSync(ignorePath)) {
+        // `ignore` splits a bare multi-line string, but treats an array entry as one
+        // literal pattern, so the file has to be split before it goes in.
+        patterns.push(...fs.readFileSync(ignorePath, 'utf8').split(/\r?\n/));
+    }
+    if (configIgnore?.length) patterns.push(...configIgnore);
+    if (patterns.length === 0) return files;
+
+    const ig = ignore().add(patterns);
+    const cwd = process.cwd();
+    return files.filter(file => {
+        const relative = path.relative(cwd, path.resolve(cwd, file));
+        if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return true;
+        return !ig.ignores(relative);
+    });
+}
+
 interface LintOptions {
     format: string;
     shouldFix: boolean;
@@ -254,18 +280,7 @@ program
 
         if (patterns.length > 0) {
             targetFiles = globSync(patterns, { ignore: ['node_modules/**'] });
-
-            const ignorePath = path.join(process.cwd(), '.sloplessignore');
-            if (fs.existsSync(ignorePath)) {
-                const ig = ignore().add(fs.readFileSync(ignorePath, 'utf8'));
-                if (config.ignore) {
-                    ig.add(config.ignore);
-                }
-                targetFiles = ig.filter(targetFiles);
-            } else if (config.ignore) {
-                const ig = ignore().add(config.ignore);
-                targetFiles = ig.filter(targetFiles);
-            }
+            targetFiles = applyIgnoreRules(targetFiles, config.ignore);
         } else {
             if (options.format === 'default') console.log('No patterns provided. Falling back to git staged files...');
             targetFiles = getStagedFiles();

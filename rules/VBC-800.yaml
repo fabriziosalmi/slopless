@@ -14,4 +14,4 @@ message: >-
   Unawaited Promise detected. Expected await or return, but got {match}. Floating promises
   can cause unhandled rejections and race conditions.
 tests:
-  external: type-checker.test.ts — needs a ts.Program and TypeChecker
+  external: 'type-checker.test.ts: needs a ts.Program and TypeChecker'

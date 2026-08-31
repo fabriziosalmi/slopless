@@ -28,7 +28,7 @@ interface Rule {
 }
 
 const SCAN_SCOPES: Record<string, string> = {
-    code: 'source code only — matches inside strings and comments are ignored',
+    code: 'source code only, ignoring anything inside strings and comments',
     strings: 'string and template literals only',
     comments: 'comments only',
     all: 'the whole file, with no scope filtering',
@@ -132,6 +132,23 @@ ${match.regex ? `## Pattern\n\n\`\`\`regex\n${match.regex}\n\`\`\`\n` : ''}${mat
     fs.writeFileSync(path.join(DOCS_DIR, `${rule.id}.md`), content);
 }
 
+/** The site's changelog is the repository's, so it cannot drift out of date. */
+function generateChangelog() {
+    const source = fs.readFileSync(path.join(__dirname, '..', 'CHANGELOG.md'), 'utf8');
+    const releases = source.split('# Changelog\n')[0].trimEnd();
+    const page = `---
+title: Changelog
+description: Release notes for slopless, and what changed in each version.
+editLink: false
+---
+
+${releases}
+
+Older entries are in [CHANGELOG.md](https://github.com/fabriziosalmi/slopless/blob/main/CHANGELOG.md).
+`;
+    fs.writeFileSync(path.join(__dirname, '..', 'docs', 'changelog.md'), page);
+}
+
 function main() {
     const yamlFiles = fs.readdirSync(RULES_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
     const allRules: { id: string; name: string; category: string; severity: string;
@@ -166,7 +183,7 @@ function main() {
         }
     }
 
-    // Generate index.md — a table you can scan, not 147 bullets you have to read.
+    // Generate index.md: a table you can scan, not 147 bullets you have to read.
     const severityRank = (s: string) => (s === 'error' ? 0 : 1);
     const errors = allRules.filter(r => r.severity === 'error').length;
 
@@ -174,7 +191,7 @@ function main() {
         + `All ${allRules.length} rules. **${errors}** are errors and fail the run; `
         + `the remaining ${allRules.length - errors} are warnings and only report.\n\n`
         + `Every rule ships a snippet it must flag and one it must ignore, executed on `
-        + `every commit — open any rule to see both.\n\n`
+        + `every commit. Open any rule to see both.\n\n`
         + `Use the search box above to find a rule by what it catches.\n\n`;
 
     const categories = [...new Set(allRules.map(r => r.category))].sort();
@@ -194,6 +211,8 @@ function main() {
     }
 
     fs.writeFileSync(path.join(DOCS_DIR, 'index.md'), indexContent);
+
+    generateChangelog();
     console.log(`Generated ${allRules.length} rule documents.`);
 }
 

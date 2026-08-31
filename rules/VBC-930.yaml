@@ -13,4 +13,4 @@ message: >-
   guess how to set up the dev environment, run tests, and submit pull requests. A CONTRIBUTING.md
   reduces friction and sets expectations for code quality standards.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

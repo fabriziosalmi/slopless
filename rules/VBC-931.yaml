@@ -13,4 +13,4 @@ message: >-
   in your project have no private channel to report them and may resort to public disclosure.
   Add a SECURITY.md with a contact email and responsible disclosure policy.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

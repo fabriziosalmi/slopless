@@ -13,4 +13,4 @@ message: >-
   know exactly what changed between versions to assess upgrade risk. Follow "Keep a Changelog"
   standards with Added, Changed, Deprecated, Removed, Fixed, and Security sections per release.
 tests:
-  external: git-checker.test.ts — needs a repository working tree
+  external: 'git-checker.test.ts: needs a repository working tree'

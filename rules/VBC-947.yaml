@@ -12,8 +12,8 @@ match:
     - js
     - ts
 message: >-
-  Merging untrusted request body directly at line {line}. This pattern enables prototype pollution
-  — an attacker can inject __proto__ or constructor.prototype to corrupt the application object
+  Merging untrusted request body directly at line {line}. This pattern enables prototype pollution:
+  an attacker can inject __proto__ or constructor.prototype to corrupt the application object
   model. Validate and whitelist all accepted fields before merging user-supplied objects.
 tests:
   fire:
