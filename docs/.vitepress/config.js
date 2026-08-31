@@ -1,6 +1,14 @@
 export default {
     appearance: 'dark',   // terminal noir: dark is the default, the toggle stays
-    head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/slopless/favicon.svg' }]],
+    head: [
+        ['link', { rel: 'icon', type: 'image/svg+xml', href: '/slopless/favicon.svg' }],
+        ['meta', { property: 'og:type', content: 'website' }],
+        ['meta', { property: 'og:title', content: 'slopless — AI-written code has a smell. This catches it.' }],
+        ['meta', { property: 'og:description', content: '146 deterministic rules, AST checkers, auto-fix, SARIF. Clean on itself, in CI, on every push.' }],
+        ['meta', { property: 'og:image', content: 'https://fabriziosalmi.github.io/slopless/social.png' }],
+        ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
+        ['meta', { name: 'twitter:image', content: 'https://fabriziosalmi.github.io/slopless/social.png' }],
+    ],
     base: "/slopless/",   // project Pages: assets live under /slopless/, not /
     title: "slopless",
     description: "Static analysis against AI-slop code — 146 rules, AST checkers, auto-fix, SARIF.",
