@@ -25,6 +25,14 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 Runs the bundled CLI directly — no npm install in your job. Exit code 1 on errors (warnings pass).
 
+`@v1` is a moving tag: it follows every 1.x release, which is convenient and means
+you are trusting this repository not to change under you. To remove that trust,
+pin to the commit instead — Dependabot will keep it current:
+
+```yaml
+- uses: fabriziosalmi/slopless@<commit-sha>   # v1.1.0
+```
+
 ## Installation
 
 ```bash
@@ -36,6 +44,29 @@ npx @fabriziosalmi/slopless
 > The unscoped `slopless` on npm is an unrelated prose linter by another author.
 > This project publishes as **`@fabriziosalmi/slopless`**; the binary it installs
 > is still called `slopless`.
+
+## Supply Chain
+
+- **No dependencies.** `npm install @fabriziosalmi/slopless` pulls exactly one
+  package. Everything the linter needs is compiled into the bundle, so there is no
+  transitive install surface to compromise. CI fails if a runtime dependency
+  reappears, or if the bundle stops running without `node_modules`.
+- **Signed provenance.** Releases publish from GitHub Actions over OIDC, with no
+  npm token in existence. Every tarball carries an attestation binding it to the
+  commit and the workflow run that produced it. Verify it yourself:
+
+  ```bash
+  npm audit signatures
+  ```
+
+- **Reproducible bundle.** `dist/index.js` is committed so the Action can run with
+  no install step. CI rebuilds it from source and fails if the committed bundle
+  differs by a byte, so it cannot be tampered with independently of the source.
+- **Pinned actions.** Every third-party action is pinned to a commit SHA, not a
+  moving tag, with Dependabot keeping the pins current.
+- **No telemetry.** Nothing is reported anywhere. The only rule that touches the
+  network is `VBC-401` (broken links), which fetches the URLs it finds in the
+  Markdown you point it at, and nothing else.
 
 ## Usage
 

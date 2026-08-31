@@ -4,7 +4,7 @@ layout: home
 hero:
   name: slopless
   text: AI-written code has a smell. This catches it.
-  tagline: "147 deterministic rules · AST checkers · auto-fix · SARIF · zero network"
+  tagline: "147 deterministic rules · AST checkers · auto-fix · SARIF · zero telemetry"
   actions:
     - theme: brand
       text: npx @fabriziosalmi/slopless
@@ -44,10 +44,11 @@ Summary: 0 errors, 7 warnings.</pre>
 
 <div class="sl-stats">
   <span><b>147</b> rules</span>
+  <span><b>0</b> dependencies</span>
   <span><b>560</b> tests</span>
   <span><b>0</b> errors on itself</span>
-  <span><b>0</b> network calls</span>
-  <span>v1.1.0</span>
+  <span><b>0</b> telemetry</span>
+  <span>v1.1.1</span>
 </div>
 
 ## In ten seconds {#in-ten-seconds}

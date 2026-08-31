@@ -8,6 +8,9 @@ export default defineConfig({
     dts: true,
     minify: true,
     bundle: true,
-    noExternal: ['commander', 'glob', 'ignore', 'minimatch'],   // the Action runs dist/index.js with no npm install
+    // Everything ships inside the bundle: the Action runs dist/index.js with no
+    // npm install, and a published package with no dependencies has no install
+    // surface to attack. `npm run verify:bundle` proves it stays that way.
+    noExternal: [/.*/],
     outDir: 'dist',
 });

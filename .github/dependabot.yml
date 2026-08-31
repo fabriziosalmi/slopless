@@ -1,0 +1,21 @@
+# Pinning actions to a SHA closes the moving-tag attack, but a pin nobody updates
+# rots into an unpatched dependency. Dependabot rewrites the SHA and the version
+# comment together, which is what makes the pins sustainable.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "ci"
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: "chore"
+    groups:
+      dev-dependencies:
+        patterns: ["*"]

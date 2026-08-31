@@ -1,3 +1,30 @@
+# 1.1.1 — 2026-08-31
+
+Supply chain hardening. No rule or engine behaviour changed.
+
+- **The package now installs nothing.** `commander`, `glob`, `ignore` and `minimatch`
+  were declared as runtime dependencies while the bundle already inlined all four, so
+  every install pulled code it would never execute — install surface with no benefit.
+  They moved to `devDependencies` and tsup bundles everything (`noExternal: [/.*/]`).
+  `npm install @fabriziosalmi/slopless` now resolves to exactly one package.
+- **Releases publish over OIDC with signed provenance.** `release.yml` publishes on a
+  `v*` tag using npm trusted publishing, so no npm token needs to exist at all, and
+  every tarball carries an attestation binding it to the commit and workflow run
+  (`npm audit signatures`). The job re-runs the tests, the build, the bundle check and
+  a tag-matches-version check before publishing, behind an `npm` environment that can
+  require a reviewer.
+- **Every third-party action is pinned to a commit SHA** rather than a moving tag,
+  which is the vector that compromised `tj-actions/changed-files`. Dependabot keeps the
+  pins and the dev dependencies current so they do not rot.
+- `verify:bundle` now also asserts that no runtime dependency has reappeared and that
+  `dist/engine/api.js` — the entry point the VS Code extension imports — loads
+  standalone too.
+- The README documents how to pin `fabriziosalmi/slopless` to a SHA instead of the
+  moving `@v1` tag, since asking users to trust a mutable ref deserved saying out loud.
+- Corrected two claims that were not true: the site advertised "zero network" and
+  "0 network calls" while `VBC-401` fetches every link it finds in Markdown. Replaced
+  with zero telemetry, which is verifiable.
+
 # 1.1.0 — 2026-08-31
 
 The regex tier was silently disabled on most modern TypeScript. This release fixes

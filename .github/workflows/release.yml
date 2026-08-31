@@ -1,0 +1,57 @@
+# Publishes to npm when a v* tag is pushed.
+#
+# There is deliberately no NPM_TOKEN. Publishing uses npm trusted publishing over
+# OIDC, so the only thing that can publish this package is this workflow, in this
+# repository — there is no long-lived credential to leak, rotate, or steal. Every
+# tarball carries a provenance attestation linking it to the commit and the run
+# that built it, which anyone can verify with `npm audit signatures`.
+#
+# One-time setup on npmjs.com: package settings -> Trusted publisher -> GitHub
+# Actions, repository fabriziosalmi/slopless, workflow release.yml.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+  id-token: write   # required for OIDC and provenance
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    # Add a required reviewer to this environment in the repo settings to make
+    # every publish a deliberate, approved act rather than a side effect of a tag.
+    environment: npm
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+
+      # Node 22 ships npm 10; trusted publishing needs 11.5.1 or newer.
+      - run: npm install -g npm@latest
+
+      - run: npm ci
+
+      - name: the tag must match the version being published
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version="$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$version" ]; then
+            echo "tag $GITHUB_REF_NAME does not match package.json version $version"
+            exit 1
+          fi
+
+      # Publish only what CI already proved. A tag is not a licence to skip this.
+      - run: npm test
+      - run: npm run build
+      - name: the bundled CLI in git must match the source
+        run: git diff --exit-code dist/index.js
+      - name: the bundle must run with no node_modules
+        run: npm run verify:bundle
+
+      - run: npm publish --provenance --access public
