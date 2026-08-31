@@ -34,6 +34,20 @@ const SCAN_SCOPES: Record<string, string> = {
     all: 'the whole file, with no scope filtering',
 };
 
+/**
+ * VitePress runs every page through the Vue compiler, so a raw `<div>` in a rule
+ * message is an unclosed element and fails the whole build.
+ */
+function escapeInline(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\{\{/g, '&#123;&#123;')
+        // A message that shows an example link must not become a real one.
+        .replace(/\[/g, '\\[');
+}
+
 function analysisMode(rule: Rule): string {
     const match = rule.match ?? {};
     if (match.regex) return match.multiline ? '`Regex` (whole file)' : '`Regex` (line by line)';
@@ -55,7 +69,7 @@ function snippet(testCase: string | RuleTest, rule: Rule): string {
 
 function examplesSection(rule: Rule): string {
     if (rule.tests?.external) {
-        return `## Examples\n\nExercised by \`${rule.tests.external}\`.\n`;
+        return `## Examples\n\nExercised by \`${escapeInline(rule.tests.external)}\`.\n`;
     }
     let out = '';
     if (rule.tests?.fire?.length) {
@@ -94,7 +108,7 @@ ${details}
 
 ## What it reports
 
-${rule.message}
+${escapeInline(rule.message)}
 
 ${examplesSection(rule)}
 ${match.regex ? `## Pattern\n\n\`\`\`regex\n${match.regex}\n\`\`\`\n` : ''}${match.ast_check ? `## AST check\n\n- **Type:** \`${match.ast_check.type}\`\n${match.ast_check.threshold ? `- **Threshold:** \`${match.ast_check.threshold}\`\n` : ''}` : ''}${match.threshold !== undefined ? `\n- **Threshold:** \`${match.threshold}\`\n` : ''}`;

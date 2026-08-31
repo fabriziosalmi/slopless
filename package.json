@@ -18,7 +18,8 @@
     "docs:dev": "npm run docs:gen && vitepress dev docs",
     "docs:gen": "ts-node scripts/generate-rule-docs.ts",
     "docs:build": "npm run docs:gen && vitepress build docs",
-    "docs:preview": "vitepress preview docs"
+    "docs:preview": "vitepress preview docs",
+    "verify:bundle": "node scripts/verify-bundle.js"
   },
   "keywords": [
     "linter",

@@ -16,6 +16,14 @@ jobs:
       - run: npm run build
       - name: the bundled CLI in git must match the source
         run: git diff --exit-code dist/index.js || { echo "dist/index.js is stale — run npm run build and commit it"; exit 1; }
+      - name: the bundle must run with no node_modules
+        run: npm run verify:bundle
+      - name: the rule docs in git must match the rules
+        run: |
+          npm run docs:gen
+          git diff --exit-code docs/rules || { echo "docs/rules is stale — run npm run docs:gen and commit it"; exit 1; }
+      - name: the docs site must build
+        run: npm run docs:build
   dogfood:
     runs-on: ubuntu-latest
     steps:
