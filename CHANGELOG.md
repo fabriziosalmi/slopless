@@ -1,3 +1,11 @@
+# 1.0.1 — 2026-08-31
+
+- GitHub Action (`uses: fabriziosalmi/slopless@v1`): composite, runs the bundled `dist/index.js` with no npm install; `patterns`, `config`, `format` (SARIF included), `type-check`, `args` inputs.
+- `dist/index.js` now bundles the runtime deps (tsup `noExternal`) and is committed for the Action; the rest of `dist/` stays untracked, and CI fails if the committed bundle drifts from the source.
+- slopless is clean on itself (the one VBC-084 long line wrapped); CI dogfoods the Action on every push.
+- Dependencies: `npm audit fix` + vitepress/vitest/tsup bumped — 0 production vulnerabilities; 3 dev-only esbuild dev-server advisories remain upstream (no fix available; no dev server runs in CI). VS Code extension package: 0.
+- Docs on GitHub Pages via Actions (VitePress, base /slopless/).
+
 # Changelog
 
 This file documents all notable changes to this project.

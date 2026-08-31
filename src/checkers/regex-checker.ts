@@ -49,7 +49,8 @@ export class RegexChecker {
                     // (comments are NOT protected — rules can legitimately target comment content)
                     let isProtected = false;
                     for (const range of ranges) {
-                        if (range.type === 'string' && matchStartAbsolute >= range.start && matchEndAbsolute <= range.end) {
+                        if (range.type === 'string' && matchStartAbsolute >= range.start
+                            && matchEndAbsolute <= range.end) {
                             isProtected = true;
                             break;
                         }

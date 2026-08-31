@@ -1,0 +1,32 @@
+name: "slopless"
+description: "Static analysis against AI-slop code: 146 rules, AST checkers, optional type-check, SARIF output."
+author: "Fabrizio Salmi"
+branding: { icon: "check-circle", color: "green" }
+inputs:
+  patterns:
+    description: "Glob patterns to lint (space-separated). Empty = staged files."
+    default: "**/*.ts"
+  config:
+    description: "Path to slopless.config.json"
+    default: ""
+  format:
+    description: "Output format: default | json | sarif"
+    default: "default"
+  type-check:
+    description: "Enable deep semantic type analysis (slower)"
+    default: "false"
+  args:
+    description: "Extra CLI arguments, verbatim"
+    default: ""
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with: { node-version: 20 }
+    - shell: bash
+      run: >
+        node "${{ github.action_path }}/dist/index.js" ${{ inputs.patterns }}
+        ${{ inputs.config && format('--config {0}', inputs.config) || '' }}
+        ${{ inputs.format != 'default' && format('--format {0}', inputs.format) || '' }}
+        ${{ inputs.type-check == 'true' && '--type-check' || '' }}
+        --no-cache ${{ inputs.args }}

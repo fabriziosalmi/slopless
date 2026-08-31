@@ -8,5 +8,6 @@ export default defineConfig({
     dts: true,
     minify: true,
     bundle: true,
+    noExternal: ['commander', 'glob', 'ignore'],   // the Action runs dist/index.js with no npm install
     outDir: 'dist',
 });

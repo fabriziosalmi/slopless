@@ -1,0 +1,25 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - name: the bundled CLI in git must match the source
+        run: git diff --exit-code dist/index.js || { echo "dist/index.js is stale — run npm run build and commit it"; exit 1; }
+  dogfood:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: slopless on itself, as the published Action
+        uses: ./
+        with: { patterns: "src/**/*.ts" }

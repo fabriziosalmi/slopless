@@ -42,3 +42,7 @@ vibe_test.js
 run_test.js
 test_floating_promise.ts
 test_regex_protection.ts
+
+# build output stays out — except the bundled CLI the GitHub Action runs
+/dist/*
+!/dist/index.js
