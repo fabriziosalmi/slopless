@@ -14,25 +14,40 @@ export default {
     title: "slopless",
     description: "Static analysis against AI-slop code — 147 rules, AST checkers, auto-fix, SARIF. Every rule ships executable examples.",
     themeConfig: {
+        search: { provider: 'local' },
+        outline: { level: [2, 3], label: 'On this page' },
+        editLink: {
+            pattern: 'https://github.com/fabriziosalmi/slopless/edit/main/docs/:path',
+            text: 'Edit this page on GitHub'
+        },
+        lastUpdated: { text: 'Updated' },
         nav: [
-            { text: "Home", link: "/" },
             { text: "Rules", link: "/rules/" },
+            { text: "Configuration", link: "/configuration" },
             { text: "Story", link: "/story" },
+            { text: "Changelog", link: "/changelog" },
             { text: "Action", link: "https://github.com/marketplace/actions/slopless-static-analysis" }
         ],
         sidebar: [
             {
-                text: "Project Guide",
+                text: "Getting started",
                 items: [
-                    { text: "Introduction", link: "/" },
-                    { text: "The bug that hid every bug", link: "/story" },
-                    { text: "Contribution Guide", link: "https://github.com/fabriziosalmi/slopless" }
+                    { text: "What slopless is", link: "/" },
+                    { text: "Configuration", link: "/configuration" },
+                    { text: "Writing a rule", link: "/writing-a-rule" }
                 ]
             },
             {
-                text: "Rules",
+                text: "Reference",
                 items: [
-                    { text: "Rules Directory", link: "/rules/" }
+                    { text: "All 147 rules", link: "/rules/" }
+                ]
+            },
+            {
+                text: "Background",
+                items: [
+                    { text: "The bug that hid every bug", link: "/story" },
+                    { text: "Changelog", link: "/changelog" }
                 ]
             }
         ],

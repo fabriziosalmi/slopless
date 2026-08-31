@@ -65,3 +65,32 @@
 /* rules tables: dense, mono ids */
 .vp-doc table { font-size: 13px; }
 .vp-doc td:first-child, .vp-doc th:first-child { font-family: var(--sl-mono); white-space: nowrap; }
+
+/* ---- code block language tag: the default theme sets it below 4.5:1 ---- */
+.vp-doc [class*='language-'] > span.lang { color: var(--vp-c-text-2); opacity: 1; }
+.vp-doc [class*='language-']:hover > span.lang { color: var(--vp-c-text-1); }
+
+/* ---- rules index: severity reads at a glance, ids stay on one line ---- */
+.vp-doc table { display: table; width: 100%; }
+.vp-doc td:first-child code { font-size: 12px; color: var(--vp-c-text-2); background: none; padding: 0; }
+.vp-doc td strong { color: var(--vp-c-danger-1, #d4483b); font-weight: 700; }
+.dark .vp-doc td strong { color: #ff7a70; }
+
+/* ---- rules index table ---- */
+.vp-doc table th, .vp-doc table td { vertical-align: top; }
+.vp-doc td:first-child a { white-space: nowrap; }
+/* On a phone the analysis tier is the column worth losing first. */
+@media (max-width: 700px) {
+  .vp-doc table th:nth-child(4), .vp-doc table td:nth-child(4) { display: none; }
+  /* Fixed layout so the rule name cannot push severity off the screen. */
+  .vp-doc table { font-size: 12.5px; table-layout: fixed; }
+  .vp-doc table th:nth-child(1), .vp-doc table td:nth-child(1) { width: 36%; }
+  .vp-doc table th:nth-child(2), .vp-doc table td:nth-child(2) { width: 45%; }
+  .vp-doc table th:nth-child(3), .vp-doc table td:nth-child(3) { width: 19%; }
+  .vp-doc td:first-child code { font-size: 11px; overflow-wrap: anywhere; }
+}
+
+/* ---- syntax comments: the shipped #6A737D sits under 4.5:1 on the code ground.
+   Targeted at that one Shiki colour so every other token keeps its hue. ---- */
+.vp-doc [class*='language-'] span[style*="--shiki-dark:#6A737D"] { --shiki-dark: #8d9a92 !important; }
+.vp-doc [class*='language-'] span[style*="--shiki-light:#6A737D"] { --shiki-light: #5b6560 !important; }

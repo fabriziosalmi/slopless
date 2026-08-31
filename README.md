@@ -103,7 +103,11 @@ npx @fabriziosalmi/slopless "src/**/*.ts" "docs/**/*.md"
 - **UX/DX**: Enforcement of accessibility standards (alt attributes, focus visibility, accessible names on icon-only buttons) and prevention of user experience dark patterns.
 - **Documentation**: Detection of generated filler content, non-inclusive language, and broken external references.
 
-Browse the full reference at [fabriziosalmi.github.io/slopless](https://fabriziosalmi.github.io/slopless/rules/).
+Full documentation at [fabriziosalmi.github.io/slopless](https://fabriziosalmi.github.io/slopless/):
+[all 147 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
+[configuration](https://fabriziosalmi.github.io/slopless/configuration) ·
+[writing a rule](https://fabriziosalmi.github.io/slopless/writing-a-rule) ·
+[the scanner bug story](https://fabriziosalmi.github.io/slopless/story)
 
 ## Writing a Rule
 

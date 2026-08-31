@@ -44,8 +44,24 @@ function escapeInline(text: string): string {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/\{\{/g, '&#123;&#123;')
+        .replace(/\|/g, '&#124;')
         // A message that shows an example link must not become a real one.
         .replace(/\[/g, '\\[');
+}
+
+/** First sentence of the message, with the report-line scaffolding removed. */
+function summarise(message: string): string {
+    const firstSentence = message.split(/(?<=\.)\s/)[0];
+    return firstSentence
+        .replace(/\s*(?:at|on)?\s*line \{line\}/g, '')
+        .replace(/\s*\(\{\w+\}\)/g, '')          // "too deep ({count})"
+        .replace(/\s*'\{\w+\}'/g, '')              // "name '{name}'"
+        .replace(/\s*\{\w+\}/g, '')                // anything left over
+        .replace(/\s+/g, ' ')
+        .replace(/\s+([.,:])/g, '$1')
+        .replace(/[.,:]$/, '')
+        .trim()
+        .replace(/^(.{0,84})(\s.*)?$/s, (_, head, tail) => (tail ? head + '…' : head));
 }
 
 function analysisMode(rule: Rule): string {
@@ -118,7 +134,8 @@ ${match.regex ? `## Pattern\n\n\`\`\`regex\n${match.regex}\n\`\`\`\n` : ''}${mat
 
 function main() {
     const yamlFiles = fs.readdirSync(RULES_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
-    const allRules: { id: string; name: string; category: string; severity: string }[] = [];
+    const allRules: { id: string; name: string; category: string; severity: string;
+                      catches: string; analysis: string }[] = [];
 
     for (const file of yamlFiles) {
         const filePath = path.join(RULES_DIR, file);
@@ -130,7 +147,12 @@ function main() {
             const processRule = (rule: any) => {
                 if (rule.id && rule.name && rule.category) {
                     generateRuleDoc(rule as Rule);
-                    allRules.push({ id: rule.id, name: rule.name, category: rule.category, severity: rule.severity });
+                    allRules.push({
+                        id: rule.id, name: rule.name, category: rule.category,
+                        severity: rule.severity,
+                        catches: escapeInline(summarise(rule.message)),
+                        analysis: analysisMode(rule).replace(/`/g, '').replace(/ \(.*\)/, ''),
+                    });
                 }
             };
 
@@ -144,17 +166,29 @@ function main() {
         }
     }
 
-    // Generate index.md
-    let indexContent = `# Rules\n\nAll ${allRules.length} rules, grouped by category. `
-        + `Every rule ships executable examples, run by \`rule-fixtures.test.ts\`.\n\n`;
+    // Generate index.md — a table you can scan, not 147 bullets you have to read.
+    const severityRank = (s: string) => (s === 'error' ? 0 : 1);
+    const errors = allRules.filter(r => r.severity === 'error').length;
+
+    let indexContent = `# Rules\n\n`
+        + `All ${allRules.length} rules. **${errors}** are errors and fail the run; `
+        + `the remaining ${allRules.length - errors} are warnings and only report.\n\n`
+        + `Every rule ships a snippet it must flag and one it must ignore, executed on `
+        + `every commit — open any rule to see both.\n\n`
+        + `Use the search box above to find a rule by what it catches.\n\n`;
 
     const categories = [...new Set(allRules.map(r => r.category))].sort();
     for (const cat of categories) {
-        indexContent += `## ${cat.charAt(0).toUpperCase() + cat.slice(1)}\n`;
-        const catRules = allRules.filter(r => r.category === cat).sort((a, b) => a.id.localeCompare(b.id));
+        const catRules = allRules
+            .filter(r => r.category === cat)
+            .sort((a, b) => severityRank(a.severity) - severityRank(b.severity) || a.id.localeCompare(b.id));
+
+        indexContent += `## ${cat.charAt(0).toUpperCase() + cat.slice(1)}\n\n`;
+        indexContent += `| Rule | Catches | Severity | Analysis |\n|---|---|---|---|\n`;
         for (const rule of catRules) {
-            const badge = rule.severity === 'error' ? ' — **error**' : '';
-            indexContent += `- [${rule.id}: ${rule.name}](./${rule.id}.md)${badge}\n`;
+            const badge = rule.severity === 'error' ? '**error**' : 'warning';
+            indexContent += `| [${rule.id}](./${rule.id}.md)<br>\`${rule.name}\` `
+                + `| ${rule.catches} | ${badge} | ${rule.analysis} |\n`;
         }
         indexContent += `\n`;
     }
