@@ -19,3 +19,11 @@ updates:
     groups:
       dev-dependencies:
         patterns: ["*"]
+    ignore:
+      # TypeScript 7 is the native port: it ships per-platform binaries and does
+      # not expose the same synchronous compiler API, so `ts.ScriptTarget` is
+      # undefined and every AST, semantic and type check collapses. The whole
+      # analysis tier is built on that API, so moving major here is a project,
+      # not a dependency bump. Grouped updates must not drag it along.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
