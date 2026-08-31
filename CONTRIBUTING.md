@@ -23,6 +23,11 @@ npm run test:coverage
 3. If your rule requires a new `git_check`, `ast_check`, or `semantic_check` type, add the handler to the corresponding checker file and update the Zod enum in `src/engine/schema.ts`.
 4. Write at least one positive test (rule fires) and one negative test (rule does not fire on a false positive) in `src/__tests__/`.
 5. Run `npm run build && npm test` before submitting.
+6. If you changed a dependency, commit the rebuilt `dist/index.js` with it. The
+   bundle inlines every dependency so the GitHub Action can run with no install
+   step, which means a version bump changes the bundle. CI compares the committed
+   bundle against a fresh build and fails if they differ — including on Dependabot
+   pull requests, which cannot rebuild it themselves.
 
 ## Rule Naming Conventions
 

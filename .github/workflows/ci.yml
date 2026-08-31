@@ -15,7 +15,13 @@ jobs:
       - run: npm test
       - run: npm run build
       - name: the bundled CLI in git must match the source
-        run: git diff --exit-code dist/index.js || { echo "dist/index.js is stale — run npm run build and commit it"; exit 1; }
+        run: |
+          git diff --exit-code dist/index.js && exit 0
+          echo "dist/index.js is stale. Run: npm run build && git add dist/index.js"
+          echo "Expect this on any dependency bump — the bundle inlines its"
+          echo "dependencies, so Dependabot changing a version changes the bundle,"
+          echo "and Dependabot cannot rebuild it. Rebuild on the branch and push."
+          exit 1
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
       - name: the rule docs in git must match the rules
