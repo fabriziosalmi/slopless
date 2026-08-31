@@ -1,0 +1,16 @@
+id: VBC-012
+name: redundant-promise-constructor
+severity: warning
+tags:
+  - clean-code
+  - performance
+match:
+  regex: new Promise\s*\(\s*(resolve|res)\s*=>\s*(resolve|res)\s*\(
+  file_types:
+    - js
+    - ts
+message: >-
+  Redundant Promise constructor wrapping at line {line}. This is an
+  anti-pattern called "Promise constructor anti-pattern". Use Promise.resolve()
+  directly or return the value/promise without wrapping it.
+category: clean-code

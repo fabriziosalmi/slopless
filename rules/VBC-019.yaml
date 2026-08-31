@@ -1,0 +1,17 @@
+id: VBC-019
+name: absolute-paths
+severity: error
+tags:
+  - security
+  - portability
+match:
+  regex: '[''"]/Users/|[''"]/home/|[''"]C:\\'
+  file_types:
+    - js
+    - ts
+    - py
+    - sh
+message: >-
+  Hardcoded absolute path '{match}' detected at line {line}. This breaks system
+  portability and leaks local structure.
+category: core

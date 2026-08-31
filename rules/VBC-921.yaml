@@ -1,0 +1,15 @@
+id: VBC-921
+name: hardcoded-outdated-year
+severity: warning
+tags:
+  - documentation
+  - maintenance
+match:
+  regex: Copyright.*?(202[0-3])
+  file_types:
+    - md
+    - txt
+    - js
+    - ts
+message: Outdated copyright year detected at line {line}. It's 2026, stay current.
+category: docs

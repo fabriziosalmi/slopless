@@ -1,0 +1,15 @@
+id: VBC-123
+name: placeholder-as-label
+severity: warning
+tags:
+  - ux
+  - accessibility
+match:
+  regex: <input(?!.*<label).*?placeholder=
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+message: Using placeholder as the only label at line {line} is bad for accessibility.
+category: ux-dx

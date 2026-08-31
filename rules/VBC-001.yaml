@@ -1,0 +1,21 @@
+id: VBC-001
+name: hardcoded-secret
+severity: error
+tags:
+  - security
+  - secrets
+match:
+  regex: >-
+    \b(api_key|secret|password|token|bearer|auth[_-]?key|access[_-]?key)\b\s*[:=]\s*['"]([^'"]){8,}
+  flags: i
+  file_types:
+    - js
+    - ts
+    - py
+    - env
+    - yaml
+    - json
+message: >-
+  Hardcoded credential or secret '{match}' detected at line {line}. Use
+  environment variables for all secrets.
+category: core

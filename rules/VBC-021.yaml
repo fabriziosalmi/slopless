@@ -1,0 +1,18 @@
+id: VBC-021
+name: thin-font-weight
+severity: warning
+tags:
+  - ux
+  - accessibility
+match:
+  regex: font-weight:\s*1[0-9][0-9]\b
+  file_types:
+    - css
+    - scss
+    - less
+message: >-
+  Thin font weight (100-199) detected at line {line}. Ultra-thin typefaces look
+  elegant on high-DPI Retina screens but become nearly invisible on standard
+  monitors. Use a minimum of 300 (Light) for body text and 400 (Regular) for
+  critical UI copy.
+category: ux-dx

@@ -1,0 +1,19 @@
+id: VBC-938
+name: command-injection-risk
+severity: error
+tags:
+  - security
+  - ai-error
+match:
+  regex: >-
+    (exec|execSync|spawn|spawnSync|system|popen)\s*\(\s*[`'"][^`'"]*\$\{|child_process\.(exec|execSync)\s*\(\s*[^)]*\+
+  file_types:
+    - js
+    - ts
+    - py
+message: >-
+  Potential command injection at line {line}. Shell commands constructed with
+  string interpolation or concatenation allow attackers to execute arbitrary
+  commands. Use parameterized commands (e.g. execFile with an args array) and
+  never interpolate untrusted input into shell strings.
+category: security

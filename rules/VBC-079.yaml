@@ -1,0 +1,12 @@
+id: VBC-079
+name: debugger-statements
+severity: error
+tags:
+  - clean-code
+match:
+  regex: debugger;
+  file_types:
+    - js
+    - ts
+message: debugger; statement found at line {line}. This should never reach production.
+category: clean-code

@@ -1,0 +1,19 @@
+id: VBC-338
+name: non-inclusive-terminology
+severity: warning
+tags:
+  - docs
+  - inclusive-language
+match:
+  regex: \b(master|slave|blacklist|whitelist|sanity check)\b
+  flags: i
+  file_types:
+    - md
+    - txt
+    - js
+    - ts
+    - py
+message: >-
+  Non-inclusive terminology found at line {line}. Consider alternatives like
+  main/primary, replica/secondary, allowlist/blocklist, and integrity check.
+category: docs

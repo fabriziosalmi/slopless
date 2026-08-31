@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build/
+.git/
+docs/
+*.min.js
+slop_suite.md
+rules.md

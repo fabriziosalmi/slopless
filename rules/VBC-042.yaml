@@ -1,0 +1,15 @@
+id: VBC-042
+name: too-many-comments
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: (//.*?\n){10,}
+  file_types:
+    - js
+    - ts
+    - py
+message: >-
+  Too many consecutive comment lines at line {line}. Code should be
+  self-documenting.
+category: clean-code

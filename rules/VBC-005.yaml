@@ -1,0 +1,16 @@
+id: VBC-005
+name: use-var
+severity: error
+tags:
+  - best-practice
+match:
+  regex: \bvar\b
+  file_types:
+    - js
+    - ts
+message: Use of 'var' detected at line {line}. Use 'let' or 'const' instead.
+category: core
+fix:
+  regex_replace:
+    pattern: '\bvar\b'
+    replacement: 'let'

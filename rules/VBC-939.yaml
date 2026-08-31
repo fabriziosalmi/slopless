@@ -1,0 +1,18 @@
+id: VBC-939
+name: unrestricted-file-upload
+severity: error
+tags:
+  - security
+  - ai-error
+match:
+  regex: >-
+    (multer|formidable|busboy|diskStorage)\s*\(\s*\{[^}]*\}|req\.files?\s*\[\s*['"][^'"]+['"]\s*\]\s*\.(?:mv|pipe|save)\s*\(
+  file_types:
+    - js
+    - ts
+message: >-
+  File upload handler at line {line} may lack type/size restrictions. Without
+  validating MIME type, file extension, and size, attackers can upload
+  malicious executables or exhaust disk space. Add allowlist-based extension
+  validation and a strict size limit before processing any uploaded file.
+category: security

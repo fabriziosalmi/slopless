@@ -1,0 +1,12 @@
+id: VBC-057
+name: use-any
+severity: warning
+tags:
+  - typescript
+match:
+  regex: ':\s*any\b'
+  file_types:
+    - ts
+    - tsx
+message: Avoid using 'any' type at line {line}. Use a more specific type or 'unknown'.
+category: core

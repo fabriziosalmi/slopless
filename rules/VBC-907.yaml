@@ -1,0 +1,16 @@
+id: VBC-907
+name: anonymous-todo
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: TODO(?![\s\(].*?[\)])
+  file_types:
+    - js
+    - ts
+    - py
+    - sh
+message: >-
+  TODO without author or ticket reference at line {line}. Use TODO(author):
+  format.
+category: clean-code

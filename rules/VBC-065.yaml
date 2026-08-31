@@ -1,0 +1,11 @@
+id: VBC-065
+name: hadouken-nested-logic
+severity: error
+tags:
+  - clean-code
+match:
+  ast_check:
+    type: nested-blocks-limit
+    threshold: 4
+message: 'Hadouken! Nested logic is too deep ({count}). Max allowed: {threshold} levels.'
+category: clean-code

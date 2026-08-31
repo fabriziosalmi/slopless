@@ -1,0 +1,12 @@
+id: VBC-104
+name: inconsistent-import
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: (require\(.*?\).*?import.*?)|(import.*?.*?require\(.*?\))
+  file_types:
+    - js
+    - ts
+message: Mixing 'require' and 'import' in the same file at line {line}.
+category: clean-code

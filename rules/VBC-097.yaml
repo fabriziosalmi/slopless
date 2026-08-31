@@ -1,0 +1,15 @@
+id: VBC-097
+name: br-tags-for-layout
+severity: warning
+tags:
+  - html
+  - accessibility
+match:
+  regex: <br\s*/?>(\s*<br\s*/?>)+
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+message: Multiple <br> tags used for layout. Use CSS margin or padding instead.
+category: ux-dx

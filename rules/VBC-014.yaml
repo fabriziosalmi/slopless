@@ -1,0 +1,13 @@
+id: VBC-014
+name: committed-ide-settings
+severity: warning
+tags:
+  - git
+  - dx
+match:
+  git_check: committed_ide_settings
+message: >-
+  IDE settings file '{file}' detected in staged files. Add .vscode/ and .idea/
+  to .gitignore. Committing personal IDE settings enforces your preferences on
+  the entire team and creates unnecessary merge conflicts.
+category: git

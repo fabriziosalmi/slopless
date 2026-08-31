@@ -1,0 +1,14 @@
+id: VBC-086
+name: target-blank-rel
+severity: error
+tags:
+  - security
+match:
+  regex: target="_blank"(?!.*rel="noopener)
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+message: target='_blank' without rel='noopener' detected at line {line}.
+category: core

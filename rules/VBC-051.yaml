@@ -1,0 +1,16 @@
+id: VBC-051
+name: mixed-casing
+severity: warning
+tags:
+  - clean-code
+  - style
+match:
+  regex: >-
+    ((?<![.'"])\b[a-z]+_[a-z]+\b.*?\b[a-z]+[A-Z][a-z]+\b)|(\b[a-z]+[A-Z][a-z]+\b.*?(?<![.'"])\b[a-z]+_[a-z]+\b)
+  file_types:
+    - js
+    - ts
+message: >-
+  Mixing snake_case and camelCase in the same file detected at line {line}.
+  Standardize on one (usually camelCase for JS/TS).
+category: clean-code

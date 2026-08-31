@@ -1,0 +1,17 @@
+id: VBC-908
+name: long-inline-style
+severity: warning
+tags:
+  - clean-code
+  - css
+match:
+  regex: style\s*=\s*['"].{50,}['"]
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+message: >-
+  Overly long inline style attribute at line {line}. Move styles to a CSS file
+  or component.
+category: clean-code

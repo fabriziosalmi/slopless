@@ -1,0 +1,18 @@
+id: VBC-933
+name: coming-soon-docs
+severity: warning
+tags:
+  - docs
+  - maintenance
+match:
+  regex: (coming soon|under construction|not yet written|🚧\s*wip|todo:\s*write)
+  flags: i
+  file_types:
+    - md
+    - txt
+message: >-
+  Placeholder documentation content '{match}' at line {line}. Documentation
+  stubs with "coming soon" text signal an abandoned project to new contributors.
+  Either write the section or remove the header entirely. Git history preserves
+  the intent if you need to revisit it later.
+category: docs

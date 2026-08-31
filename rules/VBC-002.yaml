@@ -1,0 +1,10 @@
+id: VBC-002
+name: committed-env
+severity: error
+tags:
+  - security
+  - git
+match:
+  git_check: committed_env
+message: Environment file (.env) detected in staged files. This is a security risk.
+category: core

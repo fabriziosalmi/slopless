@@ -1,0 +1,21 @@
+id: VBC-945
+name: ai-generated-placeholder-comment
+severity: warning
+tags:
+  - clean-code
+  - ai-error
+match:
+  regex: >-
+    //\s*(TODO|FIXME|PLACEHOLDER|ADD YOUR|YOUR CODE HERE|implement this|implement later|fill in|handle this|replace this|update this later)\b
+  flags: i
+  file_types:
+    - js
+    - ts
+    - py
+    - go
+    - java
+message: >-
+  AI-generated placeholder comment '{match}' at line {line}. AI tools
+  frequently emit skeleton code with stub comments instead of real
+  implementations. Replace with the actual logic or open a tracked issue.
+category: clean-code

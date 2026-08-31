@@ -1,0 +1,14 @@
+id: VBC-206
+name: pure-black-background
+severity: warning
+tags:
+  - ux
+  - design
+match:
+  regex: background-color:\s*#000000|background:\s*#000
+  file_types:
+    - css
+message: >-
+  Pure black backgrounds (#000000) can cause eye strain. Consider a soft dark
+  grey (e.g., #121212).
+category: ux-dx

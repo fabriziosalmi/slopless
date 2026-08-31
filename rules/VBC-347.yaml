@@ -1,0 +1,15 @@
+id: VBC-347
+name: passive-voice
+severity: warning
+tags:
+  - docs
+  - style
+match:
+  regex: \b(is|was|were|be|been|being)\s+([a-z]+ed)\b
+  flags: i
+  file_types:
+    - md
+message: >-
+  Potential passive voice at line {line}. Consider using active voice for
+  clarity.
+category: docs

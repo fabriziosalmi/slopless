@@ -1,0 +1,17 @@
+id: VBC-927
+name: vague-button-label
+severity: warning
+tags:
+  - ux
+  - documentation
+match:
+  regex: <button.*?>\s*(Click|Submit|OK|Go)\s*</button>
+  flags: i
+  file_types:
+    - html
+    - tsx
+    - jsx
+message: >-
+  Vague button label '{match}' detected at line {line}. Use action-oriented
+  labels (e.g., 'Save Changes', 'Create Account').
+category: docs

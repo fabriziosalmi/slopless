@@ -1,0 +1,13 @@
+id: VBC-003
+name: chmod-777
+severity: error
+tags:
+  - security
+match:
+  regex: chmod\s+777
+  file_types:
+    - sh
+    - py
+    - js
+message: Insecure chmod 777 detected at line {line}
+category: core

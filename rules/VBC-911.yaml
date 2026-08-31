@@ -1,0 +1,16 @@
+id: VBC-911
+name: meaningless-helper-names
+severity: warning
+tags:
+  - clean-code
+  - semantic
+match:
+  regex: class\s+[a-zA-Z0-9_]*(Manager|Helper|Common|Util|Base)\b
+  file_types:
+    - js
+    - ts
+    - py
+message: >-
+  Generic class name '{match}' detected. Use more specific semantic names (e.g.,
+  'AuthValidator' instead of 'AuthHelper').
+category: clean-code

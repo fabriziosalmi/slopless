@@ -1,0 +1,16 @@
+id: VBC-918
+name: we-detected-tone
+severity: warning
+tags:
+  - documentation
+  - style
+match:
+  regex: We detected|We have identified
+  flags: i
+  file_types:
+    - md
+    - txt
+message: >-
+  Avoid first-person collective ('We') in system messages at line {line}. Use
+  neutral or user-centric language.
+category: docs

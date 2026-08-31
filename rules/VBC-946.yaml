@@ -1,0 +1,18 @@
+id: VBC-946
+name: no-verification-after-operation
+severity: warning
+tags:
+  - correctness
+  - ai-error
+match:
+  regex: >-
+    await\s+\w+\.(delete|remove|drop|truncate|destroy|unlink|rmdir|rm)\s*\([^)]*\)\s*;(?!\s*(?:\/\/|if|const|let|var|throw|assert|expect|check|verify|log))
+  file_types:
+    - js
+    - ts
+message: >-
+  Destructive async operation at line {line} with no verification of success.
+  AI agents frequently execute irreversible actions (delete, drop, rm) based
+  on assumed success without checking the return value or catching errors.
+  Always verify the outcome of destructive operations before proceeding.
+category: correctness

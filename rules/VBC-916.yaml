@@ -1,0 +1,17 @@
+id: VBC-916
+name: vague-link-text-ux
+severity: warning
+tags:
+  - ux
+  - accessibility
+match:
+  regex: '>\s*(click here|read more|learn more|here|this link)\s*<'
+  flags: i
+  file_types:
+    - html
+    - tsx
+    - jsx
+message: >-
+  Vague link text '{match}' detected at line {line}. Use descriptive labels
+  (e.g., 'View detailed report') for clarity and screen reader accessibility.
+category: ux-dx

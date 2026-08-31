@@ -1,0 +1,14 @@
+id: VBC-034
+name: http-not-https
+severity: error
+tags:
+  - security
+match:
+  regex: http://(?!localhost|127\.0\.0\.1)
+  file_types:
+    - js
+    - ts
+    - py
+    - html
+message: Insecure http:// link detected at line {line}. Use https:// instead.
+category: security

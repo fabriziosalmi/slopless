@@ -1,0 +1,12 @@
+id: VBC-045
+name: missing-license
+severity: warning
+tags:
+  - git
+  - project-health
+match:
+  git_check: missing_license
+message: >-
+  Missing LICENSE file. Every open source project should define its terms of
+  use.
+category: git

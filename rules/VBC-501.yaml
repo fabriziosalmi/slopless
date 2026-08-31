@@ -1,0 +1,12 @@
+id: VBC-501
+name: boolean-naming-vibes
+severity: warning
+tags:
+  - clean-code
+  - semantic
+match:
+  semantic_check: boolean-naming
+message: >-
+  Boolean variable '{name}' has no standard prefix. Consider is{name},
+  has{name}, or can{name} for clarity.
+category: semantic

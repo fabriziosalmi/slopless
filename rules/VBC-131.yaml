@@ -1,0 +1,14 @@
+id: VBC-131
+name: video-background
+severity: warning
+tags:
+  - ux
+match:
+  regex: <video.*?autoplay.*?loop.*?muted
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+message: Autoplay video backgrounds can be distracting and impact performance.
+category: ux-dx

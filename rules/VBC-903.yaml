@@ -1,0 +1,12 @@
+id: VBC-903
+name: eval-like-timers
+severity: error
+tags:
+  - security
+match:
+  regex: (setTimeout|setInterval)\s*\(\s*['"].*?['"]
+  file_types:
+    - js
+    - ts
+message: Passing strings to timers is eval-like and insecure at line {line}.
+category: security

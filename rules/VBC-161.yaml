@@ -1,0 +1,11 @@
+id: VBC-161
+name: oversized-sticky-header
+severity: warning
+tags:
+  - ux
+match:
+  regex: position:\s*sticky;\s*top:\s*0;.*?height:\s*([3-9][0-9]|1[0-0][0-9])vh
+  file_types:
+    - css
+message: Oversized sticky header (>30vh) detected at line {line}.
+category: ux-dx

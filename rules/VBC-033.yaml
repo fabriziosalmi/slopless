@@ -1,0 +1,20 @@
+id: VBC-033
+name: placeholder-image-src
+severity: error
+tags:
+  - ux
+  - slop
+match:
+  regex: (src|href)=['"](https?://)?(via\.placeholder\.com|picsum\.photos|placehold\.co|dummyimage\.com|loremflickr\.com|placekitten\.com)[^'"]*['"]
+  flags: i
+  file_types:
+    - html
+    - js
+    - ts
+    - tsx
+    - jsx
+message: >-
+  Placeholder image service URL detected at line {line}. External placeholder
+  services break when the service is down, look unfinished, and represent
+  content that was never completed. Replace with real production images.
+category: ux-dx

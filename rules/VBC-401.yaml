@@ -1,0 +1,10 @@
+id: VBC-401
+name: broken-links
+severity: warning
+tags:
+  - docs
+  - maintenance
+match:
+  heuristic_check: link-checker
+message: Broken link '{match}' ({url}) detected at line {line}.
+category: heuristics

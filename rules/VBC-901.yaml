@@ -1,0 +1,19 @@
+id: VBC-901
+name: hardcoded-ip-v4
+severity: warning
+tags:
+  - security
+match:
+  regex: \b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b
+  file_types:
+    - js
+    - ts
+    - py
+    - go
+    - java
+    - json
+    - env
+message: >-
+  Hardcoded IP address detected at line {line}. Use environment variables for
+  network configuration.
+category: security

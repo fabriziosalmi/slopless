@@ -1,0 +1,14 @@
+id: VBC-052
+name: single-letter-variables
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: \b(let|const|var)\s+[a-z]\b(?!=)
+  file_types:
+    - js
+    - ts
+message: >-
+  Single-letter variable name detected at line {line}. Use more descriptive
+  names.
+category: clean-code

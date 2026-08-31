@@ -1,0 +1,18 @@
+id: VBC-007
+name: float-for-currency
+severity: error
+tags:
+  - security
+  - clean-code
+match:
+  regex: \b(price|amount|cost|fee|balance|payment|subtotal|tax)\b\s*[*]\s*0\.[0-9]+
+  flags: i
+  file_types:
+    - js
+    - ts
+    - py
+message: >-
+  Floating-point arithmetic for currency detected at line {line}. Floating-point
+  errors will silently steal or add pennies. Use integers (minor currency units)
+  or a Decimal library instead.
+category: security

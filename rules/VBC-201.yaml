@@ -1,0 +1,15 @@
+id: VBC-201
+name: redundant-async
+severity: warning
+tags:
+  - clean-code
+  - performance
+match:
+  regex: async\s+function.*?\{((?!!await).)*?\}
+  file_types:
+    - js
+    - ts
+message: >-
+  Redundant 'async' detected. Function does not use 'await'. Remove 'async' to
+  avoid promise overhead.
+category: clean-code

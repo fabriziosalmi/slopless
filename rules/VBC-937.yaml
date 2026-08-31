@@ -1,0 +1,20 @@
+id: VBC-937
+name: client-side-auth-check
+severity: error
+tags:
+  - security
+  - ai-error
+match:
+  regex: >-
+    (localStorage|sessionStorage)\.(getItem|setItem)\s*\(\s*['"](?:token|auth|role|user|admin|permission)['"]\s*\)
+  file_types:
+    - js
+    - ts
+    - jsx
+    - tsx
+message: >-
+  Authentication token or role stored/read from browser storage at line {line}.
+  Client-side auth logic is trivially bypassable. Validate identity server-side
+  on every request. Never trust data in localStorage or sessionStorage for
+  access control decisions.
+category: security

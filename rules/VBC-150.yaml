@@ -1,0 +1,16 @@
+id: VBC-150
+name: production-todo
+severity: warning
+tags:
+  - maintenance
+match:
+  regex: \b(TODO|FIXME|HACK|DEBUG|XXX)\b
+  file_types:
+    - js
+    - ts
+    - py
+    - sh
+    - c
+    - cpp
+message: Unresolved '{match}' detected at line {line}. Resolve these before production.
+category: core

@@ -1,0 +1,17 @@
+id: VBC-324
+name: condescending-language
+severity: warning
+tags:
+  - docs
+match:
+  regex: >-
+    \b(simply|just|basically|easily|obviously|clearly|everyone knows|as anyone
+    can see)\b
+  flags: i
+  file_types:
+    - md
+    - txt
+message: >-
+  Condescending or vague language '{match}' detected at line {line}. Be direct
+  and avoid assumptions about the reader's knowledge.
+category: docs

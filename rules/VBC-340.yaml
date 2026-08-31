@@ -1,0 +1,13 @@
+id: VBC-340
+name: gendered-address
+severity: warning
+tags:
+  - inclusive-language
+match:
+  regex: \b(guys|he|she)\b
+  flags: i
+  file_types:
+    - md
+    - txt
+message: Gendered language detected at line {line}. Use 'folks', 'everyone', or 'they'.
+category: docs

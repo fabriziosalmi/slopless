@@ -1,0 +1,15 @@
+id: VBC-197
+name: hardcoded-node-version
+severity: warning
+tags:
+  - dx
+  - portability
+match:
+  regex: node\s+-v|node\s+--version
+  file_types:
+    - sh
+    - json
+message: >-
+  Hardcoded system version check detected at line {line}. Use an .nvmrc or
+  engine field in package.json instead.
+category: ux-dx

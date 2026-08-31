@@ -1,0 +1,11 @@
+id: VBC-925
+name: large-file-staged
+severity: warning
+tags:
+  - git
+  - performance
+match:
+  git_check: large_file_size
+  threshold: 1048576
+message: File is over 1MB ({size} bytes). Consider using Git LFS or external storage.
+category: git

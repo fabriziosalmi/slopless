@@ -1,0 +1,14 @@
+id: VBC-053
+name: redundant-interpolation
+severity: warning
+tags:
+  - clean-code
+match:
+  regex: '`\$\{[a-zA-Z0-9_]+\}`'
+  file_types:
+    - js
+    - ts
+message: >-
+  Redundant string interpolation detected at line {line}. Use the variable
+  directly.
+category: clean-code

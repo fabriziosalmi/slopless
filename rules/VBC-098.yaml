@@ -1,0 +1,13 @@
+id: VBC-098
+name: z-index-war
+severity: warning
+tags:
+  - css
+match:
+  regex: z-index\s*:\s*[0-9]{4,}
+  file_types:
+    - css
+    - scss
+    - less
+message: Extremely high z-index value detected at line {line} (z-index wars).
+category: clean-code
