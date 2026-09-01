@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { Rule } from '../engine/schema';
 import { isExcludedFile } from '../engine/file-scope';
-import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange } from '../engine/ast-utils';
+import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange, isDocComment, markFileHeader } from '../engine/ast-utils';
 import { protectedRangesFor, supportsTokenizing } from '../engine/tokenize';
 import { testRegionsFor, isInTestRegion } from '../engine/test-regions';
 import { VocabularyState, excuses } from '../engine/vocabulary';
@@ -39,9 +39,9 @@ export class RegexChecker {
         // tokeniser everywhere else. Without one of the two, `scan:` is ignored
         // and every rule reads comments and string literals as if they were code.
         const hasScopes = supportsProtectedRanges(ext) || supportsTokenizing(ext);
-        const ranges = supportsProtectedRanges(ext)
+        const ranges = markFileHeader(supportsProtectedRanges(ext)
             ? extractProtectedRanges(content, true)
-            : protectedRangesFor(ext, content);
+            : protectedRangesFor(ext, content), content);
         const selectors = CSS_EXTENSIONS.has(ext) ? buildSelectorMap(index.lines) : null;
 
         // Only computed if a rule asks, since it means walking the file again.
@@ -61,11 +61,12 @@ export class RegexChecker {
             if (!regex) continue;
 
             for (const match of iterateMatches(regex, content, index, rule.match.multiline === true)) {
-                if (hasScopes && !isInScope(ranges, match.start, rule.match.scan)) continue;
+                if (hasScopes && !isInScope(ranges, match, rule.match.scan)) continue;
 
                 const line = lineOfOffset(index, match.start);
                 if (selectors && isExcludedSelector(selectors, line, rule.match.exclude_selectors)) continue;
                 if (selectors && lacksRequiredSelector(selectors, line, rule.match.require_selectors)) continue;
+                if (rule.match.exclude_doc_comments && isDocComment(ranges, match.start)) continue;
                 if (rule.match.exclude_test_code && isInTestRegion(testRegions(), match.start)) continue;
 
                 const key = `${rule.id}:${line}`;
@@ -153,11 +154,16 @@ function lineOfOffset(index: LineIndex, offset: number): number {
     return low + 1;
 }
 
-function isInScope(ranges: ProtectedRange[], offset: number, scan: Rule['match']['scan']): boolean {
+function isInScope(ranges: ProtectedRange[], match: RawMatch, scan: Rule['match']['scan']): boolean {
     if (scan === 'all') return true;
-    const scope = scopeAt(ranges, offset);
+    const scope = scopeAt(ranges, match.start);
+    // A match that starts inside a literal and runs out of it is not in it. One
+    // that began at a regex and ended in the template beside it was reported as
+    // a complex regular expression.
+    if (scope !== 'code' && !endsInSameRange(ranges, match)) return false;
     if (scan === 'strings') return scope === 'string';
     if (scan === 'comments') return scope === 'comment';
+    if (scan === 'regex') return scope === 'regex';
     return scope === 'code'; // default
 }
 
@@ -216,6 +222,11 @@ function selectorMatches(selector: string | undefined, patterns: string[]): bool
         return tokens.some(token => token === needle
             || (token.startsWith(needle) && /[:.[#]/.test(token.charAt(needle.length))));
     });
+}
+
+function endsInSameRange(ranges: ProtectedRange[], match: RawMatch): boolean {
+    const end = match.start + match.text.length;
+    return ranges.some(r => match.start >= r.start && end <= r.end);
 }
 
 function firstLineOf(text: string): string {

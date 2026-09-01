@@ -6,6 +6,9 @@ tags:
   - clean-code
 match:
   regex: /(?:[^/\n\\]|\\.){30,}/[dgimsuvy]*
+  # Regular expression literals and nothing else. Reading strings found the
+  # slashes in a translation file; reading code found the ones in a division.
+  scan: regex
   file_types:
     - js
     - ts

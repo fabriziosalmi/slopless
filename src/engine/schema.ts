@@ -32,7 +32,7 @@ export const RuleSchema = z.object({
          *   comments - the match must start inside a comment
          *   all      - no scope filtering
          */
-        scan: z.enum(['code', 'strings', 'comments', 'all']).optional(),
+        scan: z.enum(['code', 'strings', 'comments', 'regex', 'all']).optional(),
         /** Evaluate the regex against the whole file instead of line by line. */
         multiline: z.boolean().optional(),
         /** Glob patterns; a file whose path matches any of them is skipped. */
@@ -43,6 +43,10 @@ export const RuleSchema = z.object({
         // Tests live inside the source file in some languages. A rule that already
         // excludes test *files* usually means the same thing about test *code*.
         exclude_test_code: z.boolean().optional(),
+        // Go requires a doc comment on every exported symbol and on the package;
+        // Rust writes them with ///. A rule that reads those is asking a language
+        // to stop following its own convention.
+        exclude_doc_comments: z.boolean().optional(),
         git_check: z.enum([
             'committed_env',
             'binary_file',

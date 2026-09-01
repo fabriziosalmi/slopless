@@ -9,6 +9,7 @@ match:
   flags: m
   multiline: true
   scan: all
+  exclude_doc_comments: true
   file_types:
     - js
     - ts
@@ -17,10 +18,37 @@ message: >-
   Too many consecutive comment lines at line {line}. Code should be self-documenting.
 tests:
   fire:
-    - code: |
-        // filler comment line
-      repeat: 12
+    # Below the first line of code, so it is commentary rather than a header.
+    - |
+      const answer = 42;
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
+      // filler comment line
   quiet:
     - |
       // one explanatory comment
       const answer = 42;
+    # A banner at the top of a file explains what the file is. Counting it as
+    # excess commentary reported 79 module headers in one project.
+    - |
+      // ─────────────────────────────
+      // Wasm Core Bridge
+      //
+      // Lazy-loads the Rust module.
+      // All functions go through this singleton.
+      //
+      // Usage:
+      //   import { core } from './bridge';
+      //   const c = await core();
+      //
+      // ─────────────────────────────
+      import { core } from './bridge';

@@ -27,6 +27,16 @@ interface BlockComment {
 
 interface Syntax {
     lineComments: string[];
+    /** Line-comment markers that document the item below: `///`, `//!`. */
+    docLineComments?: string[];
+    /** Block-comment openers that document: `/**`, and Ruby's `=begin`. */
+    docBlockComments?: string[];
+    /**
+     * Go documents by position rather than by marker: a plain `//` block sitting
+     * immediately above a declaration is that declaration's documentation, and
+     * the language requires one on everything exported.
+     */
+    docByPosition?: RegExp;
     blockComments: BlockComment[];
     strings: StringForm[];
     /** Rust `&'a str` opens no char literal. Checked before `'` is believed. */
@@ -58,6 +68,7 @@ const SYNTAX: Record<string, Syntax> = {
     },
     go: {
         lineComments: ['//'],
+        docByPosition: /^\s*(?:package|func|type|var|const)\b/,
         blockComments: [{ open: '/*', close: '*/' }],
         strings: [
             { open: '`', close: '`' },              // raw: spans lines, no escapes
@@ -67,6 +78,7 @@ const SYNTAX: Record<string, Syntax> = {
     },
     rs: {
         lineComments: ['//'],
+        docLineComments: ['///', '//!'],
         // Rust block comments nest, and a rule that stopped at the first `*/`
         // would call the rest of the file code.
         blockComments: [{ open: '/*', close: '*/', nestable: true }],
@@ -85,11 +97,11 @@ const SYNTAX: Record<string, Syntax> = {
             { open: '"', close: '"', escape: '\\' },
         ],
     },
-    java: { lineComments: ['//'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
-    c: { lineComments: ['//'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
-    cs: { lineComments: ['//'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
-    kt: { lineComments: ['//'], blockComments: [{ open: '/*', close: '*/', nestable: true }], strings: C_LIKE_STRINGS },
-    swift: { lineComments: ['//'], blockComments: [{ open: '/*', close: '*/', nestable: true }], strings: C_LIKE_STRINGS },
+    java: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
+    c: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
+    cs: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
+    kt: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/', nestable: true }], strings: C_LIKE_STRINGS },
+    swift: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/', nestable: true }], strings: C_LIKE_STRINGS },
     rb: {
         lineComments: ['#'],
         blockComments: [{ open: '=begin', close: '=end' }],
@@ -132,7 +144,12 @@ export function protectedRangesFor(ext: string, source: string): ProtectedRange[
             && (marker !== '#' || !syntax.hashNeedsBoundary || atWordBoundary(source, i)));
         if (line) {
             const end = indexOrEnd(source, '\n', i);
-            ranges.push({ start: i, end, type: 'comment' });
+            const marked = syntax.docLineComments?.some(m => startsWith(source, i, m));
+            // Go has no doc marker: the block above a declaration is its
+            // documentation, so the run of comment lines is looked at as one.
+            const positional = syntax.docByPosition
+                && syntax.docByPosition.test(lineAfterCommentRun(source, end, line));
+            ranges.push({ start: i, end, type: 'comment', doc: marked || positional ? true : undefined });
             i = end;
             continue;
         }
@@ -140,7 +157,8 @@ export function protectedRangesFor(ext: string, source: string): ProtectedRange[
         const block = syntax.blockComments.find(b => startsWith(source, i, b.open));
         if (block) {
             const end = endOfBlock(source, i, block);
-            ranges.push({ start: i, end, type: 'comment' });
+            const isDoc = syntax.docBlockComments?.some(m => startsWith(source, i, m));
+            ranges.push({ start: i, end, type: 'comment', doc: isDoc ? true : undefined });
             i = end;
             continue;
         }
@@ -153,7 +171,7 @@ export function protectedRangesFor(ext: string, source: string): ProtectedRange[
             // which is how a docstring explaining an SSRF defence got reported as
             // an insecure URL.
             const isDoc = syntax.docstrings && form.open.length === 3 && aloneOnItsLine(source, i);
-            ranges.push({ start: i, end, type: isDoc ? 'comment' : 'string' });
+            ranges.push({ start: i, end, type: isDoc ? 'comment' : 'string', doc: isDoc ? true : undefined });
             i = end;
             continue;
         }
@@ -171,6 +189,18 @@ function aloneOnItsLine(source: string, at: number): boolean {
         i--;
     }
     return true;
+}
+
+/** The first line after an unbroken run of line comments starting at `from`. */
+function lineAfterCommentRun(source: string, from: number, marker: string): string {
+    let i = from;
+    while (i < source.length) {
+        const end = indexOrEnd(source, '\n', i + 1);
+        const line = source.slice(i + 1, end);
+        if (!line.trimStart().startsWith(marker)) return line;
+        i = end;
+    }
+    return '';
 }
 
 function startsWith(source: string, at: number, text: string): boolean {
