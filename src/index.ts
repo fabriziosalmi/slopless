@@ -20,6 +20,7 @@ import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
+import { isGeneratedFile } from './engine/generated';
 import * as ts from 'typescript';
 
 const RULES_DIR = path.join(__dirname, '..', 'rules');
@@ -163,8 +164,15 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     }
 
     // Analyze files concurrently with a CPU core boundary
+    let generatedCount = 0;
     const results = await runWithConcurrencyLimit(files, os.cpus().length, async (file) => {
         if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
+            return [];
+        }
+
+        // A minified bundle sets off every rule and none of it is actionable.
+        if (isGeneratedFile(file)) {
+            generatedCount++;
             return [];
         }
 
@@ -230,6 +238,10 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         } else {
             console.log('✅ No static analysis issues detected. Clean architecture!');
         }
+        if (generatedCount > 0) {
+            console.log(`\nSkipped ${generatedCount} generated file${generatedCount === 1 ? '' : 's'} `
+                + '(minified or bundled output).');
+        }
     }
 
     if (errors.length > 0) {
@@ -272,7 +284,7 @@ program
                 fs.writeFileSync(ignorePath,
                     // Generated output is not source. Coverage reports in particular
                     // are large, minified and full of patterns nobody wrote by hand.
-                    'node_modules/\ndist/\nbuild/\ncoverage/\nout/\n.next/\n.git/\n*.min.js\n');
+                    'node_modules/\nvendor/\ndist/\nbuild/\ncoverage/\nout/\n.next/\n.git/\n*.min.js\n');
                 console.log('✅ Created .sloplessignore');
             } else {
                 console.log('⚠️ .sloplessignore already exists.');

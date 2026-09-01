@@ -1,3 +1,19 @@
+# 1.2.1 - 2026-09-01
+
+- **Generated files are skipped, by shape rather than by name.** A repository
+  vendoring Bootstrap produced 362 findings, 263 of them inside
+  `bootstrap.bundle.min.js` and `bootstrap.min.css`. Every rule fires on minified
+  output and none of it is actionable, and a filename rule does not help: a
+  bundle called `bundle.js` reads the same as one called `bundle.min.js`.
+
+  Measured across real files, hand-written source runs 25 to 50 bytes per line
+  and minified output runs into the thousands, so the two do not overlap. A file
+  averaging more than 500 bytes per line, or holding a single line over 2000, is
+  treated as machine output. The count is reported rather than hidden, because a
+  linter that quietly skips files is the failure mode this whole project is about.
+
+- `vendor/` joins the default `.sloplessignore`.
+
 # 1.2.0 - 2026-09-01
 
 An audio workstation, where the vocabulary of the domain collides head-on with
