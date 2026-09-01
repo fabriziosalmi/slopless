@@ -18,13 +18,44 @@ inputs:
   args:
     description: "Extra CLI arguments, verbatim"
     default: ""
+  output:
+    description: "Write the report to this file instead of the log. Required to upload SARIF."
+    default: ""
 runs:
   using: composite
   steps:
-    - shell: bash   # uses the runner's node (>=18 required; every hosted runner qualifies)
-      run: >
-        node "${{ github.action_path }}/dist/index.js" ${{ inputs.patterns }}
-        ${{ inputs.config && format('--config {0}', inputs.config) || '' }}
-        ${{ inputs.format != 'default' && format('--format {0}', inputs.format) || '' }}
-        ${{ inputs.type-check == 'true' && '--type-check' || '' }}
-        --no-cache ${{ inputs.args }}
+    # Inputs are passed through the environment rather than interpolated into the
+    # command text, so a value can never become shell source.
+    - shell: bash
+      env:
+        SLOPLESS_DIR: ${{ github.action_path }}
+        SLOPLESS_PATTERNS: ${{ inputs.patterns }}
+        SLOPLESS_CONFIG: ${{ inputs.config }}
+        SLOPLESS_FORMAT: ${{ inputs.format }}
+        SLOPLESS_TYPE_CHECK: ${{ inputs.type-check }}
+        SLOPLESS_ARGS: ${{ inputs.args }}
+        SLOPLESS_OUTPUT: ${{ inputs.output }}
+      run: |
+        set -uo pipefail
+        # Patterns must reach the CLI intact: with globstar off, bash rewrites
+        # `src/**/*.ts` as `src/*/*.ts` and silently drops everything at the top
+        # level. Disabling pathname expansion leaves the globbing to the CLI,
+        # which is what the pattern was written for.
+        set -f
+        argv=()
+        [ -n "$SLOPLESS_CONFIG" ] && argv+=(--config "$SLOPLESS_CONFIG")
+        [ "$SLOPLESS_FORMAT" != "default" ] && argv+=(--format "$SLOPLESS_FORMAT")
+        [ "$SLOPLESS_TYPE_CHECK" = "true" ] && argv+=(--type-check)
+        argv+=(--no-cache)
+
+        # Patterns and extra args are deliberately word-split: both are lists.
+        # shellcheck disable=SC2086
+        if [ -n "$SLOPLESS_OUTPUT" ]; then
+          node "$SLOPLESS_DIR/dist/index.js" $SLOPLESS_PATTERNS "${argv[@]}" $SLOPLESS_ARGS > "$SLOPLESS_OUTPUT"
+          status=$?
+          echo "Report written to $SLOPLESS_OUTPUT"
+        else
+          node "$SLOPLESS_DIR/dist/index.js" $SLOPLESS_PATTERNS "${argv[@]}" $SLOPLESS_ARGS
+          status=$?
+        fi
+        exit $status
