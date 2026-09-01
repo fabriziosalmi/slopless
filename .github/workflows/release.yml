@@ -56,4 +56,25 @@ jobs:
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
 
-      - run: npm publish --provenance --access public
+      # The first publish of a scoped package cannot come from here: npm's trusted
+      # publisher is configured per package, and the package has to exist first.
+      # Until then a tag should say so plainly rather than leave a failed run.
+      - name: can this publish from CI yet?
+        id: registry
+        run: |
+          name="$(node -p "require('./package.json').name")"
+          if npm view "$name" version >/dev/null 2>&1; then
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: publish
+        if: steps.registry.outputs.published == 'true'
+        run: npm publish --provenance --access public
+
+      - name: explain why nothing was published
+        if: steps.registry.outputs.published != 'true'
+        run: |
+          echo "::notice title=Publish skipped::The package is not on npm yet. Publish it once by hand with a granular token, configure the trusted publisher for this workflow at npmjs.com, then revoke the token. Every tag after that publishes from here with provenance and no stored credential."
+
