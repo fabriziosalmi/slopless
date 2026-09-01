@@ -157,3 +157,29 @@ intend to catch. Three rules take exclusions rather than an on/off switch:
 
 If a rule fires on something it should not, that is a bug worth reporting: every
 rule ships an example of what it must ignore, and a missing one is the fix.
+
+## Silencing one line
+
+A rule can be right about the shape and wrong about the line. Turning it off in
+`slopless.config.json` costs every other file's coverage to buy one exception, so
+name the exception instead:
+
+```js
+// slopless-disable-next-line VBC-001 -- a fake PAT; this test asserts it is redacted
+const TOKEN = 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8';
+
+el.setAttribute('href', url); // slopless-disable-line VBC-070
+```
+
+The directive is looked for in the raw line, not in a parsed comment, so it works
+in `//`, `#`, `/* */` and `<!-- -->` without knowing which language it is in. It
+applies to every tier: a finding from the AST and a finding from a regex are the
+same annoyance on the same line.
+
+List as many rule ids as you need, separated by anything. Everything after ` -- `
+is for the next person to read, and rule ids mentioned there do not count, so you
+can write "unlike VBC-070, this one is real" without silencing VBC-070.
+
+A directive with no rule id silences every rule on that line. Prefer naming one:
+a suppression that names its rule stops applying the moment the line changes
+character, which is the point.

@@ -52,6 +52,7 @@ export class RegexChecker {
 
                 const line = lineOfOffset(index, match.start);
                 if (selectors && isExcludedSelector(selectors, line, rule.match.exclude_selectors)) continue;
+                if (selectors && lacksRequiredSelector(selectors, line, rule.match.require_selectors)) continue;
 
                 const key = `${rule.id}:${line}`;
                 if (seen.has(key)) continue;
@@ -173,11 +174,26 @@ function buildSelectorMap(lines: string[]): string[] {
 
 function isExcludedSelector(selectors: string[], line: number, patterns?: string[]): boolean {
     if (!patterns || patterns.length === 0) return false;
-    const selector = (selectors[line - 1] || '').toLowerCase();
-    if (!selector) return false;
-    const tokens = selector.split(/[\s,>+~]+/).filter(Boolean);
+    return selectorMatches(selectors[line - 1], patterns);
+}
+
+// The mirror of exclude_selectors: a rule about focus has nothing to say inside a
+// block that describes something which can never take focus. A line with no
+// selector above it is not in a block at all, so it cannot satisfy a requirement.
+function lacksRequiredSelector(selectors: string[], line: number, patterns?: string[]): boolean {
+    if (!patterns || patterns.length === 0) return false;
+    return !selectorMatches(selectors[line - 1], patterns);
+}
+
+function selectorMatches(selector: string | undefined, patterns: string[]): boolean {
+    const target = (selector || '').toLowerCase();
+    if (!target) return false;
+    const tokens = target.split(/[\s,>+~]+/).filter(Boolean);
     return patterns.some(pattern => {
         const needle = pattern.toLowerCase();
+        // A qualifier is a fragment of a token, not a token: `:focus` has to find
+        // `.editor:focus-visible`, which starts with neither a colon nor `.editor`.
+        if (/^[:[]/.test(needle)) return tokens.some(token => token.includes(needle));
         // A bare tag name must match the whole token or the part before a
         // qualifier, so `a` matches `a:hover` but never `.accordion`.
         return tokens.some(token => token === needle

@@ -9,6 +9,22 @@ match:
   regex: >-
     outline:\s*(?:none|0)\b(?![\s\S]{0,400}?:focus-visible[\s\S]{0,140}?outline\s*:\s*(?!none|0|\s*;))
   multiline: true
+  # An outline only ever appears on focus, so removing one matters only where
+  # focus can land. `.card { outline: none }` on a div nobody can tab to removes
+  # nothing; the same line under `:focus-visible` removes the only thing telling
+  # a keyboard user where they are.
+  require_selectors:
+    - ':focus'
+    - ':active'
+    - a
+    - button
+    - input
+    - select
+    - textarea
+    - summary
+    - details
+    - '[tabindex]'
+    - '[contenteditable]'
   file_types:
     - css
     - scss
@@ -19,8 +35,12 @@ message: >-
 tests:
   fire:
     - 'a:focus { outline: none; }'
+    - 'input[type="range"]:focus-visible { outline: none; }'
+    - '.editor:focus-visible { outline: none !important; }'
   quiet:
     - 'a:focus { outline: 2px solid currentColor; }'
+    - '.card { cursor: default; outline: none; overflow: hidden; }'
+    - '.ProseMirror { outline: none; min-height: 100vh; }'
     - |
       *:focus {
         outline: none;

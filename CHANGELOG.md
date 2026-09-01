@@ -1,3 +1,23 @@
+# 1.4.5 - 2026-09-01
+
+- **A single line can now be excused, by name.** `// slopless-disable-next-line
+  VBC-001 -- a fake PAT; this test asserts it is redacted`, or
+  `slopless-disable-line` at the end of the line itself. Until now the only way to
+  accept one justified exception was to switch the rule off for the whole
+  repository, which pays with every other file's coverage. The directive is read
+  from the raw line rather than a parsed comment, so `//`, `#`, `/* */` and
+  `<!-- -->` all work, and it is applied after every tier: a finding from the AST
+  and a finding from a regex are the same annoyance on the same line. Text after
+  ` -- ` is for the next reader, and rule ids named there do not count.
+- **VBC-913 only speaks where focus can land.** An outline appears on focus and
+  nowhere else, so `.card { outline: none }` on a div nobody can tab to removes
+  nothing. The rule now requires a selector that is focus-related or natively
+  focusable, which is what `require_selectors` is for: the mirror of
+  `exclude_selectors`, available to any CSS rule.
+- **VBC-034 knows a parse base from an endpoint.** `new URL(req.url, `+"`http://${host}`"+`)`
+  is the standard way to parse a request URL in Node; nothing is ever fetched over
+  that base.
+
 # 1.4.4 - 2026-09-01
 
 Five false positives, all found by running slopless over repositories it did not

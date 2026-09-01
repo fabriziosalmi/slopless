@@ -101,6 +101,18 @@ npx @fabriziosalmi/slopless --format sarif > gl-sast-report.json
 npx @fabriziosalmi/slopless "src/**/*.ts" "docs/**/*.md"
 ```
 
+## Silencing one line
+
+```js
+// slopless-disable-next-line VBC-001 -- a fake PAT; this test asserts it is redacted
+const TOKEN = 'ghp_A1b2C3d4E5f6G7h8I9j0K1l2M3n4O5p6Q7r8';
+```
+
+Also `// slopless-disable-line VBC-001` at the end of the line it applies to. The
+directive is read from the raw line, so `#`, `/* */` and `<!-- -->` work too, and
+it covers every checker tier. Full rules in
+[docs/configuration.md](docs/configuration.md).
+
 ## Rule Taxonomy
 
 - **Core/Security**: Detection of exposed credentials, `eval()` usage, `innerHTML` assignments, SQL built by concatenation, command injection, prototype pollution, insecure file permissions (`chmod 777`), and hardcoded paths.

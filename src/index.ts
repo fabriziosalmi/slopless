@@ -21,6 +21,7 @@ import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
+import { applySuppressions } from './engine/suppressions';
 import { isGeneratedFile } from './engine/generated';
 import * as ts from 'typescript';
 
@@ -249,6 +250,9 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     }
 
     allViolations = applyPrecedence(allViolations, rules);
+    // After every tier, so one directive covers all of them: a rule the AST found
+    // and a rule a regex found are the same annoyance on the same line.
+    allViolations = applySuppressions(allViolations);
 
     cacheManager.saveCache();
 

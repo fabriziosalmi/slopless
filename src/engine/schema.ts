@@ -39,6 +39,7 @@ export const RuleSchema = z.object({
         exclude_files: z.array(z.string()).optional(),
         /** Substrings; a CSS match whose enclosing selector contains any of them is skipped. */
         exclude_selectors: z.array(z.string()).optional(),
+        require_selectors: z.array(z.string()).optional(),
         git_check: z.enum([
             'committed_env',
             'binary_file',
