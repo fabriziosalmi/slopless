@@ -1,3 +1,18 @@
+# 1.1.5 - 2026-09-01
+
+Two rules that produced nothing but noise on a desktop app, at a rate that made
+the cause obvious: every single finding was wrong.
+
+- **`VBC-504` flagged `res` 72 times out of 73.** `req` and `res` were on the
+  shadowed-module list for Express, but they are the ordinary words for a request
+  and a result everywhere else, and the check cannot tell which codebase it is
+  reading. The list is module names only now.
+- **`VBC-201` flagged 67 test mocks and no real declarations.** `vi.fn(async
+  (name) => undefined)` has to be async to stand in for an async function and has
+  nothing to await: its signature belongs to the callee. A function passed
+  straight to a call is no longer reported, so the rule only covers declarations
+  the author actually chose to mark async.
+
 # 1.1.4 - 2026-09-01
 
 A monorepo with 169 source files produced 1794 findings and, more usefully, four

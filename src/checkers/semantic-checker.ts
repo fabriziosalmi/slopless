@@ -86,10 +86,13 @@ export class SemanticChecker {
                     if (ts.isVariableDeclaration(node)) {
                         const name = node.name.getText();
                         // Removed 'data', 'config', 'app', 'db' as too generic to be shadowing concerns
+                        // Module names only. `req` and `res` were here for Express,
+                        // but they are the ordinary words for a request and a result
+                        // in every other codebase, and this check cannot tell which
+                        // it is looking at.
                         const commonShadows = [
                             'fs', 'path', 'crypto', 'http', 'https',
-                            'express', 'req', 'res', 'os',
-                            'child_process', 'cluster', 'dns',
+                            'express', 'os', 'child_process', 'cluster', 'dns',
                         ];
                         if (commonShadows.includes(name)) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());

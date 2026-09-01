@@ -17,3 +17,4 @@ tests:
   quiet:
     - const filePath = req.query.path;
     - const fakeFs = createFakeFs();
+    - const res = await api.getNotes();

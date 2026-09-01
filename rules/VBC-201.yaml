@@ -31,3 +31,5 @@ tests:
       function load() {
         return cached;
       }
+    - |
+      const spy = vi.fn(async (name) => undefined);

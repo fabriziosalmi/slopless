@@ -265,6 +265,10 @@ export class AstChecker {
         const modifiers = ts.canHaveModifiers(node) ? ts.getModifiers(node) : undefined;
         const isAsync = modifiers?.some(m => m.kind === ts.SyntaxKind.AsyncKeyword) ?? false;
         if (!isAsync) return;
+        // A function handed straight to a call does not choose its own signature:
+        // `vi.fn(async () => undefined)` has to be async to stand in for one, and
+        // has nothing to await. Only a declaration the author owns is reported.
+        if (ts.isCallExpression(node.parent) && node.parent.arguments.includes(node as ts.Expression)) return;
         if (containsAwait(body)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
