@@ -4,6 +4,21 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.1.9 - 2026-09-01
+
+The first Python repository, and it answered a question about the whole rollout
+rather than about itself.
+
+- **`VBC-103` reported 68 well-written comment headers and no ASCII art.** Every
+  hit was a `# ---` rule wrapping an explanatory paragraph, which is a Python
+  documentation convention, and the opposite of the decoration the rule was
+  written for. It now looks for three or more consecutive comment lines made of
+  shape with no words between them: a banner is furniture, a rule around a
+  heading is punctuation.
+- **`VBC-015` counted test data as magic numbers.** A parametrised table of
+  scores is data, not a constant waiting to be named. It skips test paths now,
+  matching what `VBC-003`, `VBC-019`, `VBC-034` and `VBC-901` already did.
+
 # 1.1.8 - 2026-09-01
 
 A regression I shipped in 1.1.6, and the reason my own harness missed it.

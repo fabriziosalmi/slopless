@@ -89,7 +89,7 @@ Use the search box above to find a rule by what it catches.
 | Rule | Catches | Severity | Analysis |
 |---|---|---|---|
 | [VBC-928](./VBC-928.md)<br>`lorem-ipsum-docs` | Placeholder text 'Lorem ipsum' detected | **error** | Regex |
-| [VBC-103](./VBC-103.md)<br>`ascii-art-header` | ASCII art or excessive separator detected | warning | Regex |
+| [VBC-103](./VBC-103.md)<br>`ascii-art-block` | Block of decoration: three or more comment lines that are shape and nothing else | warning | Regex |
 | [VBC-324](./VBC-324.md)<br>`condescending-language` | Condescending or vague language detected | warning | Regex |
 | [VBC-334](./VBC-334.md)<br>`ai-generated-fluff` | Potential AI-generated fluff or overused cliché detected | warning | Regex |
 | [VBC-338](./VBC-338.md)<br>`non-inclusive-terminology` | Non-inclusive terminology found | warning | Regex |

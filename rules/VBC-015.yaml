@@ -11,6 +11,16 @@ match:
     - js
     - ts
     - py
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
 message: >-
   Magic number '{match}' detected at line {line}. Consider using a named constant (e.g., SECONDS_IN_DAY).
 tests:

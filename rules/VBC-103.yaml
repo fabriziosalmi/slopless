@@ -1,22 +1,35 @@
 id: VBC-103
-name: ascii-art-header
+name: ascii-art-block
 severity: warning
 category: docs
 tags:
   - docs
   - style
 match:
-  regex: '[#*]{10,}|[\-/]{10,}'
-  scan: comments
+  regex: >-
+    (?:^[ \t]*(?:#|//)(?=[^\nA-Za-z0-9]*$)[^\n]*[-=*#_|/\\+~^]{6,}[^\n]*$\n){3,}
+  flags: m
+  multiline: true
   file_types:
     - js
     - ts
     - py
     - sh
 message: >-
-  ASCII art or excessive separator detected at line {line}. Use standard headers for clarity.
+  Block of decoration at line {line}: three or more comment lines that are shape and nothing
+  else. A rule around a section heading is punctuation and is not reported; a banner is furniture
+  that has to be maintained.
 tests:
   fire:
-    - // ----------------
+    - |
+      # ####################
+      # ####################
+      # ####################
   quiet:
-    - // - handles retries
+    - |
+      # --------------------------------
+      # Shared fixtures from public data
+      # --------------------------------
+    - |
+      # ------------------------------
+    - '# - handles retries'
