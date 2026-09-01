@@ -1,3 +1,35 @@
+# 1.3.0 - 2026-09-01
+
+Eleven repositories are now running slopless in CI, which is enough production
+data to see what it actually reports.
+
+**4754 findings. Nine of them were security.**
+
+| | | |
+| --- | --- | --- |
+| warnings | 4653 | 97.9% |
+| errors | 101 | 2.1% |
+| clean-code | 2671 | 56.2% |
+| docs | 979 | 20.6% |
+| security | **9** | **0.2%** |
+
+The five loudest rules produce 55% of everything, and all five are style. Someone
+installing this to find hardcoded credentials gets a ratio of one to five hundred.
+
+## Added
+
+- **`--only <categories>`** and **`--min-severity error`**. Both narrow the rule
+  set before anything runs, so they cost nothing rather than filtering output
+  after the fact. On one repository: 993 findings, 51 with `--only security,core`,
+  4 with `--min-severity error`.
+
+  These do not replace switching individual rules off. They are for asking a
+  different question of the same codebase, so a pre-commit hook can block on
+  hazards while a weekly run reads everything.
+
+- `--version` reports the real version. It had been hardcoded to 1.0.0 since that
+  release.
+
 # 1.2.2 - 2026-09-01
 
 - **`VBC-028` and `VBC-065` are warnings.** Seven rules in the set are built on a

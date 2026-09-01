@@ -9,6 +9,7 @@ import * as cp from 'child_process';
 import * as os from 'os';
 
 import { RuleLoader } from './engine/loader';
+import { Rule } from './engine/schema';
 import { loadConfig, SloplessConfig } from './engine/config';
 import { RegexChecker, Violation } from './checkers/regex-checker';
 import { GitChecker } from './checkers/git-checker';
@@ -108,7 +109,30 @@ export function applyIgnoreRules(files: string[], configIgnore?: string[]): stri
     });
 }
 
+/**
+ * Narrows the rule set before anything runs.
+ *
+ * Across ten instrumented repositories the tool reported 4754 findings, of which
+ * 9 were security and 101 were errors of any kind. Everything a person installs
+ * this for was buried under style. Selecting up front is cheaper than reading
+ * past it, and cheaper than running the rules at all.
+ */
+export function selectRules(rules: Rule[], options: { only?: string; minSeverity?: string }): Rule[] {
+    let selected = rules;
+
+    if (options.only) {
+        const wanted = new Set(options.only.split(',').map(part => part.trim()).filter(Boolean));
+        selected = selected.filter(rule => wanted.has(rule.category));
+    }
+    if (options.minSeverity === 'error') {
+        selected = selected.filter(rule => rule.severity === 'error');
+    }
+    return selected;
+}
+
 interface LintOptions {
+    only?: string;
+    minSeverity?: string;
     format: string;
     shouldFix: boolean;
     useCache: boolean;
@@ -134,6 +158,8 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
             return rule;
         }).filter(rule => (rule as any).severity !== 'off');
     }
+
+    rules = selectRules(rules, options);
 
     if (files.length === 0) {
         if (options.format === 'default') console.log('No files to check.');
@@ -258,7 +284,7 @@ const program = new Command();
 program
     .name('slopless')
     .description('Static Analysis Tool to prevent unstructured coding patterns')
-    .version('1.0.0');
+    .version(require('../package.json').version);
 
 program
     .argument('[patterns...]', 'Glob patterns for files to lint. If empty, lints staged files.')
@@ -267,8 +293,10 @@ program
     .option('--fix', 'Automatically fix issues where possible', false)
     .option('--no-cache', 'Disable file caching', false)
     .option('--type-check', 'Enable deep semantic type analysis via ts.createProgram (slower)', false)
+    .option('--only <categories>', 'Comma-separated categories to run: security, core, clean-code, ux-dx, docs, git')
+    .option('--min-severity <error|warning>', 'Lowest severity to report', 'warning')
     .option('--init', 'Initialize Slopless configuration files in the current directory')
-    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, typeCheck: boolean, init: boolean }) => {
+    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, typeCheck: boolean, init: boolean, only?: string, minSeverity: string }) => {
         if (options.init) {
             const configPath = path.join(process.cwd(), 'slopless.config.json');
             const ignorePath = path.join(process.cwd(), '.sloplessignore');
@@ -306,6 +334,8 @@ program
 
         const shouldTypeCheck = options.typeCheck || config.typeCheck || false;
         await runLint(targetFiles, config, {
+            only: options.only,
+            minSeverity: options.minSeverity,
             format: options.format,
             shouldFix: options.fix,
             useCache: options.cache,
