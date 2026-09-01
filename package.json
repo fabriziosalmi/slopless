@@ -21,7 +21,8 @@
     "docs:preview": "vitepress preview docs",
     "verify:bundle": "node scripts/verify-bundle.js",
     "verify:action": "bash scripts/run-action-locally.sh . 'src/**/*.ts'",
-    "release:prep": "npm run docs:gen && npm run build && npm test && npm run verify:bundle"
+    "release:prep": "npm run docs:gen && npm run build && npm test && npm run verify:bundle",
+    "version": "npm run build && git add dist"
   },
   "keywords": [
     "linter",
