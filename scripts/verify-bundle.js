@@ -74,12 +74,55 @@ function checkApiLoadsStandalone() {
     }
 }
 
+/**
+ * Node writes to a pipe asynchronously, so calling process.exit() after printing
+ * cuts the output off at the buffer. That truncated JSON and SARIF at 64KB, which
+ * only showed up on a project big enough to fill it: the report parsed fine
+ * everywhere small and was unusable everywhere large.
+ */
+function checkLargeOutputIsNotTruncated() {
+    const bundle = path.join(root, 'dist', 'index.js');
+    if (!fs.existsSync(bundle)) return;
+
+    const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'slopless-output-'));
+    // Enough violations to push the report well past the pipe buffer.
+    const line = 'el.innerHTML = untrusted; var x = 1; eval(payload);\n';
+    for (let i = 0; i < 40; i++) {
+        fs.writeFileSync(path.join(sandbox, `noisy${i}.ts`), line.repeat(60));
+    }
+
+    const result = cp.spawnSync(process.execPath, [bundle, '*.ts', '--no-cache', '--format', 'json'], {
+        cwd: sandbox,
+        encoding: 'utf8',
+        maxBuffer: 64 * 1024 * 1024,
+    });
+    fs.rmSync(sandbox, { recursive: true, force: true });
+
+    const output = result.stdout ?? '';
+    if (output.length <= 65536) {
+        failures.push(`The output fixture only produced ${output.length} bytes, `
+            + 'which is under the pipe buffer and proves nothing. Make it noisier.');
+        return;
+    }
+    try {
+        const parsed = JSON.parse(output);
+        if (!Array.isArray(parsed)) failures.push('JSON output is not an array.');
+    } catch {
+        failures.push(`JSON output is truncated at ${output.length} bytes and does not parse.\n`
+            + '  Something is calling process.exit() before stdout drains. Set process.exitCode instead.');
+    }
+    if (result.status !== 1) {
+        failures.push(`Expected exit code 1 with errors present, got ${result.status}.`);
+    }
+}
+
 checkNoDeclaredDependencies();
 checkRunsStandalone();
 checkApiLoadsStandalone();
+checkLargeOutputIsNotTruncated();
 
 if (failures.length > 0) {
     for (const failure of failures) console.error('✗ ' + failure);
     process.exit(1);
 }
-console.log('dist runs standalone with no node_modules, and the package declares no dependencies ✓');
+console.log('dist runs standalone, declares no dependencies, and does not truncate a large report ✓');

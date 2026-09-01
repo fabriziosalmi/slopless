@@ -232,9 +232,11 @@ export class AstChecker {
         if (!body) return;
         // Match mutating *calls* and assignments, not substrings: plain word matching
         // treated `offset`, `dataset`, `asset` and `reset` as mutations.
-        const mutatingCall = /\.(?:set|delete|remove|update|write|modify|pop|push|shift|unshift|splice|clear|add|sort|reverse)\s*\(/;
+        // Only mutations of the receiver count. `const out = []; out.push(x)` is how
+        // a getter assembles its return value, not a side effect.
+        const mutatingCall = /\bthis\.[\w.]*\.(?:set|delete|remove|update|write|modify|pop|push|shift|unshift|splice|clear|add|sort|reverse)\s*\(/;
         const selfAssignment = /\bthis\.[A-Za-z_$][\w$]*\s*(?:=[^=]|\+\+|--|\+=|-=)/;
-        const objectMutation = /\bObject\.assign\s*\(|\bdelete\s+[A-Za-z_$]/;
+        const objectMutation = /\bObject\.assign\s*\(\s*this\b|\bdelete\s+this\./;
         if (!mutatingCall.test(body) && !selfAssignment.test(body) && !objectMutation.test(body)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({

@@ -4,6 +4,28 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.1.4 - 2026-09-01
+
+A monorepo with 169 source files produced 1794 findings and, more usefully, four
+defects that only a project of that size could expose.
+
+- **JSON and SARIF were truncated at 64KB.** `process.exit()` ran before Node
+  drained stdout, so any report large enough to fill the pipe buffer was cut off
+  mid-string and would not parse. Every project small enough to stay under the
+  limit looked fine, which is why this survived until a repository produced 169KB
+  of output. The exit code is set instead of forced, and `verify:bundle` now
+  generates a report past the buffer and parses it back.
+- **`VBC-077` treated a local array as a mutation.** `getAll() { const out = [];
+  ... out.push(x); return out; }` is how a getter assembles its return value.
+  Only mutations of `this` count now.
+- **`VBC-913` fired on the fix it recommends.** `*:focus { outline: none }`
+  followed by `*:focus-visible { outline: 3px solid }` is the correct modern
+  pattern, and the rule reported it while its own message suggested it. It now
+  looks for a replacement ring before reporting.
+- The default `.sloplessignore` covers `coverage/`, `out/`, `.next/` and
+  `*.min.js`. Generated output is not source, and an Istanbul report alone
+  accounted for 170 findings.
+
 # 1.1.3 - 2026-09-01
 
 Three false positives, all found by pointing the tool at a TypeScript repository

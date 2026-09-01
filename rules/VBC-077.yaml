@@ -27,3 +27,9 @@ tests:
       function getOffset(node) {
         return node.dataset.offset;
       }
+    - |
+      function getAll() {
+        const out = [];
+        for (const x of this.buffer) out.push(x);
+        return out;
+      }

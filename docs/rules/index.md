@@ -165,7 +165,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-101](./VBC-101.md)<br>`img-missing-alt` | Image missing 'alt' attribute | **error** | Regex |
 | [VBC-113](./VBC-113.md)<br>`disable-zoom` | Disabling pinch-to-zoom is an accessibility violation | **error** | Regex |
 | [VBC-117](./VBC-117.md)<br>`block-paste` | Blocking paste in input fields harms both UX and security (password managers) | **error** | Regex |
-| [VBC-913](./VBC-913.md)<br>`outline-none-hazard` | Focus outline removed with no replacement | **error** | Regex |
+| [VBC-913](./VBC-913.md)<br>`outline-none-hazard` | Focus outline removed with nothing replacing it | **error** | Regex |
 | [VBC-020](./VBC-020.md)<br>`justify-text-web` | text-align:justify detected | warning | Regex |
 | [VBC-021](./VBC-021.md)<br>`thin-font-weight` | Thin font weight (100-199) detected | warning | Regex |
 | [VBC-022](./VBC-022.md)<br>`custom-cursor-css` | Custom cursor via CSS url() | warning | Regex |

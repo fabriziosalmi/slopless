@@ -6,16 +6,25 @@ tags:
   - accessibility
   - ux
 match:
-  regex: outline:\s*(?:none|0)\b
+  regex: >-
+    outline:\s*(?:none|0)\b(?![\s\S]{0,400}?:focus-visible[\s\S]{0,140}?outline\s*:\s*(?!none|0|\s*;))
+  multiline: true
   file_types:
     - css
     - scss
 message: >-
-  Focus outline removed at line {line} with no replacement. Keyboard users lose all sense
-  of position. If the default ring is ugly, restyle it with :focus-visible instead of deleting
-  it.
+  Focus outline removed at line {line} with nothing replacing it. Keyboard users lose all
+  sense of position. Pair it with a :focus-visible rule that draws a visible ring, which is
+  what this rule looks for before reporting.
 tests:
   fire:
     - 'a:focus { outline: none; }'
   quiet:
     - 'a:focus { outline: 2px solid currentColor; }'
+    - |
+      *:focus {
+        outline: none;
+      }
+      *:focus-visible {
+        outline: 3px solid #0ff;
+      }

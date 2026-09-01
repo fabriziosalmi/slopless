@@ -234,7 +234,10 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
 
     if (errors.length > 0) {
         if (options.format === 'default') console.log('\nCommit/Run blocked. Please fix the errors above or run with --fix.');
-        process.exit(1);
+        // Setting the code rather than calling process.exit lets Node drain stdout
+        // first. Exiting here truncated JSON and SARIF at the 64KB pipe buffer, so
+        // any project large enough to fill it got an unparseable report.
+        process.exitCode = 1;
     }
 }
 
@@ -266,12 +269,15 @@ program
             }
 
             if (!fs.existsSync(ignorePath)) {
-                fs.writeFileSync(ignorePath, 'node_modules/\ndist/\nbuild/\n.git/\n');
+                fs.writeFileSync(ignorePath,
+                    // Generated output is not source. Coverage reports in particular
+                    // are large, minified and full of patterns nobody wrote by hand.
+                    'node_modules/\ndist/\nbuild/\ncoverage/\nout/\n.next/\n.git/\n*.min.js\n');
                 console.log('✅ Created .sloplessignore');
             } else {
                 console.log('⚠️ .sloplessignore already exists.');
             }
-            process.exit(0);
+            return;
         }
 
         const config = loadConfig(options.config);
