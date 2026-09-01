@@ -22,6 +22,7 @@ import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
 import { applySuppressions } from './engine/suppressions';
+import { coverageOf, describeCoverage, uncovered } from './engine/coverage';
 import { isGeneratedFile } from './engine/generated';
 import * as ts from 'typescript';
 
@@ -267,10 +268,19 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     const errors = allViolations.filter(v => v.severity === 'error');
     const warnings = allViolations.filter(v => v.severity === 'warning');
 
+    // What was actually read, and by how many rules. A file whose extension no
+    // rule covers is examined by nothing, and reporting nothing about it looks
+    // exactly like reporting that it is fine.
+    const coverage = coverageOf(files, rules);
+    const blind = uncovered(coverage);
+
     if (options.format === 'json') {
         console.log(formatJson(allViolations));
+        // stderr, so the report on stdout stays a parseable array.
+        console.error(describeCoverage(coverage, rules.length));
     } else if (options.format === 'sarif') {
         console.log(formatSarif(allViolations, ruleDirs));
+        console.error(describeCoverage(coverage, rules.length));
     } else {
         if (allViolations.length > 0) {
             console.log(`\n🚫 Static Analysis found ${allViolations.length} issues:\n`);
@@ -282,8 +292,17 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
             });
 
             console.log(`\nSummary: ${errors.length} errors, ${warnings.length} warnings.`);
+        } else if (blind.length === coverage.length) {
+            // Nothing could be checked at all. Saying "clean" here would be a
+            // confident answer to a question no rule was asked.
+            console.log('No rule applies to any of these files, so nothing was checked.');
         } else {
             console.log('✅ No static analysis issues detected. Clean architecture!');
+        }
+        console.log(`\n${describeCoverage(coverage, rules.length)}`);
+        if (blind.length > 0 && blind.length < coverage.length) {
+            const named = blind.map(c => `.${c.ext || '(no extension)'} (${c.files})`).join(', ');
+            console.log(`No rule covers ${named}: those files were read by nothing.`);
         }
         if (generatedCount > 0) {
             console.log(`\nSkipped ${generatedCount} generated file${generatedCount === 1 ? '' : 's'} `

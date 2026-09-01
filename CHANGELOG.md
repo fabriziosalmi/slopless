@@ -1,3 +1,20 @@
+# 1.4.6 - 2026-09-01
+
+- **A run now says what it checked.** Pointed at a Rust file holding a hardcoded
+  password, an `http://` URL, a TODO and an empty error branch, slopless reported
+  "No static analysis issues detected. Clean architecture!" — having evaluated
+  zero rules. Nothing applies to `.rs`, and silence was indistinguishable from a
+  pass. Every run now prints what was read and by how many rules, names any
+  language no rule covers, and refuses the word "clean" when nothing could be
+  checked at all. For `--format json` and `sarif` the line goes to stderr, so the
+  report on stdout stays parseable.
+- **One gate, shared.** Which languages the parsing tiers can read was a hardcoded
+  list inside two checkers; the coverage count now comes from the same place they
+  do, so a rule cannot be counted as covering a file it will be skipped for.
+
+Measured across 148 rules: TypeScript 90, JavaScript 89, Markdown 24, Python 23,
+CSS 19, shell 11, Go 4, Java 3, Ruby 1, PHP 1, **Rust 0, Kotlin 0, Swift 0**.
+
 # 1.4.5 - 2026-09-01
 
 - **A single line can now be excused, by name.** `// slopless-disable-next-line

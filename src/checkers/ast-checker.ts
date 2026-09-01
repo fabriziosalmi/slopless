@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import { Rule } from '../engine/schema';
+import { PARSED_LANGUAGES, extensionOf } from '../engine/coverage';
 import { isExcludedFile } from '../engine/file-scope';
 import { Violation } from './regex-checker';
 
@@ -91,8 +92,9 @@ function isFunctionLikeWithBody(node: ts.Node): boolean {
 export class AstChecker {
     static check(file: string, rules: Rule[], content?: string): Violation[] {
         const violations: Violation[] = [];
-        const ext = file.split('.').pop();
-        if (!['js', 'ts', 'jsx', 'tsx'].includes(ext || '')) {
+        // Same source as the coverage report: a rule counted as covering this
+        // file has to be a rule that can actually run on it.
+        if (!PARSED_LANGUAGES.has(extensionOf(file))) {
             return [];
         }
 
