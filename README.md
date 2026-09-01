@@ -1,6 +1,6 @@
 # Slopless
 
-[![ci](https://github.com/fabriziosalmi/slopless/actions/workflows/ci.yml/badge.svg)](https://github.com/fabriziosalmi/slopless/actions/workflows/ci.yml) [![docs](https://github.com/fabriziosalmi/slopless/actions/workflows/docs.yml/badge.svg)](https://fabriziosalmi.github.io/slopless/)
+[![npm](https://img.shields.io/npm/v/%40fabriziosalmi%2Fslopless)](https://www.npmjs.com/package/@fabriziosalmi/slopless) [![ci](https://github.com/fabriziosalmi/slopless/actions/workflows/ci.yml/badge.svg)](https://github.com/fabriziosalmi/slopless/actions/workflows/ci.yml) [![docs](https://github.com/fabriziosalmi/slopless/actions/workflows/docs.yml/badge.svg)](https://fabriziosalmi.github.io/slopless/)
 
 Slopless is a static analysis tool designed to identify and mitigate unstructured coding patterns, undocumented assumptions, and heuristic-driven development practices (colloquially termed "vibecoding"). It employs a multi-tiered analysis engine combining deterministic regular expressions, Abstract Syntax Tree (AST) inspection, and structural semantic heuristics.
 
@@ -51,13 +51,18 @@ npx @fabriziosalmi/slopless
   package. Everything the linter needs is compiled into the bundle, so there is no
   transitive install surface to compromise. CI fails if a runtime dependency
   reappears, or if the bundle stops running without `node_modules`.
-- **Signed provenance.** Releases publish from GitHub Actions over OIDC, with no
-  npm token in existence. Every tarball carries an attestation binding it to the
+- **Signed provenance.** Releases publish from GitHub Actions over OIDC. No npm
+  token exists, and the package is configured to refuse one: publishing requires
+  the trusted publisher. Every tarball carries an attestation binding it to the
   commit and the workflow run that produced it. Verify it yourself:
 
   ```bash
   npm audit signatures
   ```
+
+  `1.4.1` is the exception and always will be. A trusted publisher can only be
+  configured on a package that already exists, so the first version was published
+  by hand, and `--provenance` needs a CI provider to attest with.
 
 - **Reproducible bundle.** `dist/index.js` is committed so the Action can run with
   no install step. CI rebuilds it from source and fails if the committed bundle

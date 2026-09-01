@@ -1,3 +1,13 @@
+# 1.4.2 - 2026-09-01
+
+- Published to npm as
+  [`@fabriziosalmi/slopless`](https://www.npmjs.com/package/@fabriziosalmi/slopless).
+  Zero dependencies, verified by installing from the registry into a clean
+  container.
+- The package now refuses tokens: publishing requires the OIDC trusted publisher,
+  so no credential capable of releasing it exists anywhere. `1.4.2` is the first
+  version published from CI, and the first carrying a provenance attestation.
+
 # 1.4.1 - 2026-09-01
 
 - **The Marketplace About line no longer carries a rule count.** It said "146
