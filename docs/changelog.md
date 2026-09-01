@@ -4,6 +4,18 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.4.3 - 2026-09-01
+
+- **The release workflow creates the GitHub release too.** A tag, an npm version
+  and a GitHub release are three records of the same event, and the third was
+  being made by hand. It drifted immediately: 1.4.2 reached npm while the
+  Marketplace still read 1.4.1, because the Marketplace takes its version from
+  the last release anyone remembered to create.
+
+  Notes come from `CHANGELOG.md` through `scripts/changelog-notes.js`, which is
+  tested rather than trusted, and falls back to a plain line instead of failing a
+  release when an entry is missing.
+
 # 1.4.2 - 2026-09-01
 
 - **`package.json` declares its repository.** The first release published from CI

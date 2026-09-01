@@ -17,7 +17,7 @@ on:
     tags: ["v[0-9]+.[0-9]+.[0-9]+"]
 
 permissions:
-  contents: read
+  contents: write   # to create the GitHub release
   id-token: write   # required for OIDC and provenance
 
 jobs:
@@ -78,3 +78,17 @@ jobs:
         run: |
           echo "::notice title=Publish skipped::The package is not on npm yet. Publish it once by hand with a granular token, configure the trusted publisher for this workflow at npmjs.com, then revoke the token. Every tag after that publishes from here with provenance and no stored credential."
 
+      # A tag, an npm version and a GitHub release are three records of the same
+      # thing, and creating the third by hand is how they drift: 1.4.2 reached npm
+      # while the Marketplace still read 1.4.1 from the last release anyone made.
+      - name: create the GitHub release from the changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::notice title=Release exists::$TAG already has a GitHub release."
+            exit 0
+          fi
+          node scripts/changelog-notes.js "$TAG" > /tmp/notes.md
+          gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
