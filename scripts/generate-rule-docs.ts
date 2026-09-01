@@ -163,7 +163,6 @@ function syncRuleCounts(total: number) {
             /\[ \d+ rules \]/g, /<b>\d+<\/b> rules/g,
         ] },
         { file: 'README.md', patterns: [/\b\d+ rigorous rules\b/g, /\ball \d+ rules\b/g] },
-        { file: 'action.yml', patterns: [/\b\d+ rules\b/g] },
     ];
 
     for (const { file, patterns } of targets) {

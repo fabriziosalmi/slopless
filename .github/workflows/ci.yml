@@ -27,7 +27,7 @@ jobs:
       - name: the generated docs and rule counts in git must match the rules
         run: |
           npm run docs:gen
-          git diff --exit-code docs/rules docs/changelog.md docs/index.md README.md action.yml || {
+          git diff --exit-code docs/rules docs/changelog.md docs/index.md README.md || {
             echo "Generated content is stale. Run: npm run docs:gen && git add -A"
             echo "The rule count is quoted in prose in several files and is rewritten"
             echo "from the real count, so adding a rule changes them all."

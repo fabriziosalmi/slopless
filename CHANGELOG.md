@@ -1,3 +1,17 @@
+# 1.4.1 - 2026-09-01
+
+- **The Marketplace About line no longer carries a rule count.** It said "146
+  rules" while every current ref of `action.yml` said 148, because the listing
+  stores that text when it is published and does not re-read it. The version
+  shown was already current; only the one line was frozen, and the README on the
+  same page said 148 beside it.
+
+  Rather than republish to correct the number, the number is gone. It was the one
+  copy that no generator could reach, and this is the fourth time today a hardcoded
+  count went stale.
+
+- The repository description was empty and now matches.
+
 # 1.4.0 - 2026-09-01
 
 Measured against ten Rust, Go and Python repositories, the ones with the most
