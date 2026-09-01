@@ -36,6 +36,10 @@ runs:
         SLOPLESS_ARGS: ${{ inputs.args }}
         SLOPLESS_OUTPUT: ${{ inputs.output }}
       run: |
+        # The composite shell runs with -e. This script captures the CLI's exit code
+        # and re-raises it at the end, so errexit here kills it before it can publish
+        # the report: exit 1 means errors were found, which is the case that matters.
+        set +e
         set -uo pipefail
         # Patterns must reach the CLI intact: with globstar off, bash rewrites
         # `src/**/*.ts` as `src/*/*.ts` and silently drops everything at the top

@@ -1,3 +1,20 @@
+# 1.1.8 - 2026-09-01
+
+A regression I shipped in 1.1.6, and the reason my own harness missed it.
+
+- **The Action stopped writing its report whenever errors were found.** Composite
+  steps run under `bash -e`. Building the report in a temp file meant the failing
+  `node` call now killed the script before the file could be moved into place, so
+  the output never appeared and any upload gated on it was skipped. Exit 1 means
+  errors were found, which is precisely the case people install this for, so the
+  report went missing exactly when it mattered. Errexit is now disabled
+  explicitly, since the script captures the exit code and re-raises it itself.
+- **`run-action-locally.sh` was not running the step the way a runner does.** It
+  invoked plain `bash` rather than `bash --noprofile --norc -e -o pipefail`, so
+  the harness built to prove the Action works in production diverged from
+  production in the one flag that mattered. It uses the runner's flags now, and
+  reproduces the regression above when the fix is reverted.
+
 # 1.1.7 - 2026-09-01
 
 A repository with a Python backend and a TypeScript frontend, where 35% of the

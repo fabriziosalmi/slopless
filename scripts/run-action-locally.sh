@@ -52,4 +52,8 @@ exec docker run --rm \
     -e SLOPLESS_OUTPUT="$OUTPUT" \
     -e STEP_SCRIPT="$STEP" \
     "$IMAGE" \
-    bash -c 'printf "%s" "$STEP_SCRIPT" > /tmp/step.sh; bash /tmp/step.sh'
+    bash -c 'printf "%s" "$STEP_SCRIPT" > /tmp/step.sh
+             # Exactly the shell a runner uses, errexit included. Without the flags
+             # this harness silently diverged from production and passed a step that
+             # failed there.
+             bash --noprofile --norc -e -o pipefail /tmp/step.sh'
