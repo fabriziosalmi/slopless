@@ -18,6 +18,13 @@ tests:
         this.cache.set(id, 1);
         return id;
       }
+    - |
+      class E {
+        getLevel() {
+          if (!this.buf) { this.hits = this.hits + 1; }
+          return this.buf;
+        }
+      }
   quiet:
     - |
       function getUser(id) {
@@ -26,6 +33,22 @@ tests:
     - |
       function getOffset(node) {
         return node.dataset.offset;
+      }
+    - |
+      class E {
+        getMasterLevel() {
+          if (!this.buf || this.buf.length !== this.analyser.fftSize) {
+            this.buf = new Float32Array(this.analyser.fftSize);
+          }
+          return rms(this.buf);
+        }
+      }
+    - |
+      class R {
+        async fetchFromRemote(url) {
+          this.fetched = true;
+          return fetch(url);
+        }
       }
     - |
       function getAll() {

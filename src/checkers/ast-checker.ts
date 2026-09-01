@@ -12,6 +12,53 @@ interface NodeCheckContext {
 }
 
 /** True if the body awaits anything itself, ignoring awaits inside nested functions. */
+// `this.buf = new Float32Array(n)` under `if (!this.buf || this.buf.length !== n)`
+// is a cache being filled, not a getter secretly rewriting state. The signature of
+// memoization is that the field written is also the field *tested*: the guard is
+// what makes the write idempotent, whether the assignment sits inside that branch
+// or after it. A write to a field no condition ever looks at is a real side effect.
+function hasUnguardedSelfAssignment(body: ts.Node): boolean {
+    const tested: string[] = [];
+    const writes: string[] = [];
+    const walk = (n: ts.Node) => {
+        // A nested function keeps its own name, and its own contract.
+        if (n !== body && isFunctionLikeWithBody(n)) return;
+        if (ts.isIfStatement(n)) tested.push(n.expression.getText());
+        else if (ts.isConditionalExpression(n)) tested.push(n.condition.getText());
+        else if (ts.isWhileStatement(n) || ts.isDoStatement(n)) tested.push(n.expression.getText());
+        const target = selfAssignmentTarget(n);
+        if (target) writes.push(target);
+        ts.forEachChild(n, walk);
+    };
+    walk(body);
+    return writes.some(w => !tested.some(g => g.includes(w)));
+}
+
+// The `this.x` an expression writes to, or undefined if it writes nowhere.
+// `this.a.b = c` returns `this.a`: the guard convention is to test the field.
+function selfAssignmentTarget(n: ts.Node): string | undefined {
+    let left: ts.Node | undefined;
+    if (ts.isBinaryExpression(n) && isAssignmentOperator(n.operatorToken.kind)) left = n.left;
+    else if (ts.isPostfixUnaryExpression(n) || ts.isPrefixUnaryExpression(n)) {
+        if (n.operator === ts.SyntaxKind.PlusPlusToken || n.operator === ts.SyntaxKind.MinusMinusToken) {
+            left = n.operand;
+        }
+    }
+    if (!left || !ts.isPropertyAccessExpression(left)) return undefined;
+    // Walk down to the `this.x` at the root of the access chain.
+    let base: ts.Expression = left;
+    while (ts.isPropertyAccessExpression(base) && !(base.expression.kind === ts.SyntaxKind.ThisKeyword)) {
+        base = base.expression;
+    }
+    if (!ts.isPropertyAccessExpression(base)) return undefined;
+    if (base.expression.kind !== ts.SyntaxKind.ThisKeyword) return undefined;
+    return base.getText();
+}
+
+function isAssignmentOperator(kind: ts.SyntaxKind): boolean {
+    return kind >= ts.SyntaxKind.FirstAssignment && kind <= ts.SyntaxKind.LastAssignment;
+}
+
 function containsAwait(body: ts.Node): boolean {
     let found = false;
     const walk = (n: ts.Node) => {
@@ -227,8 +274,10 @@ export class AstChecker {
         if (!ts.isFunctionDeclaration(node) && !ts.isMethodDeclaration(node)) return;
         const fnName = node.name?.getText();
         if (!fnName) return;
-        // Getters that silently mutate state are deceptive
-        const isReadNamePrefix = new RegExp('^(get|is|has|fetch|retrieve)', 'i').test(fnName);
+        // Getters that silently mutate state are deceptive. `fetch` is not on this
+        // list: a name like `fetchFromRemote` promises I/O, and recording what came
+        // back is the point of the call, not a hidden side effect.
+        const isReadNamePrefix = new RegExp('^(get|is|has|retrieve)', 'i').test(fnName);
         if (!isReadNamePrefix) return;
         const body = node.body?.getText();
         if (!body) return;
@@ -237,9 +286,9 @@ export class AstChecker {
         // Only mutations of the receiver count. `const out = []; out.push(x)` is how
         // a getter assembles its return value, not a side effect.
         const mutatingCall = /\bthis\.[\w.]*\.(?:set|delete|remove|update|write|modify|pop|push|shift|unshift|splice|clear|add|sort|reverse)\s*\(/;
-        const selfAssignment = /\bthis\.[A-Za-z_$][\w$]*\s*(?:=[^=]|\+\+|--|\+=|-=)/;
         const objectMutation = /\bObject\.assign\s*\(\s*this\b|\bdelete\s+this\./;
-        if (!mutatingCall.test(body) && !selfAssignment.test(body) && !objectMutation.test(body)) return;
+        if (!mutatingCall.test(body) && !hasUnguardedSelfAssignment(node.body!)
+            && !objectMutation.test(body)) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,

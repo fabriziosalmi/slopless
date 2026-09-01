@@ -6,7 +6,7 @@ tags:
   - security
 match:
   regex: >-
-    http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
+    http://(?!localhost|127\.|0\.0\.0\.0|169\.254\.|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
   scan: strings
   file_types:
     - js
@@ -38,4 +38,6 @@ tests:
   quiet:
     - const api = 'https://api.example.com/v1';
     - const dev = 'http://localhost:3000';
+    - const dev2 = 'http://127.0.0.1:8000';
+    - "refuse http://169.254.169.254 (cloud metadata) before connecting"
     - const svg = 'http://www.w3.org/2000/svg';

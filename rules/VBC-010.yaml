@@ -6,7 +6,7 @@ tags:
   - accessibility
   - html
 match:
-  regex: <div[^>]*\s(onclick|onClick)=
+  regex: <div[^>]*\s(onclick|onClick)=(?!\{?\s*\(?\s*(?:e|ev|evt|event|_e)\s*\)?\s*=>\s*\{?\s*(?:e|ev|evt|event|_e)\.(?:stopPropagation|preventDefault)\(\)\s*\}?\s*\})
   file_types:
     - html
     - js
@@ -22,3 +22,5 @@ tests:
     - <div onClick={handleClick}>Save</div>
   quiet:
     - <button onClick={handleClick}>Save</button>
+    - <div className="row" onClick={(e) => e.stopPropagation()}>
+    - <div onClick={e => e.preventDefault()}>

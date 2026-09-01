@@ -1,3 +1,27 @@
+# 1.4.4 - 2026-09-01
+
+Five false positives, all found by running slopless over repositories it did not
+write. Each has the same shape: the code was correct, and the rule could not see
+why.
+
+- **VBC-070 (innerHTML)** no longer fires on a string literal with no
+  interpolation. `el.innerHTML = '<i class="fa-check"></i>'` has no injection
+  point, and calling it an XSS risk teaches people to ignore the rule.
+- **VBC-034 (http://)** treats link-local as an address, not an endpoint.
+  `http://169.254.169.254` turns up in code that *refuses* to fetch it, and there
+  is no https:// cloud metadata service to switch to.
+- **VBC-010 (clickable div)** ignores `onClick={e => e.stopPropagation()}`. That
+  is a click being stopped, not a control being offered: there is nothing there
+  for a keyboard user to reach.
+- **VBC-077 (deceptive name)** understands memoization. A getter that fills a
+  cache it also tests is idempotent, which is what the guard is for. `fetch` also
+  left the list of prefixes that promise not to mutate, because `fetchFromRemote`
+  promises the opposite.
+- **`--only` with an unknown category is now an error.** It used to select zero
+  rules and print "No static analysis issues detected", so a typo produced a
+  confident green run that had checked nothing. Exit code 2, and it names the
+  categories that do exist.
+
 # 1.4.3 - 2026-09-01
 
 - **The release workflow creates the GitHub release too.** A tag, an npm version

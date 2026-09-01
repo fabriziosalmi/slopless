@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { RuleLoader } from '../engine/loader';
-import { selectRules } from '../index';
+import { selectRules, UsageError } from '../index';
 
 const rules = RuleLoader.loadRules([path.resolve(__dirname, '../../rules')]);
 
@@ -22,8 +22,9 @@ describe('selectRules', () => {
             .toHaveLength(selectRules(rules, { only: 'security,core' }).length);
     });
 
-    it('returns nothing for a category that does not exist', () => {
-        expect(selectRules(rules, { only: 'nonsense' })).toHaveLength(0);
+    it('refuses a category that does not exist', () => {
+        // This used to return zero rules, so the run reported "no issues detected".
+        expect(() => selectRules(rules, { only: 'nonsense' })).toThrow(UsageError);
     });
 
     it('drops warnings when only errors are wanted', () => {
@@ -58,5 +59,29 @@ describe('opt-in rules', () => {
             const rule = rules.find(r => r.id === id);
             expect(rule?.opt_in, `${id} should stay on by default`).toBeFalsy();
         }
+    });
+});
+
+describe('--only names a category, and says so when it does not', () => {
+    it('rejects a rule id, which is the mistake people actually make', () => {
+        // Silently selecting nothing reported "no issues detected": a green run
+        // that never ran. The typo has to be louder than the result.
+        expect(() => selectRules(rules, { only: 'VBC-077' })).toThrow(UsageError);
+        expect(() => selectRules(rules, { only: 'VBC-077' })).toThrow(/unknown --only category/);
+    });
+
+    it('lists the categories that do exist', () => {
+        expect(() => selectRules(rules, { only: 'secuirty' })).toThrow(/Available: .*security/);
+    });
+
+    it('names every unknown value, not just the first', () => {
+        expect(() => selectRules(rules, { only: 'core,nope,alsonope' }))
+            .toThrow(/categories: alsonope, nope/);
+    });
+
+    it('still selects when every category is real', () => {
+        const selected = selectRules(rules, { only: 'core,security' });
+        expect(selected.length).toBeGreaterThan(0);
+        expect(selected.every(rule => rule.category === 'core' || rule.category === 'security')).toBe(true);
     });
 });

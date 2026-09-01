@@ -117,11 +117,23 @@ export function applyIgnoreRules(files: string[], configIgnore?: string[]): stri
  * this for was buried under style. Selecting up front is cheaper than reading
  * past it, and cheaper than running the rules at all.
  */
+export class UsageError extends Error {}
+
 export function selectRules(rules: Rule[], options: { only?: string; minSeverity?: string }): Rule[] {
     let selected = rules;
 
     if (options.only) {
         const wanted = new Set(options.only.split(',').map(part => part.trim()).filter(Boolean));
+        // `--only` names categories. A typo used to select nothing and report a
+        // confident "no issues detected", which is the worst possible answer: the
+        // run looks clean because nothing ran. Name what does not exist instead.
+        const known = new Set(rules.map(rule => rule.category));
+        const unknown = [...wanted].filter(name => !known.has(name)).sort();
+        if (unknown.length > 0) {
+            throw new UsageError(
+                `unknown --only ${unknown.length > 1 ? 'categories' : 'category'}: ${unknown.join(', ')}\n`
+                + `Available: ${[...known].sort().join(', ')}`);
+        }
         selected = selected.filter(rule => wanted.has(rule.category));
     }
     if (options.minSeverity === 'error') {
@@ -349,4 +361,14 @@ program
         });
     });
 
-program.parseAsync();
+program.parseAsync().catch((err: unknown) => {
+    // A usage mistake is the user's to fix, not a crash to debug: print the
+    // sentence, skip the stack. Exit 2 keeps it distinct from exit 1, which
+    // means the run worked and found violations.
+    if (err instanceof UsageError) {
+        console.error(`Error: ${err.message}`);
+        process.exitCode = 2;
+        return;
+    }
+    throw err;
+});

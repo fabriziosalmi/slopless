@@ -5,7 +5,8 @@ category: core
 tags:
   - security
 match:
-  regex: \.innerHTML\s*=(?!=)
+  regex: >-
+    \.innerHTML\s*=(?!=)(?!\s*(['"])(?:(?!\1)[^\\])*\1\s*[;\n])
   file_types:
     - js
     - ts
@@ -14,6 +15,10 @@ message: >-
 tests:
   fire:
     - el.innerHTML = markup;
+    - el.innerHTML = "<b>" + name + "</b>";
+    - el.innerHTML = `<b>${name}</b>`;
   quiet:
     - el.textContent = text;
+    - alert.innerHTML = '<i class="fa-check"></i> <span id="t"></span>';
+    - el.innerHTML = "";
     - if (el.innerHTML === "") { init(); }
