@@ -52,8 +52,9 @@ export class RegexChecker {
         // whenever a global regex has several alternatives that all hit.
         const seen = new Set<string>();
 
-        for (const rule of rules) {
-            if (!rule.match.regex) continue;
+        for (const baseRule of rules) {
+            const rule = resolveVariant(baseRule, ext);
+            if (!rule || !rule.match.regex) continue;
             if (rule.match.file_types && !rule.match.file_types.includes(ext)) continue;
             if (isExcludedFile(file, rule)) continue;
 
@@ -97,6 +98,33 @@ export class RegexChecker {
 
         return violations;
     }
+}
+
+/**
+ * The form of a rule that applies to this extension. A variant replaces the
+ * pattern and what it says, and inherits everything else the rule declares:
+ * one concept, one id, one documentation page, several spellings.
+ */
+export function resolveVariant(rule: Rule, ext: string): Rule | null {
+    const variants = rule.match.variants;
+    if (!variants || variants.length === 0) return rule;
+    const variant = variants.find(v => v.file_types.includes(ext));
+    if (!variant) {
+        // The base pattern still applies where the rule declares it does.
+        return rule.match.regex ? rule : null;
+    }
+    return {
+        ...rule,
+        message: variant.message ?? rule.message,
+        match: {
+            ...rule.match,
+            regex: variant.regex,
+            flags: variant.flags ?? rule.match.flags,
+            scan: variant.scan ?? rule.match.scan,
+            multiline: variant.multiline ?? rule.match.multiline,
+            file_types: variant.file_types,
+        },
+    };
 }
 
 function compileRegex(rule: Rule): RegExp | null {

@@ -15,7 +15,10 @@ interface RegionSyntax {
 
 const SYNTAX: Record<string, RegionSyntax> = {
     // The attribute applies to whatever item follows it, usually `mod tests`.
-    rs: { starts: /#\[cfg\(test\)\]/g },
+    // Real code writes `#[cfg(all(test, unix))]` and `#[cfg(any(test, ...))]`
+    // as often as the bare form, and marks single functions with `#[test]` or
+    // `#[tokio::test]`.
+    rs: { starts: /#\[cfg\([^\]]*\btest\b[^\]]*\)\]|#\[(?:[\w:]+::)?test\b[^\]]*\]/g },
     // A test file is excluded by path; this catches a suite left in a source file.
     ts: { starts: /\b(?:describe|suite)\s*\(/g },
 };

@@ -87,3 +87,29 @@ describe('typescript', () => {
         expect(inTest('ts', src, '"http://c"')).toBe(false);
     });
 });
+
+describe('the real spellings of a Rust test attribute', () => {
+    const inTest = (source: string, needle: string) => {
+        const at = source.indexOf(needle);
+        expect(at, needle).toBeGreaterThan(-1);
+        return isInTestRegion(testRegionsFor('rs', source), at);
+    };
+
+    it('covers cfg(all(test, ...)) and cfg(any(test, ...))', () => {
+        // Only the bare form was matched, and 96 unwraps in test setup were
+        // read as production code because of it.
+        expect(inTest('#[cfg(all(test, unix))]\nmod t {\n  fn f() { danger(); }\n}\n', 'danger')).toBe(true);
+        expect(inTest('#[cfg(any(test, feature = "x"))]\nmod t {\n  fn f() { danger(); }\n}\n', 'danger')).toBe(true);
+    });
+
+    it('covers a single function marked #[test] or #[tokio::test]', () => {
+        expect(inTest('#[test]\nfn it_works() { danger(); }\n', 'danger')).toBe(true);
+        expect(inTest('#[tokio::test]\nasync fn it_works() { danger(); }\n', 'danger')).toBe(true);
+    });
+
+    it('leaves an ordinary attribute alone', () => {
+        expect(inTest('#[derive(Debug)]\nstruct S;\nfn f() { danger(); }\n', 'danger')).toBe(false);
+        expect(inTest('#[cfg(unix)]\nfn f() { danger(); }\n', 'danger')).toBe(false);
+        expect(inTest('#[allow(clippy::latest)]\nfn f() { danger(); }\n', 'danger')).toBe(false);
+    });
+});

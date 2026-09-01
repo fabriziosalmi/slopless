@@ -29,6 +29,8 @@ export function extensionOf(file: string): string {
 // checkers ask the same question, so a rule cannot be counted as covering a file
 // it will be skipped for.
 export function appliesTo(rule: Rule, ext: string): boolean {
+    // A variant is the same rule written for another language, so it counts.
+    if (rule.match.variants?.some(v => v.file_types.includes(ext))) return true;
     const declared = rule.match.file_types;
     if (declared && !declared.includes(ext)) return false;
     switch (tierOf(rule)) {

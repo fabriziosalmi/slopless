@@ -40,6 +40,17 @@ export const RuleSchema = z.object({
         /** Substrings; a CSS match whose enclosing selector contains any of them is skipped. */
         exclude_selectors: z.array(z.string()).optional(),
         require_selectors: z.array(z.string()).optional(),
+        // One concept, written the way each language writes it. A rule that spelled
+        // `console.log`, `print(`, `println!` and `fmt.Println` as one alternation
+        // would be unreadable, and its documentation page would be worse.
+        variants: z.array(z.object({
+            file_types: z.array(z.string()),
+            regex: z.string(),
+            flags: z.string().optional(),
+            scan: z.enum(['code', 'strings', 'comments', 'regex', 'all']).optional(),
+            multiline: z.boolean().optional(),
+            message: z.string().optional(),
+        })).optional(),
         // Tests live inside the source file in some languages. A rule that already
         // excludes test *files* usually means the same thing about test *code*.
         exclude_test_code: z.boolean().optional(),
