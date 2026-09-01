@@ -1,5 +1,10 @@
 # 1.4.2 - 2026-09-01
 
+- **`package.json` declares its repository.** The first release published from CI
+  was rejected: provenance attests which repository built the tarball, npm checks
+  that the package agrees, and there was nothing to compare against. The
+  attestation had already been signed and written to the Sigstore transparency
+  log by then, so the failure is visible there and not in the registry.
 - Published to npm as
   [`@fabriziosalmi/slopless`](https://www.npmjs.com/package/@fabriziosalmi/slopless).
   Zero dependencies, verified by installing from the registry into a clean

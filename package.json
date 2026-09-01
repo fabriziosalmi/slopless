@@ -31,6 +31,14 @@
   ],
   "author": "Fabrizio Salmi",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fabriziosalmi/slopless.git"
+  },
+  "homepage": "https://fabriziosalmi.github.io/slopless/",
+  "bugs": {
+    "url": "https://github.com/fabriziosalmi/slopless/issues"
+  },
   "type": "commonjs",
   "devDependencies": {
     "@types/glob": "^8.1.0",
