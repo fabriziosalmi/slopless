@@ -15,12 +15,20 @@ match:
     - '**/test/**'
     - '**/tests/**'
     - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
     - '**/test_*.py'
     - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*_bench.go'
     - '**/*.test.*'
     - '**/*.spec.*'
-    - '**/conftest.py'
-    - '**/fixtures/**'
+    - '**/bench/**'
+    - '**/benchmark*'
+    - '**/*corpus*'
+    - '**/*payload*'
 message: >-
   Magic number '{match}' detected at line {line}. Consider using a named constant (e.g., SECONDS_IN_DAY).
 tests:

@@ -41,3 +41,22 @@ describe('selectRules', () => {
         expect(picked.every(r => r.category === 'security' && r.severity === 'error')).toBe(true);
     });
 });
+
+describe('opt-in rules', () => {
+    const optIn = rules.filter(rule => rule.opt_in);
+
+    it('marks the house-style prose rules and nothing structural', () => {
+        expect(optIn.length).toBeGreaterThan(0);
+        // A rule about a hazard must never be opt-in: silence there is the wrong default.
+        expect(optIn.every(rule => rule.category === 'docs')).toBe(true);
+        expect(optIn.every(rule => rule.severity === 'warning')).toBe(true);
+    });
+
+    it('leaves the markers of unfinished or generated content enabled', () => {
+        // These are what the project is for, as opposed to a preference about prose.
+        for (const id of ['VBC-334', 'VBC-928', 'VBC-933']) {
+            const rule = rules.find(r => r.id === id);
+            expect(rule?.opt_in, `${id} should stay on by default`).toBeFalsy();
+        }
+    });
+});

@@ -10,6 +10,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Sustained all-caps text at line {line}. Shouting does not add emphasis, it costs readability.
   Use bold or a callout instead.

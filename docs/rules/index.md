@@ -60,7 +60,7 @@ Use the search box above to find a rule by what it catches.
 
 | Rule | Catches | Severity | Analysis |
 |---|---|---|---|
-| [VBC-001](./VBC-001.md)<br>`hardcoded-secret` | Hardcoded credential or secret detected | **error** | Regex |
+| [VBC-001](./VBC-001.md)<br>`hardcoded-secret` | Hardcoded credential | **error** | Regex |
 | [VBC-002](./VBC-002.md)<br>`committed-env` | Environment file (.env) detected in staged files | **error** | Git |
 | [VBC-003](./VBC-003.md)<br>`chmod-777` | Insecure chmod 777 detected | **error** | Regex |
 | [VBC-005](./VBC-005.md)<br>`use-var` | Use of 'var' detected | **error** | Regex |

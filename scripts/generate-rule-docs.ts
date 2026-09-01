@@ -23,6 +23,7 @@ interface Rule {
     tags: string[];
     message: string;
     supersedes?: string[];
+    opt_in?: boolean;
     match?: any;
     tests?: { fire?: (string | RuleTest)[]; quiet?: (string | RuleTest)[]; external?: string };
 }
@@ -108,6 +109,7 @@ function generateRuleDoc(rule: Rule) {
         match.exclude_files ? `**Excluded paths:** ${match.exclude_files.map((f: string) => `\`${f}\``).join(', ')}` : '',
         match.exclude_selectors ? `**Excluded selectors:** ${match.exclude_selectors.map((f: string) => `\`${f}\``).join(', ')}` : '',
         rule.supersedes ? `**Supersedes:** ${rule.supersedes.map(id => `[${id}](./${id}.md)`).join(', ')} on the same line` : '',
+        rule.opt_in ? '**Off by default.** Name it in `slopless.config.json` to turn it on.' : '',
         rule.tags?.length ? `**Tags:** ${rule.tags.map(tag => `\`${tag}\``).join(' ')}` : '',
     ].filter(Boolean).join('  \n');
 

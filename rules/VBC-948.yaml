@@ -10,17 +10,17 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
-  Em dash at line {line}. They cluster heavily in generated prose, so a reader
-  looking for the seams finds them here first. If the break is explanatory use a
-  colon, if it qualifies use a comma, if it is an aside use parentheses, and if
-  the two halves are separate thoughts use a full stop. Keep it only where you
-  chose it deliberately.
+  Em dash at line {line}. They cluster heavily in generated prose, so a reader looking for
+  the seams finds them here first. If the break is explanatory use a colon, if it qualifies
+  use a comma, if it is an aside use parentheses, and if the two halves are separate thoughts
+  use a full stop. Keep it only where you chose it deliberately.
 tests:
   fire:
     - The scanner failed — silently.
-    - 'Four scopes — code, strings, comments, all — cover every case.'
+    - Four scopes — code, strings, comments, all — cover every case.
   quiet:
     - The scanner failed, silently.
-    - 'Four scopes (code, strings, comments, all) cover every case.'
+    - Four scopes (code, strings, comments, all) cover every case.
     - Copyright 2020–2026 Acme Ltd.

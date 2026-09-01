@@ -4,6 +4,39 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.4.0 - 2026-09-01
+
+Measured against ten Rust, Go and Python repositories, the ones with the most
+stars in the fleet. 7590 findings became 2418, and errors 83 became 38.
+
+## Added
+
+- **Ten rules ship disabled and wait to be asked for.** They encode a preference
+  about how you write English prose rather than a defect in the code, and across
+  twenty repositories they were **two thirds of everything slopless said**:
+  66% on Rust, Go and Python, where there are few code rules to balance them.
+  `VBC-948`, the em dash rule added this morning, was 4464 findings on its own.
+
+  Naming a rule in `slopless.config.json` turns it on, using the mechanism that
+  already existed. Rules that mark content as unfinished or generated stay on:
+  lorem ipsum, "coming soon", the phrasings of machine-written prose. Those are
+  what this tool is for. A preference nobody agreed to is not.
+
+## Fixed
+
+- **A security tool's attack corpus was read as the tool being vulnerable.**
+  `zion` and `caddy-waf` keep SQL injection strings, XSS payloads, reverse shells
+  and the AWS metadata address as data, because that is what a WAF is made of.
+  The exclusion list now covers the conventions the other languages use, which it
+  did not: Go's `*_test.go`, a bare `test.py`, `benchmark*`, `testdata/`, and
+  anything named for a corpus or a payload.
+- **`VBC-001` reported fixtures that spell out what they are.**
+  `secret="REAL-HMAC-SECRET"`, `PASSWORD="SuperSecretPassw0rd!"` and
+  `api_key="your-api-key-here"` are describing a field, not holding a key. A
+  value containing the credential vocabulary, or `example`, `changeme`, `dummy`
+  and their kind, is no longer reported. AWS's documented `AKIAIOSFODNN7EXAMPLE`
+  is one of these, and had been in this project's own test fixtures.
+
 # 1.3.0 - 2026-09-01
 
 Eleven repositories are now running slopless in CI, which is enough production

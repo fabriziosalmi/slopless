@@ -11,6 +11,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Avoid first-person collective ('We') in system messages at line {line}. Use neutral or user-centric
   language.

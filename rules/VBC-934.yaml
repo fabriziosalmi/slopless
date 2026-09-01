@@ -11,6 +11,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Personal opinion language '{match}' in documentation at line {line}. Technical documentation
   should be objective and factual. Personal opinions erode credibility and confuse readers

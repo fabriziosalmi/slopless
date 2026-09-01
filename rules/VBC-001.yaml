@@ -7,7 +7,7 @@ tags:
   - secrets
 match:
   regex: >-
-    \b(api_key|secret|password|token|bearer|auth[_-]?key|access[_-]?key)\b\s*[:=]\s*['"]([^'"]){8,}
+    \b(api_key|secret|password|token|bearer|auth[_-]?key|access[_-]?key)\b\s*[:=]\s*['\"`](?![^'\"`]*(?:secret|password|passwd|token|apikey|api[_-]?key|credential|dummy|example|sample|test|fake|changeme|placeholder|your[_-]|xxx|\.\.\.))([^'\"`]){8,}
   flags: i
   file_types:
     - js
@@ -17,12 +17,17 @@ match:
     - yaml
     - json
 message: >-
-  Hardcoded credential or secret '{match}' detected at line {line}. Use environment variables
-  for all secrets.
+  Hardcoded credential at line {line}. Read it from the environment. Values that name what
+  they are, such as CHANGEME or a fixture spelling out "secret", are not reported: they describe
+  a field rather than hold a key.
 tests:
   fire:
     - const password = "hunter2abc";
-    - 'api_key: "AKIAIOSFODNN7EXAMPLE"'
+    - 'api_key: "A9dK2mQ7xR4vL8nP1sT6wY3z"'
+    - token = "ghp_9fK2mQ7xR4vL8nP1sT6wY3zB5cE0"
   quiet:
     - const password = process.env.PASSWORD;
     - const token = "";
+    - secret = "REAL-HMAC-SECRET"
+    - 'api_key: "your-api-key-here"'
+    - access_key = "AKIAIOSFODNN7EXAMPLE"

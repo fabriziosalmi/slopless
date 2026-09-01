@@ -10,6 +10,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Excessive punctuation at line {line}. Professional copy should avoid multiple symbols like
   '!!!'.

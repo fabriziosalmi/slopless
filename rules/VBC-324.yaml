@@ -11,6 +11,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Condescending or vague language '{match}' detected at line {line}. Be direct and avoid assumptions
   about the reader's knowledge.

@@ -17,12 +17,20 @@ match:
     - '**/test/**'
     - '**/tests/**'
     - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
     - '**/test_*.py'
     - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*_bench.go'
     - '**/*.test.*'
     - '**/*.spec.*'
-    - '**/conftest.py'
-    - '**/fixtures/**'
+    - '**/bench/**'
+    - '**/benchmark*'
+    - '**/*corpus*'
+    - '**/*payload*'
 message: Insecure http:// link detected at line {line}. Use https:// instead.
 tests:
   fire:

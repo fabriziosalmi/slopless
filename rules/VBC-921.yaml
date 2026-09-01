@@ -22,12 +22,20 @@ match:
     - '**/test/**'
     - '**/tests/**'
     - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
     - '**/test_*.py'
     - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*_bench.go'
     - '**/*.test.*'
     - '**/*.spec.*'
-    - '**/conftest.py'
-    - '**/fixtures/**'
+    - '**/bench/**'
+    - '**/benchmark*'
+    - '**/*corpus*'
+    - '**/*payload*'
   heuristic_check: stale-copyright-year
 message: >-
   Copyright notice ends at a year that has passed: {match}. It is now {year}. Use a range

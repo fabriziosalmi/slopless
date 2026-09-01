@@ -29,7 +29,25 @@ npx @fabriziosalmi/slopless --init
 
 ### rules
 
-Maps a rule id to `error`, `warning`, or `off`. This is how you disable a rule
+Maps a rule id to `error`, `warning`, or `off`.
+
+Naming a rule here also **turns on** the ones that ship disabled. Ten rules encode
+a preference about how you write English prose rather than a defect in the code,
+and across twenty repositories they were two thirds of everything slopless said.
+A preference nobody agreed to should not drown the findings someone installed the
+tool for, so those rules wait to be asked for:
+
+```json
+{ "rules": { "VBC-948": "warning", "VBC-347": "warning" } }
+```
+
+The opt-in set is `VBC-948` em dashes, `VBC-347` passive voice, `VBC-421` filler
+words, `VBC-324` condescending language, `VBC-917` shouting, `VBC-398`
+punctuation, `VBC-929` jargon, `VBC-934` personal opinion, `VBC-935`
+colloquialism, `VBC-918` tone. Every rule page says whether it is one of them.
+
+Rules that mark content as unfinished or generated stay on: lorem ipsum, "coming
+soon", the phrasings of machine-written prose. Those are what this tool is for. This is how you disable a rule
 you disagree with, or promote one you care about.
 
 `error` fails the run with exit code 1. `warning` reports and exits 0. `off`

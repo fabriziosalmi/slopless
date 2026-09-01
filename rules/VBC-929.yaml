@@ -12,6 +12,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: Avoid buzzword-heavy jargon at line {line}. Be direct and clear.
 tests:
   fire:

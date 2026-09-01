@@ -159,6 +159,11 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         }).filter(rule => (rule as any).severity !== 'off');
     }
 
+    // An opt-in rule runs only when the config names it, which the block above
+    // has already applied, so its severity is whatever the user asked for.
+    const named = new Set(Object.keys(config.rules ?? {}));
+    rules = rules.filter(rule => !rule.opt_in || named.has(rule.id));
+
     rules = selectRules(rules, options);
 
     if (files.length === 0) {

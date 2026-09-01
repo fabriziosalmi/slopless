@@ -14,6 +14,7 @@ match:
   file_types:
     - md
     - txt
+opt_in: true
 message: >-
   Corporate colloquialism or buzzword '{match}' in documentation at line {line}. Jargon and
   idioms are confusing for non-native English speakers and make documentation sound unprofessional.

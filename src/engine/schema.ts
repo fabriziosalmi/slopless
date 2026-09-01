@@ -101,6 +101,12 @@ export const RuleSchema = z.object({
      */
     supersedes: z.array(z.string()).optional(),
     /**
+     * Off unless the config asks for it by id. For rules that encode a house
+     * style rather than a defect: a preference nobody agreed to should not be
+     * two thirds of what the tool says.
+     */
+    opt_in: z.boolean().optional(),
+    /**
      * Executable examples. Every rule carries at least one snippet it must flag
      * and one it must leave alone; `rule-fixtures.test.ts` runs them all.
      */

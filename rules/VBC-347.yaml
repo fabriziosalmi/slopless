@@ -10,6 +10,7 @@ match:
   flags: i
   file_types:
     - md
+opt_in: true
 message: >-
   Potential passive voice at line {line}. Consider using active voice for clarity.
 tests:
