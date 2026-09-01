@@ -51,9 +51,30 @@ runs:
         # Patterns and extra args are deliberately word-split: both are lists.
         # shellcheck disable=SC2086
         if [ -n "$SLOPLESS_OUTPUT" ]; then
-          node "$SLOPLESS_DIR/dist/index.js" $SLOPLESS_PATTERNS "${argv[@]}" $SLOPLESS_ARGS > "$SLOPLESS_OUTPUT"
+          # Redirecting straight at the target would create it before the run, so a
+          # crash would leave a truncated report that looks finished to whatever
+          # consumes it. Build it aside and only publish a complete one. Note that
+          # exit 1 means errors were found, not that the run failed: the report is
+          # valid and must still be published.
+          tmp="$(mktemp)"
+          node "$SLOPLESS_DIR/dist/index.js" $SLOPLESS_PATTERNS "${argv[@]}" $SLOPLESS_ARGS > "$tmp"
           status=$?
-          echo "Report written to $SLOPLESS_OUTPUT"
+
+          usable=1
+          if [ ! -s "$tmp" ]; then
+            usable=0
+          elif [ "$SLOPLESS_FORMAT" = "json" ] || [ "$SLOPLESS_FORMAT" = "sarif" ]; then
+            node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$tmp" 2>/dev/null || usable=0
+          fi
+
+          if [ "$usable" = "1" ]; then
+            mv "$tmp" "$SLOPLESS_OUTPUT"
+            echo "Report written to $SLOPLESS_OUTPUT"
+          else
+            rm -f "$tmp"
+            echo "::warning title=No report written::slopless produced no usable $SLOPLESS_FORMAT report, so $SLOPLESS_OUTPUT was not created. Anything gating on that file will skip rather than consume a partial one."
+            [ "$status" = "0" ] && status=1
+          fi
         else
           node "$SLOPLESS_DIR/dist/index.js" $SLOPLESS_PATTERNS "${argv[@]}" $SLOPLESS_ARGS
           status=$?
