@@ -14,3 +14,4 @@ tests:
     - try { risky(); } catch (error) {}
   quiet:
     - try { risky(); } catch (error) { report(error); }
+    - try { risky(); } catch (error) { /* nothing to do here */ }

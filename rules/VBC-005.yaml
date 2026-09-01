@@ -5,7 +5,7 @@ category: core
 tags:
   - best-practice
 match:
-  regex: \bvar\b
+  regex: (?<!\bdeclare\s{1,4})\bvar\b
   file_types:
     - js
     - ts
@@ -20,3 +20,5 @@ tests:
   quiet:
     - const total = 0;
     - let total = 0;
+    - file: global.d.ts
+      code: 'declare var sampleRate: number;'

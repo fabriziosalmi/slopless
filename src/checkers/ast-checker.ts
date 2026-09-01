@@ -158,6 +158,9 @@ export class AstChecker {
     private static checkEmptyCatch(node: ts.Node, ctx: NodeCheckContext) {
         if (!ts.isCatchClause(node)) return;
         if (node.block.statements.length > 0) return;
+        // `catch { /* already started */ }` is a decision, not an oversight. This is
+        // how no-empty has always read a comment, and swallowing is still visible.
+        if (/\/\/|\/\*/.test(node.block.getText())) return;
         const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,

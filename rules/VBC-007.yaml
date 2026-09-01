@@ -7,8 +7,7 @@ tags:
   - clean-code
 match:
   regex: >-
-    [A-Za-z_$]*(?:price|amount|cost|fee|balance|payment|subtotal|tax)[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
-  flags: i
+    \b(?:(?:price|amount|cost|fee|fees|balance|payment|subtotal|tax)(?![a-z])|[a-z_$]+(?:Price|Amount|Cost|Fee|Fees|Balance|Payment|Subtotal|Tax)(?![a-z]))[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
   file_types:
     - js
     - ts
@@ -19,7 +18,11 @@ message: >-
 tests:
   fire:
     - const unitPrice = 19.99;
-    - let taxAmount = 0.22;
+    - let taxRate = 0.22;
+    - 'totalCost: 4.50'
   quiet:
     - const unitPriceCents = 1999;
     - const ratio = 0.22;
+    - const feedback = 0.5;
+    - const coffee = 1.5;
+    - const taxonomy = 0.9;

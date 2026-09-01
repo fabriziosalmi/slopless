@@ -4,6 +4,28 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.1.3 - 2026-09-01
+
+Three false positives, all found by pointing the tool at a TypeScript repository
+it had never seen. Errors on that repository went from 8 to 2, and the two that
+remain are real.
+
+- **`VBC-007` matched any word containing a money word.** Widening it in 1.1.2 to
+  catch `unitPrice` also caught `feedback`, `coffee`, `costume` and `taxonomy`, at
+  error severity. A money word now has to be a whole identifier word or a
+  camelCase component, and the rule is case-sensitive because the capital is what
+  marks the boundary.
+- **`VBC-005` flagged `declare var`.** In an ambient `.d.ts` that is how a global
+  is declared and there is no alternative spelling, so `declare var sampleRate:
+  number` was an error with nothing to fix.
+- **`VBC-013` treated a commented catch as empty.** `catch (e) { /* already
+  started */ }` is a decision rather than an oversight, which is how `no-empty`
+  has always read a comment. A genuinely empty `catch (e) {}` still reports.
+
+The type checker tier ran against a real project for the first time and found a
+floating promise: an `async` method called with neither `await` nor `.catch()`,
+where a rejection would go unhandled.
+
 # 1.1.2 - 2026-08-31
 
 - **Absolute paths crashed the CLI.** `slopless /abs/path/file.ts` exited 1 with a
