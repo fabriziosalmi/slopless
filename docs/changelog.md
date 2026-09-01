@@ -4,6 +4,120 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.5.0 - 2026-09-01
+
+**Comments and strings exist in other languages too.** Scope detection was written
+on the TypeScript scanner, so on `.py`, `.go`, `.rs` and the rest the `scan:` field
+was ignored entirely and every rule read comments and string literals as if they
+were code. That is why a security repository's attack corpus came back as a list
+of hazards, and why a docstring explaining an SSRF defence was reported as an
+insecure URL.
+
+- **A declarative tokeniser** now covers Python, Go, Rust, shell, Java, C/C++, C#,
+  Kotlin, Swift and Ruby. It is a table of comment markers and string forms rather
+  than a parser per language, because "is this offset inside a comment" is the only
+  question `scan:` asks. It handles the parts that bite: Rust block comments nest,
+  `&'a str` is a lifetime and not a char literal, `r#"..."#` carries its own
+  delimiter, Go's backtick strings span lines, `${#items}` in shell is a length and
+  not a comment, and an unterminated string ends at the newline instead of
+  swallowing the file.
+- **A Python docstring is documentation, not a string value.** A triple-quoted
+  string alone on its line is classified as a comment, so a rule about strings no
+  longer fires on prose.
+
+Measured over 927 real files and 350k lines of Python, Go and Rust: **37 findings
+removed, 0 added**. Every one was documentation — RFC references, CGNAT ranges,
+a SQL injection payload in a benchmark, a log-sanitiser test asserting redaction.
+
+**Four rules ported**, each reworked rather than merely widened:
+
+- `VBC-039` eval now guards its left edge, so `model.eval()` is not a security
+  finding. Reaches Python, Ruby and PHP.
+- `VBC-049` magic boolean learns `True`/`False`, and stops reporting
+  `flag.store(false, Ordering::Relaxed)`, which is the atomic API taking a value,
+  and `typer.Option(False, "--dry-run")`, which is a default followed by the name
+  that documents it.
+- `VBC-928` lorem ipsum and `VBC-917` shouting reach the languages that have
+  comments to shout in.
+
+Coverage, counting the rules enabled by default: Python 23 to 27, Go 4 to 7,
+Rust 1 to 3, Java 3 to 4, Ruby 1 to 2.
+
+**What was not ported, and why.** The rules about colours, font sizes, inline
+styles and missing `alt` do fire on the HTML that Python files generate — but that
+HTML lives in string literals, and reaching it means telling those rules to read
+strings, which is exactly where a WAF keeps its XSS payloads. Widening them would
+reproduce the false positives this release removes.
+
+- **A rule file with a repeated key is now refused.** Two `quiet:` blocks meant the
+  second won and the first was dropped: half a rule's examples gone, every test
+  still green. Found by writing that exact mistake.
+- **The schema no longer accepts a check nobody implements.** `circular-dependency`
+  sat in the `heuristic_check` enum with no branch behind it, so a rule naming it
+  would load, validate and check nothing. A test now holds every enum value to an
+  implementation.
+
+# 1.4.6 - 2026-09-01
+
+- **A run now says what it checked.** Pointed at a Rust file holding a hardcoded
+  password, an `http://` URL, a TODO and an empty error branch, slopless reported
+  "No static analysis issues detected. Clean architecture!" — having evaluated
+  zero rules. Nothing applies to `.rs`, and silence was indistinguishable from a
+  pass. Every run now prints what was read and by how many rules, names any
+  language no rule covers, and refuses the word "clean" when nothing could be
+  checked at all. For `--format json` and `sarif` the line goes to stderr, so the
+  report on stdout stays parseable.
+- **One gate, shared.** Which languages the parsing tiers can read was a hardcoded
+  list inside two checkers; the coverage count now comes from the same place they
+  do, so a rule cannot be counted as covering a file it will be skipped for.
+
+Measured across 148 rules: TypeScript 90, JavaScript 89, Markdown 24, Python 23,
+CSS 19, shell 11, Go 4, Java 3, Ruby 1, PHP 1, **Rust 0, Kotlin 0, Swift 0**.
+
+# 1.4.5 - 2026-09-01
+
+- **A single line can now be excused, by name.** `// slopless-disable-next-line
+  VBC-001 -- a fake PAT; this test asserts it is redacted`, or
+  `slopless-disable-line` at the end of the line itself. Until now the only way to
+  accept one justified exception was to switch the rule off for the whole
+  repository, which pays with every other file's coverage. The directive is read
+  from the raw line rather than a parsed comment, so `//`, `#`, `/* */` and
+  `<!-- -->` all work, and it is applied after every tier: a finding from the AST
+  and a finding from a regex are the same annoyance on the same line. Text after
+  ` -- ` is for the next reader, and rule ids named there do not count.
+- **VBC-913 only speaks where focus can land.** An outline appears on focus and
+  nowhere else, so `.card { outline: none }` on a div nobody can tab to removes
+  nothing. The rule now requires a selector that is focus-related or natively
+  focusable, which is what `require_selectors` is for: the mirror of
+  `exclude_selectors`, available to any CSS rule.
+- **VBC-034 knows a parse base from an endpoint.** `new URL(req.url, `+"`http://${host}`"+`)`
+  is the standard way to parse a request URL in Node; nothing is ever fetched over
+  that base.
+
+# 1.4.4 - 2026-09-01
+
+Five false positives, all found by running slopless over repositories it did not
+write. Each has the same shape: the code was correct, and the rule could not see
+why.
+
+- **VBC-070 (innerHTML)** no longer fires on a string literal with no
+  interpolation. `el.innerHTML = '<i class="fa-check"></i>'` has no injection
+  point, and calling it an XSS risk teaches people to ignore the rule.
+- **VBC-034 (http://)** treats link-local as an address, not an endpoint.
+  `http://169.254.169.254` turns up in code that *refuses* to fetch it, and there
+  is no https:// cloud metadata service to switch to.
+- **VBC-010 (clickable div)** ignores `onClick={e => e.stopPropagation()}`. That
+  is a click being stopped, not a control being offered: there is nothing there
+  for a keyboard user to reach.
+- **VBC-077 (deceptive name)** understands memoization. A getter that fills a
+  cache it also tests is idempotent, which is what the guard is for. `fetch` also
+  left the list of prefixes that promise not to mutate, because `fetchFromRemote`
+  promises the opposite.
+- **`--only` with an unknown category is now an error.** It used to select zero
+  rules and print "No static analysis issues detected", so a typo produced a
+  confident green run that had checked nothing. Exit code 2, and it names the
+  categories that do exist.
+
 # 1.4.3 - 2026-09-01
 
 - **The release workflow creates the GitHub release too.** A tag, an npm version

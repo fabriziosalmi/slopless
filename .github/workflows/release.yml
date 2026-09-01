@@ -53,6 +53,17 @@ jobs:
       - run: npm run build
       - name: the bundled CLI in git must match the source
         run: git diff --exit-code dist/index.js
+      # ci.yml checks this on every push, and five releases went out while it was
+      # failing there, because a release watches its own run and not that one.
+      # A version that ships rules the published docs do not describe is wrong in
+      # the place users read, so the guard belongs on both paths.
+      - name: the published docs must describe the rules being released
+        run: |
+          npm run docs:gen
+          git diff --exit-code docs/rules docs/changelog.md docs/index.md README.md || {
+            echo "Generated content is stale. Run: npm run docs:gen && git add -A"
+            exit 1
+          }
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
 
