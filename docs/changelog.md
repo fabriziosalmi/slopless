@@ -4,6 +4,47 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.6.0 - 2026-09-01
+
+The three things porting rules to other languages was waiting on. Each was found
+the same way: by extending twenty rules to Go and Rust, measuring the result on
+927 real files, and throwing the branch away because eight groups out of eight
+were dominated by false positives.
+
+- **Test code, not just test files.** Rust keeps its tests in `#[cfg(test)] mod
+  tests`, inside the file they test, and `exclude_files` cannot see them because
+  there is no separate file to exclude. Seven rules that already excluded test
+  paths now exclude test regions too. Rust findings on the corpus drop from 46 to
+  5; all 41 sit inside a test module, and nothing new appeared.
+- **A project can claim its own vocabulary.** `blacklist` appears 617 times in one
+  firewall, where it names the data structure and half the JSON contract;
+  `master` appears 486 times in an audio project, where it is the output bus.
+  `"vocabulary": ["blacklist"]` in the config excuses the word everywhere, whole
+  words only, and the run reports how many findings it excused and which words
+  did it.
+- **Documentation is not commentary.** Go requires a comment on every exported
+  symbol and on the package, Rust writes them with `///`, and everything above
+  the first line of code is a header whatever the language. `VBC-042` went from
+  81 findings to 2 in one project, and the two that remain are ten-line blocks in
+  the middle of code, which is what the rule is for.
+
+Two bugs fell out of measuring rather than testing:
+
+- **A regular expression literal is not code.** The scanner reads a slash as
+  division unless asked to reconsider, so regex bodies reached the rules as
+  source: `/(?:package|func|var)/` reported a `var` this project does not
+  contain. They now have their own `scan: regex` scope, so a rule about values
+  does not read them and `VBC-096` reads nothing else.
+- **A match that leaves the literal it started in is not inside it.** A pattern
+  that began at a regex and ended in the template beside it was reported as a
+  complex regular expression.
+
+Known limit, stated rather than hidden: a slash after a closing paren is read as
+division, so `if (x) /re/.test(s)` has its body scanned as code. Telling that
+from `(a + b) / 2` needs to know whether the paren closed a condition. The other
+guess swallows real code up to the next slash, which is how a division hid the
+rest of a file during this work.
+
 # 1.5.0 - 2026-09-01
 
 **Comments and strings exist in other languages too.** Scope detection was written
