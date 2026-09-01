@@ -52,11 +52,14 @@ describe('appliesTo agrees with what the checkers do', () => {
 });
 
 describe('coverage over the real rule set', () => {
-    it('reports how little reaches a language nothing was written for', () => {
+    it('reaches a language through the prose rules, and little else', () => {
         // The bug this exists for: a Rust file with a hardcoded password and an
-        // http:// URL reported "No static analysis issues detected".
+        // http:// URL reported "No static analysis issues detected". What
+        // reaches Rust now is the prose and unfinished-work rules, which no
+        // native linter covers; the rest is still TypeScript's.
         const [rust] = coverageOf(['src/lib.rs'], rules);
-        expect(rust.rules).toBeLessThan(5);
+        expect(rust.rules).toBeGreaterThan(5);
+        expect(rust.rules).toBeLessThan(coverageOf(['a.ts'], rules)[0].rules / 3);
     });
 
     it('calls a language with no rules at all uncovered', () => {
@@ -77,9 +80,9 @@ describe('coverage over the real rule set', () => {
     });
 
     it('names the languages it read, and says when one was read by nothing', () => {
-        const line = describeCoverage(coverageOf(['a.ts', 'c.kt'], rules), rules.length);
+        const line = describeCoverage(coverageOf(['a.ts', 'c.zig'], rules), rules.length);
         expect(line).toMatch(/\.ts \d+ rules/);
-        expect(line).toContain('.kt nothing applies');
+        expect(line).toContain('.zig nothing applies');
     });
 
     it('counts one rule as a rule', () => {

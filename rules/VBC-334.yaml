@@ -10,9 +10,26 @@ match:
     (As an AI language model|It's important to remember that|In conclusion,|Let's dive into|the
     landscape of|tapestry of|delve into|unleash|unlocking|delving into|testament to)
   flags: i
+  scan: comments
   file_types:
     - md
     - txt
+    - go
+    - rs
+    - java
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
+    - html
+    - js
+    - ts
+    - tsx
+    - jsx
+    - py
+    - sh
 message: >-
   Potential AI-generated fluff or overused cliché '{match}' detected at line {line}. Keep
   documentation concise and human-centric.

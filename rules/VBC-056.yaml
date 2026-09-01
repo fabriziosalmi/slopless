@@ -15,6 +15,15 @@ match:
     - ts
     - py
     - sh
+    - go
+    - rs
+    - java
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
 supersedes:
   - VBC-907
   - VBC-150

@@ -20,6 +20,14 @@ match:
     - rs
     - java
     - sh
+    - tsx
+    - jsx
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
 message: >-
   Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real content before
   committing.

@@ -18,6 +18,13 @@ match:
     - c
     - cpp
     - md
+    - go
+    - rs
+    - java
+    - cs
+    - kt
+    - swift
+    - rb
 message: >-
   Passive-aggressive or helpless comment '{match}' detected at line {line}. Replace with a
   technical explanation of the actual constraint or a link to the relevant issue tracker ticket.

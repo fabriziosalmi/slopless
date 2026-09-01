@@ -5,20 +5,36 @@ category: clean-code
 tags:
   - clean-code
 match:
+  # The marker has to open the comment. Matching it mid-sentence read prose
+  # about TODOs as a TODO: `// a TODO. Sites that DO build a header ...`
   regex: >-
-    \b(?:TODO|FIXME|HACK|XXX)\b(?!\s*[\(\[][^)\]\n]+[\)\]])(?!\s*:?\s*(?:#\d+|[A-Z][A-Z0-9]+-\d+))
+    ^[^\n\w]*(?:TODO|FIXME|HACK|XXX)\b(?!\s*[\(\[][^)\]\n]+[\)\]])(?!\s*:?\s*(?:#\d+|[A-Z][A-Z0-9]+-\d+))
+  flags: m
   scan: comments
   file_types:
     - js
     - ts
     - py
     - sh
+    - go
+    - rs
+    - java
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
 message: >-
   Unattributed debt marker at line {line}. Nobody owns it, so nobody will fix it. Use TODO(owner):
   or reference an issue such as TODO: #123.
 tests:
   fire:
     - '// TODO: wire up retries'
+    - '// TODO: drain the queue before closing'
   quiet:
+    # Prose about a TODO is not a TODO.
+    - '// a TODO. Sites that build a header from dynamic data need one'
+    - '/// Reviewer note: `?` used to be a TODO no-op'
     - '// TODO(fab): wire up retries'
     - '// TODO: #123 wire up retries'

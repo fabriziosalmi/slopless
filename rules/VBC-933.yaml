@@ -8,9 +8,19 @@ tags:
 match:
   regex: (coming soon|under construction|not yet written|🚧\s*wip|todo:\s*write)
   flags: i
+  scan: comments
   file_types:
     - md
     - txt
+    - go
+    - rs
+    - java
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
 message: >-
   Placeholder documentation content '{match}' at line {line}. Documentation stubs with "coming
   soon" text signal an abandoned project to new contributors. Either write the section or

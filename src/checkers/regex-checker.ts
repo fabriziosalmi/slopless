@@ -184,11 +184,16 @@ function lineOfOffset(index: LineIndex, offset: number): number {
 
 function isInScope(ranges: ProtectedRange[], match: RawMatch, scan: Rule['match']['scan']): boolean {
     if (scan === 'all') return true;
-    const scope = scopeAt(ranges, match.start);
-    // A match that starts inside a literal and runs out of it is not in it. One
+    // From the first character that is not whitespace: a pattern anchored to the
+    // line start begins on the indentation, which is outside the comment it is
+    // about, and the whole match was then read as code.
+    const lead = match.text.search(/\S/);
+    const scope = scopeAt(ranges, match.start + (lead < 0 ? 0 : lead));
+    // A match that starts inside a literal and runs out of it is not in it: one
     // that began at a regex and ended in the template beside it was reported as
-    // a complex regular expression.
-    if (scope !== 'code' && !endsInSameRange(ranges, match)) return false;
+    // a complex regular expression. Whitespace is allowed to fall outside,
+    // because a run of comment lines is several ranges with newlines between.
+    if (scope !== 'code' && !staysInScope(ranges, match, scope)) return false;
     if (scan === 'strings') return scope === 'string';
     if (scan === 'comments') return scope === 'comment';
     if (scan === 'regex') return scope === 'regex';
@@ -252,9 +257,17 @@ function selectorMatches(selector: string | undefined, patterns: string[]): bool
     });
 }
 
-function endsInSameRange(ranges: ProtectedRange[], match: RawMatch): boolean {
+function staysInScope(ranges: ProtectedRange[], match: RawMatch,
+    scope: ReturnType<typeof scopeAt>): boolean {
     const end = match.start + match.text.length;
-    return ranges.some(r => match.start >= r.start && end <= r.end);
+    const covering = ranges.filter(r => r.start < end && r.end > match.start);
+    for (let i = 0; i < match.text.length; i++) {
+        if (/\s/.test(match.text[i])) continue;
+        const at = match.start + i;
+        const range = covering.find(r => at >= r.start && at < r.end);
+        if (!range || (range.pattern ? 'regex' : range.type) !== scope) return false;
+    }
+    return true;
 }
 
 function firstLineOf(text: string): string {
