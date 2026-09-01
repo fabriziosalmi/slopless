@@ -6,6 +6,12 @@ export interface SloplessConfig {
     ignore?: string[];
     customRulesPaths?: string[];
     typeCheck?: boolean;
+    /**
+     * Words that are this project's domain rather than slop. `blacklist` in a
+     * firewall, `master` on an audio bus. Applies to every rule, and the run
+     * reports how many findings it excused.
+     */
+    vocabulary?: string[];
 }
 
 export function loadConfig(configPath?: string): SloplessConfig {

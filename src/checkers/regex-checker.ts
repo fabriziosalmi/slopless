@@ -4,6 +4,7 @@ import { isExcludedFile } from '../engine/file-scope';
 import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange } from '../engine/ast-utils';
 import { protectedRangesFor, supportsTokenizing } from '../engine/tokenize';
 import { testRegionsFor, isInTestRegion } from '../engine/test-regions';
+import { VocabularyState, excuses } from '../engine/vocabulary';
 
 export interface Violation {
     ruleId: string;
@@ -27,7 +28,8 @@ interface LineIndex {
 }
 
 export class RegexChecker {
-    static check(file: string, rules: Rule[], rawContent?: string): Violation[] {
+    static check(file: string, rules: Rule[], rawContent?: string,
+        vocabulary: VocabularyState | null = null): Violation[] {
         const violations: Violation[] = [];
         const content = rawContent !== undefined ? rawContent : fs.readFileSync(file, 'utf8');
         const index = buildLineIndex(content);
@@ -68,7 +70,10 @@ export class RegexChecker {
 
                 const key = `${rule.id}:${line}`;
                 if (seen.has(key)) continue;
+                // The line is spoken for either way. Excusing without marking it
+                // counted two claimed words on one line as two findings.
                 seen.add(key);
+                if (excuses(vocabulary, match.text)) continue;
 
                 violations.push({
                     ruleId: rule.id,

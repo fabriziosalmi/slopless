@@ -22,6 +22,7 @@ import { AnalysisCache } from './engine/cache';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
 import { applySuppressions } from './engine/suppressions';
+import { compileVocabulary } from './engine/vocabulary';
 import { coverageOf, describeCoverage, uncovered } from './engine/coverage';
 import { isGeneratedFile } from './engine/generated';
 import * as ts from 'typescript';
@@ -186,6 +187,9 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     }
 
     let allViolations: Violation[] = [];
+    // A word the project has claimed silences findings wherever it appears, so
+    // the run counts them and says how many.
+    const vocabulary = compileVocabulary(config.vocabulary);
     const cacheManager = new AnalysisCache(options.useCache && !options.shouldFix); // Disable cache read if fixing
 
     let tsProgram: ts.Program | null = null;
@@ -230,7 +234,7 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         }
 
         let fileViolations: Violation[] = [];
-        fileViolations = fileViolations.concat(RegexChecker.check(file, rules));
+        fileViolations = fileViolations.concat(RegexChecker.check(file, rules, undefined, vocabulary));
         fileViolations = fileViolations.concat(AstChecker.check(file, rules));
         fileViolations = fileViolations.concat(await HeuristicChecker.check(file, rules));
         fileViolations = fileViolations.concat(SemanticChecker.check(file, rules));
@@ -300,6 +304,10 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
             console.log('✅ No static analysis issues detected. Clean architecture!');
         }
         console.log(`\n${describeCoverage(coverage, rules.length)}`);
+        if (vocabulary && vocabulary.excused > 0) {
+            console.log(`${vocabulary.excused} finding${vocabulary.excused === 1 ? '' : 's'} `
+                + `excused by the project vocabulary: ${(config.vocabulary ?? []).join(', ')}.`);
+        }
         if (blind.length > 0 && blind.length < coverage.length) {
             const named = blind.map(c => `.${c.ext || '(no extension)'} (${c.files})`).join(', ');
             console.log(`No rule covers ${named}: those files were read by nothing.`);
