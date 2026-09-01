@@ -48,3 +48,7 @@ test_regex_protection.ts
 
 # Decks ship as release assets, not as blobs in the tree.
 docs/public/*.pdf
+
+# Local dogfooding worklist, not part of the project.
+REPOS.md
+.local/
