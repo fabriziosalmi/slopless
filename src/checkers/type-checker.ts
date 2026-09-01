@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import { Rule } from '../engine/schema';
 import { Violation } from './regex-checker';
+import { isExcludedFile } from '../engine/file-scope';
 
 interface FloatingPromiseContext {
     checker: ts.TypeChecker;
@@ -16,7 +17,7 @@ export class TypeCheckerEngine {
         const sourceFile = program.getSourceFile(file);
         if (!sourceFile) return violations;
 
-        const typeRules = rules.filter(r => r.match.type_check);
+        const typeRules = rules.filter(r => r.match.type_check && !isExcludedFile(file, r));
         if (typeRules.length === 0) return violations;
 
         const visit = (node: ts.Node) => {

@@ -27,3 +27,35 @@ describe('HeuristicChecker — VBC-401 broken-links', () => {
         expect(violations[0].line).toBe(1);
     }, 15000);
 });
+
+describe('HeuristicChecker — VBC-921 stale-copyright-year', () => {
+    const copyright = RuleLoader.loadRules([RULES_DIR]).filter(rule => rule.id === 'VBC-921');
+    const thisYear = new Date().getFullYear();
+
+    it('ignores a notice carrying the current year', async () => {
+        const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright (c) ${thisYear} Someone\n`);
+        expect(found).toHaveLength(0);
+    });
+
+    it('ignores a range that ends in the current year', async () => {
+        const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright 2020-${thisYear} Someone\n`);
+        expect(found).toHaveLength(0);
+    });
+
+    it('ignores a range ending in "present"', async () => {
+        const found = await HeuristicChecker.check('a.ts', copyright, '// Copyright 2020-present Someone\n');
+        expect(found).toHaveLength(0);
+    });
+
+    it('flags a notice that stopped at a year gone by', async () => {
+        const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright (c) ${thisYear - 3} Someone\n`);
+        expect(found).toHaveLength(1);
+        expect(found[0].ruleId).toBe('VBC-921');
+        expect(found[0].message).toContain(String(thisYear));
+    });
+
+    it('flags a range that stopped before the current year', async () => {
+        const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright 2019-${thisYear - 2} Someone\n`);
+        expect(found).toHaveLength(1);
+    });
+});

@@ -8,7 +8,7 @@ tags:
   - ai-error
 match:
   regex: >-
-    \b(price|amount|total|cost|fee|tax|discount|balance|rate)\s*[*\/\+\-]=?\s*0\.[0-9]|\b(price|amount|total|cost|fee|tax|discount|balance)\s*=\s*[a-zA-Z_]+\s*[*\/]\s*[a-zA-Z_]+
+    \b(?:(?:price|cost|fee|fees|tax|subtotal|payment|invoice|salary|refund|charge)(?![a-z])|[a-z_$]+(?:Price|Cost|Fee|Fees|Tax|Subtotal|Payment|Invoice|Salary|Refund|Charge)(?![a-z]))[A-Za-z_$]*\s*[*/+\-]=?\s*0\.[0-9]|\b(?:(?:price|cost|fee|fees|tax|subtotal|payment|invoice|salary|refund|charge)(?![a-z])|[a-z_$]+(?:Price|Cost|Fee|Fees|Tax|Subtotal|Payment|Invoice|Salary|Refund|Charge)(?![a-z]))[A-Za-z_$]*\s*=\s*[a-zA-Z_$][\w$]*\s*[*/]\s*[a-zA-Z_$][\w$]*
   file_types:
     - js
     - ts
@@ -25,3 +25,6 @@ tests:
     - const total = price * 0.22;
   quiet:
     - const totalCents = priceCents * 22;
+    - const wet = amount * 0.5;
+    - const pan = balance * 0.5;
+    - const g = rate * 0.35;

@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import { Rule } from '../engine/schema';
+import { isExcludedFile } from '../engine/file-scope';
 import { Violation } from './regex-checker';
 
 interface NodeCheckContext {
@@ -58,6 +59,7 @@ export class AstChecker {
 
         for (const rule of rules) {
             if (!rule.match.ast_check) continue;
+            if (isExcludedFile(file, rule)) continue;
 
             const type = rule.match.ast_check.type;
             const threshold = rule.match.threshold ?? rule.match.ast_check.threshold;

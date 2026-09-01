@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import * as fs from 'fs';
 import { Rule } from '../engine/schema';
+import { isExcludedFile } from '../engine/file-scope';
 import { Violation } from './regex-checker';
 
 export class SemanticChecker {
@@ -21,6 +22,7 @@ export class SemanticChecker {
 
         for (const rule of rules) {
             if (!rule.match.semantic_check) continue;
+            if (isExcludedFile(file, rule)) continue;
 
             const type = rule.match.semantic_check;
 

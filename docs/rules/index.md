@@ -92,7 +92,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-103](./VBC-103.md)<br>`ascii-art-block` | Block of decoration: three or more comment lines that are shape and nothing else | warning | Regex |
 | [VBC-324](./VBC-324.md)<br>`condescending-language` | Condescending or vague language detected | warning | Regex |
 | [VBC-334](./VBC-334.md)<br>`ai-generated-fluff` | Potential AI-generated fluff or overused cliché detected | warning | Regex |
-| [VBC-338](./VBC-338.md)<br>`non-inclusive-terminology` | Non-inclusive terminology found | warning | Regex |
+| [VBC-338](./VBC-338.md)<br>`non-inclusive-terminology` | Non-inclusive terminology | warning | Regex |
 | [VBC-340](./VBC-340.md)<br>`gendered-address` | Gendered language detected | warning | Regex |
 | [VBC-344](./VBC-344.md)<br>`non-iso-date` | Non-ISO 8601 date found | warning | Regex |
 | [VBC-347](./VBC-347.md)<br>`passive-voice` | Potential passive voice | warning | Regex |
@@ -105,7 +105,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-917](./VBC-917.md)<br>`shouting-documentation` | Sustained all-caps text | warning | Regex |
 | [VBC-918](./VBC-918.md)<br>`we-detected-tone` | Avoid first-person collective ('We') in system messages | warning | Regex |
 | [VBC-920](./VBC-920.md)<br>`relative-link-format` | Relative local link missing './' prefix | warning | Regex |
-| [VBC-921](./VBC-921.md)<br>`hardcoded-outdated-year` | Copyright notice pinned to a single year | warning | Regex |
+| [VBC-921](./VBC-921.md)<br>`hardcoded-outdated-year` | Copyright notice ends at a year that has passed: | warning | Heuristic |
 | [VBC-927](./VBC-927.md)<br>`vague-button-label` | Vague button label detected | warning | Regex |
 | [VBC-929](./VBC-929.md)<br>`technical-jargon-slop` | Avoid buzzword-heavy jargon | warning | Regex |
 | [VBC-933](./VBC-933.md)<br>`coming-soon-docs` | Placeholder documentation content | warning | Regex |

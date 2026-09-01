@@ -4,6 +4,34 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.2.0 - 2026-09-01
+
+An audio workstation, where the vocabulary of the domain collides head-on with
+rules written for web applications. Errors fell from 29 to 13 and total findings
+from 1881 to 1300.
+
+- **`VBC-338` reported "master" 486 times**, every one of them a master bus,
+  master EQ or master section. That is audio engineering, from master recording,
+  and not what inclusive-language guidance is about. The rule now looks for the
+  contexts that guidance actually names: master/slave pairs, `master branch` and
+  the like, allowlist and blocklist wording, and "sanity check".
+- **`VBC-940` and `VBC-007` read an effect's wet/dry `amount` as money**, because
+  `amount`, `balance`, `total` and `rate` were on the currency word list and mean
+  something in every domain. Only unambiguous words remain: price, cost, fee,
+  tax, subtotal, payment, invoice, salary, refund, charge.
+- **`VBC-921` flagged 135 correct copyright notices** carrying the current year.
+  Rewriting it in 1.1.2 to avoid a hardcoded year range traded an annual staleness
+  for firing on every current notice. A rule about time needs to know the time, so
+  it is a heuristic check now and compares against the year the run happens in. A
+  notice ending in the current year, in a range, or in "present" is correct.
+
+## Fixed
+
+- **`exclude_files` only worked in the regex tier.** A rule could declare an
+  exclusion and still fire from the AST, semantic, heuristic or type checker,
+  which is what happened the moment `VBC-921` moved tiers. It is a shared check
+  now and every checker honours it.
+
 # 1.1.9 - 2026-09-01
 
 The first Python repository, and it answered a question about the whole rollout

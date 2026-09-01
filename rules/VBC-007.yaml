@@ -7,7 +7,7 @@ tags:
   - clean-code
 match:
   regex: >-
-    \b(?:(?:price|amount|cost|fee|fees|balance|payment|subtotal|tax)(?![a-z])|[a-z_$]+(?:Price|Amount|Cost|Fee|Fees|Balance|Payment|Subtotal|Tax)(?![a-z]))[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
+    \b(?:(?:price|cost|fee|fees|tax|subtotal|payment|invoice|salary|refund|charge)(?![a-z])|[a-z_$]+(?:Price|Cost|Fee|Fees|Tax|Subtotal|Payment|Invoice|Salary|Refund|Charge)(?![a-z]))[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
   file_types:
     - js
     - ts
@@ -24,5 +24,5 @@ tests:
     - const unitPriceCents = 1999;
     - const ratio = 0.22;
     - const feedback = 0.5;
+    - const amount = 0.5;
     - const coffee = 1.5;
-    - const taxonomy = 0.9;

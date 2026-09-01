@@ -1,6 +1,6 @@
 import * as fs from 'fs';
-import { minimatch } from 'minimatch';
 import { Rule } from '../engine/schema';
+import { isExcludedFile } from '../engine/file-scope';
 import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange } from '../engine/ast-utils';
 
 export interface Violation {
@@ -42,7 +42,7 @@ export class RegexChecker {
         for (const rule of rules) {
             if (!rule.match.regex) continue;
             if (rule.match.file_types && !rule.match.file_types.includes(ext)) continue;
-            if (isExcludedFile(file, rule.match.exclude_files)) continue;
+            if (isExcludedFile(file, rule)) continue;
 
             const regex = compileRegex(rule);
             if (!regex) continue;
@@ -141,12 +141,6 @@ function isInScope(ranges: ProtectedRange[], offset: number, scan: Rule['match']
     if (scan === 'strings') return scope === 'string';
     if (scan === 'comments') return scope === 'comment';
     return scope === 'code'; // default
-}
-
-function isExcludedFile(file: string, patterns?: string[]): boolean {
-    if (!patterns || patterns.length === 0) return false;
-    const normalised = file.replace(/\\/g, '/');
-    return patterns.some(pattern => minimatch(normalised, pattern, { matchBase: true, dot: true }));
 }
 
 /**

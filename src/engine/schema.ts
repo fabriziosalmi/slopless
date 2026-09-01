@@ -75,7 +75,8 @@ export const RuleSchema = z.object({
         }).optional(),
         heuristic_check: z.enum([
             'link-checker',
-            'circular-dependency'
+            'circular-dependency',
+            'stale-copyright-year'
         ]).optional(),
         semantic_check: z.enum([
             'boolean-naming',

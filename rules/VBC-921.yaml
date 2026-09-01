@@ -6,19 +6,32 @@ tags:
   - documentation
   - maintenance
 match:
-  regex: (?:©|\(c\)|Copyright)\s*(?:19|20)\d{2}(?!\s*[-–—]\s*(?:19|20)?\d{2})
-  flags: i
-  scan: all
   file_types:
     - md
     - txt
     - js
     - ts
+    - tsx
+    - jsx
+    - css
+    - py
+    - go
+    - rs
+    - html
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
+  heuristic_check: stale-copyright-year
 message: >-
-  Copyright notice pinned to a single year at line {line}. It is stale the moment the year
-  turns. Use a range (2020-present) or generate the year at build time.
+  Copyright notice ends at a year that has passed: {match}. It is now {year}. Use a range
+  ending in the current year, or generate the year at build time.
 tests:
-  fire:
-    - Copyright 2024 Acme Ltd.
-  quiet:
-    - Copyright 2020-2026 Acme Ltd.
+  external: >-
+    heuristic-checker.test.ts: compares against the year the run happens in
