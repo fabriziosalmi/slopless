@@ -19,7 +19,8 @@
     "docs:gen": "ts-node scripts/generate-rule-docs.ts",
     "docs:build": "npm run docs:gen && vitepress build docs",
     "docs:preview": "vitepress preview docs",
-    "verify:bundle": "node scripts/verify-bundle.js"
+    "verify:bundle": "node scripts/verify-bundle.js",
+    "verify:action": "bash scripts/run-action-locally.sh . 'src/**/*.ts'"
   },
   "keywords": [
     "linter",
