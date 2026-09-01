@@ -28,7 +28,11 @@ npm run test:coverage
    out of `action.yml`. Reading the file is not enough: the Action once expanded
    its own glob in bash and analysed half the files it claimed to, while staying
    green.
-7. If you changed a dependency, commit the rebuilt `dist/index.js` with it. The
+7. Releasing: run `npm run release:prep` after bumping the version and writing the
+   CHANGELOG entry. It regenerates the docs, rebuilds the bundle and runs every
+   check CI runs. Doing those by hand is how v1.1.6 shipped with a stale
+   `docs/changelog.md` and a red build.
+8. If you changed a dependency, commit the rebuilt `dist/index.js` with it. The
    bundle inlines every dependency so the GitHub Action can run with no install
    step, which means a version bump changes the bundle. CI compares the committed
    bundle against a fresh build and fails if they differ — including on Dependabot

@@ -4,6 +4,19 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.1.6 - 2026-09-01
+
+- **The Action could publish a truncated report.** Redirecting straight at the
+  output file created it before the run started, so a crash left a partial file
+  that looked finished to anything consuming it, and `hashFiles` still saw
+  content. The report is now built aside, parsed when the format is JSON or
+  SARIF, and only moved into place when it is complete. A failed run leaves no
+  file at all, so a downstream step skips instead of uploading a broken one.
+
+  Note that gating on the step outcome would not have worked here: slopless exits
+  1 when it finds errors, which is a successful analysis with a valid report, so
+  outcome-based gating would skip the upload in exactly the case that matters.
+
 # 1.1.5 - 2026-09-01
 
 Two rules that produced nothing but noise on a desktop app, at a rate that made
