@@ -183,3 +183,50 @@ can write "unlike VBC-070, this one is real" without silencing VBC-070.
 A directive with no rule id silences every rule on that line. Prefer naming one:
 a suppression that names its rule stops applying the moment the line changes
 character, which is the point.
+
+## Words your project has claimed
+
+A word can be slop in general and the domain everywhere in one repository.
+`blacklist` appears 617 times in a firewall, where it names the data structure
+and half the JSON contract. `master` appears 486 times in an audio project, where
+it is the output bus. Switching the rule off loses every other use of it, and
+renaming the domain to satisfy a linter is worse.
+
+```json
+{ "vocabulary": ["blacklist", "whitelist", "master"] }
+```
+
+It applies to every rule, because the word means the same thing wherever it
+appears in the repository that declared it. Whole words only, so claiming
+`master` does not excuse `mastermind`. The run says how many findings it excused
+and which words did it: a silence nobody can see is the thing this tool exists to
+argue against.
+
+## What a rule reads
+
+`scan:` says which part of a file a rule looks at.
+
+| value | reads |
+| --- | --- |
+| `code` (default) | everything that is not a comment, a string or a pattern |
+| `strings` | string literals |
+| `comments` | comments, documentation included |
+| `regex` | regular expression literals |
+| `all` | the file as text |
+
+A regular expression literal is not a string literal: `/^https?:\/\//` is a
+pattern that recognises a URL, not a URL. A rule about the values a program
+carries does not read one, and the rule about patterns reads nothing else.
+
+Two more fields decide what a rule skips.
+
+`exclude_test_code: true` skips test code that lives inside the file it tests.
+Rust puts it in `#[cfg(test)] mod tests`, and `exclude_files` cannot see it
+because there is no separate file to exclude. A magic boolean inside an assertion
+is how you write an assertion.
+
+`exclude_doc_comments: true` skips documentation. Go requires a comment on every
+exported symbol and on the package, Rust writes them with `///` and `//!`, and
+the comments above the first line of code are a header whatever the language. A
+rule about commentary that counts those is asking a language to stop following
+its own convention.
