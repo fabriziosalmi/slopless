@@ -26,6 +26,21 @@ tests:
     - 'logger.info("x");'
 ```
 
+## severity
+
+`error` fails the run; `warning` reports and exits 0. The line between them is
+not how much the finding matters, it is what kind of claim the rule is making:
+
+- **`error` is for a hazard.** A hardcoded credential, `eval` on untrusted input,
+  SQL built by concatenation, an image with no alt text. The rule is asserting
+  something is wrong, not that it could be nicer.
+- **`warning` is for a judgement.** Every numeric threshold lives here, because
+  the number is a preference: five parameters, four levels of nesting, five
+  hundred lines. So does anything about naming, style or tone.
+
+A rule that fails someone's build over a threshold they did not choose gets
+switched off, and takes the hazards in the same run with it.
+
 ## match
 
 Exactly one detection mechanism per rule.

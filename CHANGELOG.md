@@ -1,3 +1,19 @@
+# 1.2.2 - 2026-09-01
+
+- **`VBC-028` and `VBC-065` are warnings.** Seven rules in the set are built on a
+  numeric threshold, and five of them were already warnings: file length, staged
+  file count, filename length, file size, commit message length. Two were errors,
+  and there is no principle that makes "more than five parameters" fail a build
+  while "more than five hundred lines" does not. Both numbers are a preference.
+
+  The line drawn, and now written down in the docs: **an error is a hazard, a
+  warning is a judgement, and every numeric threshold is a judgement.** A rule
+  that fails someone's build over a number they did not choose gets switched off,
+  and takes the hazards in the same run with it.
+
+  Measured on eight repositories: errors fell from 18 to 3, 18 to 5, 76 to 43.
+  Nothing was silenced; the findings are all still reported.
+
 # 1.2.1 - 2026-09-01
 
 - **Generated files are skipped, by shape rather than by name.** A repository

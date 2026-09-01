@@ -1,6 +1,6 @@
 id: VBC-065
 name: hadouken-nested-logic
-severity: error
+severity: warning
 category: clean-code
 tags:
   - clean-code
@@ -9,7 +9,8 @@ match:
     type: nested-blocks-limit
     threshold: 4
 message: >-
-  Hadouken! Nested logic is too deep ({count}). Max allowed: {threshold} levels.
+  Nested logic is {count} levels deep at line {line}, over the limit of {threshold}. Return
+  early, extract the inner block, or invert a condition.
 tests:
   fire:
     - |

@@ -1,6 +1,6 @@
 id: VBC-028
 name: function-params-limit
-severity: error
+severity: warning
 category: core
 tags:
   - clean-code
@@ -9,7 +9,8 @@ match:
     type: function-params-limit
     threshold: 5
 message: >-
-  Function has too many parameters ({count}). Max allowed is {threshold}.
+  Function takes {count} parameters at line {line}, over the limit of {threshold}. Positional
+  arguments are easy to pass in the wrong order. Take an options object, or split the function.
 tests:
   fire:
     - function build(a, b, c, d, e, f) { return a; }

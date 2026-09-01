@@ -1,6 +1,6 @@
 # Rules
 
-All 148 rules. **41** are errors and fail the run; the remaining 107 are warnings and only report.
+All 148 rules. **39** are errors and fail the run; the remaining 109 are warnings and only report.
 
 Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
@@ -10,7 +10,6 @@ Use the search box above to find a rule by what it catches.
 
 | Rule | Catches | Severity | Analysis |
 |---|---|---|---|
-| [VBC-065](./VBC-065.md)<br>`hadouken-nested-logic` | Hadouken! Nested logic is too deep | **error** | AST |
 | [VBC-077](./VBC-077.md)<br>`deceptive-function-name` | Lying function name detected: implies a non-mutating action but contains side-effect… | **error** | AST |
 | [VBC-079](./VBC-079.md)<br>`debugger-statements` | debugger; statement found | **error** | Regex |
 | [VBC-080](./VBC-080.md)<br>`browser-alert` | Avoid using alert() | **error** | Regex |
@@ -32,6 +31,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-058](./VBC-058.md)<br>`overly-long-variable-name` | Overly long variable name (&gt;35 chars) detected | warning | Regex |
 | [VBC-063](./VBC-063.md)<br>`empty-else` | Empty else block detected | warning | Regex |
 | [VBC-063-B](./VBC-063-B.md)<br>`empty-block` | Empty block detected | warning | AST |
+| [VBC-065](./VBC-065.md)<br>`hadouken-nested-logic` | Nested logic is levels deep, over the limit of | warning | AST |
 | [VBC-066](./VBC-066.md)<br>`redundant-if-true` | Redundant 'if(true)' detected | warning | AST |
 | [VBC-068](./VBC-068.md)<br>`overuse-ternary` | Chained or nested ternary | warning | Regex |
 | [VBC-084](./VBC-084.md)<br>`long-line-limit` | Line is too long ( characters) | warning | Regex |
@@ -67,11 +67,11 @@ Use the search box above to find a rule by what it catches.
 | [VBC-013](./VBC-013.md)<br>`empty-catch` | Empty catch block detected | **error** | AST |
 | [VBC-017](./VBC-017.md)<br>`fake-test-assertion` | Trivially true test assertion | **error** | Regex |
 | [VBC-019](./VBC-019.md)<br>`absolute-paths` | Hardcoded absolute path detected | **error** | Regex |
-| [VBC-028](./VBC-028.md)<br>`function-params-limit` | Function has too many parameters | **error** | AST |
 | [VBC-039](./VBC-039.md)<br>`use-eval` | Use of 'eval()' detected | **error** | Regex |
 | [VBC-070](./VBC-070.md)<br>`use-innerhtml` | Use of 'innerHTML' detected | **error** | Regex |
 | [VBC-086](./VBC-086.md)<br>`target-blank-rel` | target='_blank' without rel='noopener' detected | **error** | Regex |
 | [VBC-800](./VBC-800.md)<br>`floating-promise` | Unawaited Promise detected | **error** | Type checker |
+| [VBC-028](./VBC-028.md)<br>`function-params-limit` | Function takes parameters, over the limit of | warning | AST |
 | [VBC-032](./VBC-032.md)<br>`css-important` | Global '!important' detected in CSS | warning | Regex |
 | [VBC-057](./VBC-057.md)<br>`use-any` | Avoid using 'any' type | warning | Regex |
 | [VBC-059](./VBC-059.md)<br>`file-length-limit` | File is too long ( lines) | warning | AST |
