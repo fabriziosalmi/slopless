@@ -4,6 +4,49 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.7.0 - 2026-09-01
+
+**The part no native linter covers, in every language.** clippy finds an
+unhandled `unwrap` better than a regex ever will, and it has the type information
+to do it. Neither clippy nor staticcheck has an opinion about a TODO nobody owns,
+a section that says "coming soon", or a comment that opens with "Let's dive
+into". That is what this release carries across.
+
+Eight rules now read comments in Go, Rust, Java, C, C++, C#, Kotlin, Swift and
+Ruby: stale and unattributed TODOs, FIXMEs describing live defects,
+passive-aggressive comments, decorative banners, AI fluff, placeholder text and
+"coming soon". Prose in a source file lives in comments, so the rules that
+declared no scope now say `scan: comments`, which 1.6.0's tokeniser made possible.
+
+Coverage: Go 7 to 15, Rust 3 to 11, Java 4 to 12, Ruby 2 to 10, and Kotlin, Swift
+and C from nothing to 8.
+
+On 927 real files and 350k lines of Python, Go and Rust the corpus is
+**unchanged**: not one new finding, so none of this is noise. Checked in the
+other direction with a control file per language, because a rule that finds
+nothing has not been shown to work.
+
+- **`VBC-907` is tighter, in every language.** The marker has to open the comment.
+  Matching it mid-sentence read `// a TODO. Sites that DO build a header` as an
+  unattributed TODO.
+- **Per-language variants.** One concept, one id, one documentation page, spelled
+  the way each language spells it. A rule writing `console.log`, `print(`,
+  `println!` and `fmt.Println` as one alternation would be unreadable.
+- **The Rust test attribute, as it is actually written.** The detector matched
+  `#[cfg(test)]` literally; real code writes `#[cfg(all(test, unix))]` just as
+  often and marks single functions with `#[test]`. 96 `.unwrap()` calls in test
+  setup were being read as production code, one of them in a helper writing
+  `<h1>home</h1>` into a temporary directory.
+
+Two bugs this work surfaced:
+
+- A pattern anchored to the line start begins on the indentation, which sits
+  outside the comment it is about, so the whole match was read as code. The scope
+  is now taken from the first character that is not whitespace.
+- A match spanning a run of comment lines covers several ranges with newlines
+  between them, and 1.6.0's containment check rejected it. Whitespace may now
+  fall outside.
+
 # 1.6.0 - 2026-09-01
 
 The three things porting rules to other languages was waiting on. Each was found
