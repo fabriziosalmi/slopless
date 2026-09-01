@@ -4,6 +4,28 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.1.7 - 2026-09-01
+
+A repository with a Python backend and a TypeScript frontend, where 35% of the
+errors came from its own test suite.
+
+- **Tests contain the patterns security rules look for, on purpose.**
+  `_is_blocked("chmod 777 /usr/bin/python")` is a test asserting that the app
+  blocks that command; a path sanitiser's fixtures contain absolute paths; an
+  httpx ASGI client uses `base_url="http://test"`, which reaches no network at
+  all. `VBC-003`, `VBC-019`, `VBC-034` and `VBC-901` now skip test paths, which
+  is where a rule about hazardous literals stops being able to tell a hazard from
+  a fixture. `VBC-001` deliberately still runs there: a real credential committed
+  in a test is still committed.
+- **`VBC-901` reported loopback.** On a local LLM app, `http://127.0.0.1:8000` is
+  the correct address, not a pinned environment. Loopback and `0.0.0.0` name this
+  machine rather than a host, and are no longer reported. Private and public
+  addresses still are.
+- **`VBC-051` reported wire-format field names**, 55 times. A TypeScript frontend
+  calling a Python API writes `max_tokens: Math.min(maxTokens, 1024)`, and the
+  snake_case half is dictated by the protocol. An object key is no longer treated
+  as a naming choice; a variable still is.
+
 # 1.1.6 - 2026-09-01
 
 - **The Action could publish a truncated report.** Redirecting straight at the

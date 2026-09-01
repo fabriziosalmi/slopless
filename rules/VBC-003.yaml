@@ -10,6 +10,16 @@ match:
     - sh
     - py
     - js
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
 message: Insecure chmod 777 detected at line {line}
 tests:
   fire:

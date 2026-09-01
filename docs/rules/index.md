@@ -24,7 +24,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-042](./VBC-042.md)<br>`too-many-comments` | Too many consecutive comment lines | warning | Regex |
 | [VBC-048](./VBC-048.md)<br>`meaningless-variable-names` | Meaningless variable name detected | warning | Regex |
 | [VBC-049](./VBC-049.md)<br>`magic-boolean` | Magic boolean passed as first argument | warning | Regex |
-| [VBC-051](./VBC-051.md)<br>`mixed-casing` | Mixing snake_case and camelCase in the same file detected | warning | Regex |
+| [VBC-051](./VBC-051.md)<br>`mixed-casing` | snake_case and camelCase mixed | warning | Regex |
 | [VBC-052](./VBC-052.md)<br>`single-letter-variables` | Single-letter variable name detected | warning | Regex |
 | [VBC-053](./VBC-053.md)<br>`redundant-interpolation` | Redundant string interpolation detected | warning | Regex |
 | [VBC-054](./VBC-054.md)<br>`unnecessary-else` | Unnecessary 'else' after 'return' | warning | Regex |
@@ -149,7 +149,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-944](./VBC-944.md)<br>`xss-href-injection` | Dynamic href constructed with string interpolation | **error** | Regex |
 | [VBC-947](./VBC-947.md)<br>`prototype-pollution-risk` | Merging untrusted request body directly | **error** | Regex |
 | [VBC-011](./VBC-011.md)<br>`document-cookie-direct` | Direct document.cookie write | warning | Regex |
-| [VBC-901](./VBC-901.md)<br>`hardcoded-ip-v4` | Hardcoded IP address detected | warning | Regex |
+| [VBC-901](./VBC-901.md)<br>`hardcoded-ip-v4` | Hardcoded IP address | warning | Regex |
 | [VBC-941](./VBC-941.md)<br>`missing-input-sanitization` | Unsanitized HTML sink | warning | Regex |
 | [VBC-942](./VBC-942.md)<br>`missing-access-control` | Route handler may be missing authentication middleware | warning | Regex |
 

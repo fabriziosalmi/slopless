@@ -6,13 +6,23 @@ tags:
   - security
 match:
   regex: >-
-    http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
+    http://(?!localhost|127\.0\.0\.1|0\.0\.0\.0|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
   scan: strings
   file_types:
     - js
     - ts
     - py
     - html
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
 message: Insecure http:// link detected at line {line}. Use https:// instead.
 tests:
   fire:

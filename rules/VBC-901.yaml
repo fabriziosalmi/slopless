@@ -6,7 +6,7 @@ tags:
   - security
 match:
   regex: >-
-    \b(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
+    \b(?!127\.|0\.0\.0\.0\b)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
   scan: strings
   file_types:
     - js
@@ -16,8 +16,19 @@ match:
     - java
     - json
     - env
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
 message: >-
-  Hardcoded IP address detected at line {line}. Use environment variables for network configuration.
+  Hardcoded IP address at line {line}. It pins the code to one environment. Read it from configuration.
+  Loopback and 0.0.0.0 are not reported: they name this machine rather than a particular host.
 tests:
   fire:
     - const host = '192.168.1.50';
@@ -25,3 +36,5 @@ tests:
   quiet:
     - const host = process.env.DB_HOST;
     - const version = '1.2';
+    - const local = '127.0.0.1';
+    - const bind = '0.0.0.0';

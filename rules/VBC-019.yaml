@@ -13,6 +13,16 @@ match:
     - ts
     - py
     - sh
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/conftest.py'
+    - '**/fixtures/**'
 message: >-
   Hardcoded absolute path '{match}' detected at line {line}. This breaks system portability
   and leaks local structure.
