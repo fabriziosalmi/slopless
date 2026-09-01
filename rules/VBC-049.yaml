@@ -16,6 +16,9 @@ match:
     - py
     - go
     - rs
+  # The same decision as the paths below, for languages that keep their
+  # tests in the file they test.
+  exclude_test_code: true
   exclude_files:
     - '**/test/**'
     - '**/tests/**'

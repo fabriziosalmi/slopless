@@ -3,6 +3,7 @@ import { Rule } from '../engine/schema';
 import { isExcludedFile } from '../engine/file-scope';
 import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange } from '../engine/ast-utils';
 import { protectedRangesFor, supportsTokenizing } from '../engine/tokenize';
+import { testRegionsFor, isInTestRegion } from '../engine/test-regions';
 
 export interface Violation {
     ruleId: string;
@@ -41,6 +42,10 @@ export class RegexChecker {
             : protectedRangesFor(ext, content);
         const selectors = CSS_EXTENSIONS.has(ext) ? buildSelectorMap(index.lines) : null;
 
+        // Only computed if a rule asks, since it means walking the file again.
+        let cachedRegions: ProtectedRange[] | null = null;
+        const testRegions = () => cachedRegions ??= testRegionsFor(ext, content);
+
         // Suppresses the same rule reporting twice for one line, which happens
         // whenever a global regex has several alternatives that all hit.
         const seen = new Set<string>();
@@ -59,6 +64,7 @@ export class RegexChecker {
                 const line = lineOfOffset(index, match.start);
                 if (selectors && isExcludedSelector(selectors, line, rule.match.exclude_selectors)) continue;
                 if (selectors && lacksRequiredSelector(selectors, line, rule.match.require_selectors)) continue;
+                if (rule.match.exclude_test_code && isInTestRegion(testRegions(), match.start)) continue;
 
                 const key = `${rule.id}:${line}`;
                 if (seen.has(key)) continue;

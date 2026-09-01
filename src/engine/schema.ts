@@ -40,6 +40,9 @@ export const RuleSchema = z.object({
         /** Substrings; a CSS match whose enclosing selector contains any of them is skipped. */
         exclude_selectors: z.array(z.string()).optional(),
         require_selectors: z.array(z.string()).optional(),
+        // Tests live inside the source file in some languages. A rule that already
+        // excludes test *files* usually means the same thing about test *code*.
+        exclude_test_code: z.boolean().optional(),
         git_check: z.enum([
             'committed_env',
             'binary_file',
