@@ -182,13 +182,19 @@ export class AstChecker {
 
     private static checkOneLiner(node: ts.Node, ctx: NodeCheckContext) {
         if (!ts.isBlock(node)) return;
-        const linesWithStatements = new Set<number>();
-        node.statements.forEach(s => {
-            const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(s.getStart());
-            linesWithStatements.add(line);
+        const statementsPerLine = new Map<number, number>();
+        node.statements.forEach(statement => {
+            const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(statement.getStart());
+            statementsPerLine.set(line, (statementsPerLine.get(line) ?? 0) + 1);
         });
-        if (node.statements.length <= linesWithStatements.size) return;
-        const { line } = ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart());
+        if (node.statements.length <= statementsPerLine.size) return;
+        // Report the crammed line itself. Reporting the block's opening brace sent
+        // the reader to the `if (...)` above, which is not what needs changing.
+        const crammed = [...statementsPerLine.entries()]
+            .filter(([, count]) => count > 1)
+            .map(([lineNumber]) => lineNumber)
+            .sort((a, b) => a - b)[0];
+        const line = crammed ?? ctx.sourceFile.getLineAndCharacterOfPosition(node.getStart()).line;
         ctx.violations.push({
             ruleId: ctx.rule.id, name: ctx.rule.name, severity: ctx.rule.severity,
             message: this.formatMessage(ctx.rule.message, { line: line + 1 }),

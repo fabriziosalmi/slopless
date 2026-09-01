@@ -1,6 +1,6 @@
 id: VBC-215
 name: global-pollutant
-severity: error
+severity: warning
 category: clean-code
 tags:
   - clean-code
@@ -12,7 +12,9 @@ match:
     - js
     - ts
 message: >-
-  Global variable pollution detected (window.prop = ...). Use modules or proper state management.
+  Assignment to a window property at line {line}. Globals collide across scripts and outlive
+  the code that set them. Export the value, or attach it under one namespaced object if a
+  global is genuinely needed.
 tests:
   fire:
     - window.myApp = createApp();

@@ -1,6 +1,6 @@
 # Rules
 
-All 148 rules. **42** are errors and fail the run; the remaining 106 are warnings and only report.
+All 148 rules. **41** are errors and fail the run; the remaining 107 are warnings and only report.
 
 Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
@@ -14,7 +14,6 @@ Use the search box above to find a rule by what it catches.
 | [VBC-077](./VBC-077.md)<br>`deceptive-function-name` | Lying function name detected: implies a non-mutating action but contains side-effect… | **error** | AST |
 | [VBC-079](./VBC-079.md)<br>`debugger-statements` | debugger; statement found | **error** | Regex |
 | [VBC-080](./VBC-080.md)<br>`browser-alert` | Avoid using alert() | **error** | Regex |
-| [VBC-215](./VBC-215.md)<br>`global-pollutant` | Global variable pollution detected (window.prop =...) | **error** | Regex |
 | [VBC-008](./VBC-008.md)<br>`sleep-race-condition` | Using setTimeout as a sleep to paper over a race condition | warning | Regex |
 | [VBC-009](./VBC-009.md)<br>`jquery-modern-project` | jQuery dependency detected | warning | Regex |
 | [VBC-012](./VBC-012.md)<br>`redundant-promise-constructor` | Redundant Promise constructor wrapping | warning | Regex |
@@ -41,6 +40,7 @@ Use the search box above to find a rule by what it catches.
 | [VBC-102](./VBC-102.md)<br>`multi-statement-one-liner` | Multiple statements on a single line detected | warning | AST |
 | [VBC-104](./VBC-104.md)<br>`inconsistent-import` | Mixing 'require' and 'import' in the same file | warning | Regex |
 | [VBC-201](./VBC-201.md)<br>`redundant-async` | async function with no await | warning | AST |
+| [VBC-215](./VBC-215.md)<br>`global-pollutant` | Assignment to a window property | warning | Regex |
 | [VBC-501](./VBC-501.md)<br>`boolean-naming-vibes` | Boolean variable has no standard prefix | warning | Semantic |
 | [VBC-502](./VBC-502.md)<br>`redundant-boolean-logic` | Redundant boolean return detected | warning | Semantic |
 | [VBC-503](./VBC-503.md)<br>`collection-naming-vibes` | Array named is missing a plural 's' or a collection suffix (List, Array) | warning | Semantic |
