@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { Rule } from '../engine/schema';
 import { isExcludedFile } from '../engine/file-scope';
 import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange } from '../engine/ast-utils';
+import { protectedRangesFor, supportsTokenizing } from '../engine/tokenize';
 
 export interface Violation {
     ruleId: string;
@@ -31,8 +32,13 @@ export class RegexChecker {
         const index = buildLineIndex(content);
 
         const ext = (file.split('.').pop() || '').toLowerCase();
-        const hasScopes = supportsProtectedRanges(ext);
-        const ranges = extractProtectedRanges(content, hasScopes);
+        // The TypeScript scanner where it can read the file, a declarative
+        // tokeniser everywhere else. Without one of the two, `scan:` is ignored
+        // and every rule reads comments and string literals as if they were code.
+        const hasScopes = supportsProtectedRanges(ext) || supportsTokenizing(ext);
+        const ranges = supportsProtectedRanges(ext)
+            ? extractProtectedRanges(content, true)
+            : protectedRangesFor(ext, content);
         const selectors = CSS_EXTENSIONS.has(ext) ? buildSelectorMap(index.lines) : null;
 
         // Suppresses the same rule reporting twice for one line, which happens

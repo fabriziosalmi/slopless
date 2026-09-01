@@ -5,15 +5,37 @@ category: clean-code
 tags:
   - clean-code
 match:
-  regex: \b[a-zA-Z0-9_]+\((true|false)\s*,
+  # `store` and `swap` take the value first: `flag.store(false, Ordering::Relaxed)`
+  # is the atomic API, not an opaque flag. `Option(False, "--dry-run", ...)` is a
+  # CLI default followed by the very name that documents it.
+  regex: >-
+    \b(?!(?:store|swap|compare_exchange|compare_and_swap|Option)\b)[a-zA-Z0-9_]+\((true|false|True|False)\s*,
   file_types:
     - js
     - ts
+    - py
+    - go
+    - rs
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*_test.go'
+    - '**/*.test.*'
+    - '**/*.spec.*'
 message: >-
   Magic boolean passed as first argument at line {line}. Use named parameters or a descriptive
   variable.
 tests:
   fire:
     - renderList(true, items);
+    - { file: a.py, code: 'toggle_server(True, port)' }
+    - { file: a.rs, code: 'format_warn(false, "health", msg);' }
   quiet:
     - 'renderList({ compact: true }, items);'
+    # The atomic API takes the value first; the ordering that follows is not a flag.
+    - { file: a.rs, code: 'healthy.store(false, Ordering::Relaxed);' }
+    # A CLI default, followed by the very name that documents it.
+    - { file: a.py, code: 'dry_run: bool = typer.Option(False, "--dry-run")' }

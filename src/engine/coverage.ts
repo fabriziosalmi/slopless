@@ -36,7 +36,9 @@ export function appliesTo(rule: Rule, ext: string): boolean {
         case 'ast':
         case 'semantic': return PARSED_LANGUAGES.has(ext);
         case 'type': return TYPED_LANGUAGES.has(ext);
-        case 'heuristic': return ext === 'md';
+        // Not one tier but two checks with different reach: link-checker only
+        // reads Markdown, stale-copyright-year reads any file it is declared for.
+        case 'heuristic': return rule.match.heuristic_check !== 'link-checker' || ext === 'md';
         case 'git': return false;
     }
 }
@@ -67,7 +69,7 @@ export function coverageOf(files: string[], rules: Rule[]): Coverage[] {
 // silence there is indistinguishable from a pass.
 export function describeCoverage(coverage: Coverage[], total: number): string {
     const parts = coverage.map(c =>
-        `.${c.ext || '(no extension)'} ${c.rules === 0 ? 'nothing applies' : `${c.rules} rules`}`);
+        `.${c.ext || '(no extension)'} ${c.rules === 0 ? 'nothing applies' : `${c.rules} rule${c.rules === 1 ? '' : 's'}`}`);
     const files = coverage.reduce((sum, c) => sum + c.files, 0);
     return `Checked ${files} file${files === 1 ? '' : 's'} of ${total} rules: ${parts.join(', ')}.`;
 }

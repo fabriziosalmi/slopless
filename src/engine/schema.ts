@@ -75,8 +75,10 @@ export const RuleSchema = z.object({
             threshold: z.number().optional(),
         }).optional(),
         heuristic_check: z.enum([
+            // Every value here must have a branch in HeuristicChecker. A name the
+            // schema accepts and no checker implements is a rule that loads, passes
+            // validation and silently does nothing.
             'link-checker',
-            'circular-dependency',
             'stale-copyright-year'
         ]).optional(),
         semantic_check: z.enum([

@@ -34,7 +34,7 @@ describe('appliesTo agrees with what the checkers do', () => {
     });
 
     it('confines the parsing tiers to what the parser reads', () => {
-        for (const match of [{ ast_check: { type: 'empty-catch' } }, { semantic_check: 'x' }] as Rule['match'][]) {
+        for (const match of [{ ast_check: { type: 'empty-catch' } }, { semantic_check: 'boolean-naming' }] as Rule['match'][]) {
             expect(appliesTo(rule(match), 'ts')).toBe(true);
             expect(appliesTo(rule(match), 'py')).toBe(false);
             expect(appliesTo(rule(match), 'rs')).toBe(false);
@@ -42,22 +42,26 @@ describe('appliesTo agrees with what the checkers do', () => {
     });
 
     it('confines the type tier further, to files that carry types', () => {
-        expect(appliesTo(rule({ type_check: 'x' } as Rule['match']), 'ts')).toBe(true);
-        expect(appliesTo(rule({ type_check: 'x' } as Rule['match']), 'js')).toBe(false);
+        expect(appliesTo(rule({ type_check: 'floating-promise' }), 'ts')).toBe(true);
+        expect(appliesTo(rule({ type_check: 'floating-promise' }), 'js')).toBe(false);
     });
 
     it('never counts a git rule against a file', () => {
-        expect(appliesTo(rule({ git_check: 'x' } as Rule['match']), 'ts')).toBe(false);
+        expect(appliesTo(rule({ git_check: 'binary_file' }), 'ts')).toBe(false);
     });
 });
 
 describe('coverage over the real rule set', () => {
-    it('reports zero for a language nothing reads', () => {
+    it('reports how little reaches a language nothing was written for', () => {
         // The bug this exists for: a Rust file with a hardcoded password and an
         // http:// URL reported "No static analysis issues detected".
         const [rust] = coverageOf(['src/lib.rs'], rules);
-        expect(rust.rules).toBe(0);
-        expect(uncovered([rust])).toHaveLength(1);
+        expect(rust.rules).toBeLessThan(5);
+    });
+
+    it('calls a language with no rules at all uncovered', () => {
+        expect(uncovered([{ ext: 'zig', files: 1, rules: 0 }])).toHaveLength(1);
+        expect(uncovered([{ ext: 'ts', files: 1, rules: 90 }])).toHaveLength(0);
     });
 
     it('reports far more for TypeScript than for anything else', () => {
@@ -73,9 +77,13 @@ describe('coverage over the real rule set', () => {
     });
 
     it('names the languages it read, and says when one was read by nothing', () => {
-        const line = describeCoverage(coverageOf(['a.ts', 'c.rs'], rules), rules.length);
+        const line = describeCoverage(coverageOf(['a.ts', 'c.kt'], rules), rules.length);
         expect(line).toMatch(/\.ts \d+ rules/);
-        expect(line).toContain('.rs nothing applies');
+        expect(line).toContain('.kt nothing applies');
+    });
+
+    it('counts one rule as a rule', () => {
+        expect(describeCoverage([{ ext: 'rs', files: 1, rules: 1 }], 148)).toContain('.rs 1 rule.');
     });
 });
 

@@ -8,13 +8,18 @@ tags:
 match:
   regex: Lorem ipsum dolor sit amet
   flags: i
-  scan: strings
+  scan: all
   file_types:
     - md
     - txt
     - html
     - js
     - ts
+    - py
+    - go
+    - rs
+    - java
+    - sh
 message: >-
   Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real content before
   committing.

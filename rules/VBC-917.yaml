@@ -7,9 +7,17 @@ tags:
   - style
 match:
   regex: \b[A-Z]{3,}\b(?:\s+\b[A-Z]{2,}\b){3,}
+  # In a source file, prose lives in comments. Without this the rule would read
+  # a run of constants as shouting, and miss the comment that actually shouts.
+  scan: comments
   file_types:
     - md
     - txt
+    - py
+    - go
+    - rs
+    - js
+    - ts
 opt_in: true
 message: >-
   Sustained all-caps text at line {line}. Shouting does not add emphasis, it costs readability.

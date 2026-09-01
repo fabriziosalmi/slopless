@@ -1,3 +1,56 @@
+# 1.5.0 - 2026-09-01
+
+**Comments and strings exist in other languages too.** Scope detection was written
+on the TypeScript scanner, so on `.py`, `.go`, `.rs` and the rest the `scan:` field
+was ignored entirely and every rule read comments and string literals as if they
+were code. That is why a security repository's attack corpus came back as a list
+of hazards, and why a docstring explaining an SSRF defence was reported as an
+insecure URL.
+
+- **A declarative tokeniser** now covers Python, Go, Rust, shell, Java, C/C++, C#,
+  Kotlin, Swift and Ruby. It is a table of comment markers and string forms rather
+  than a parser per language, because "is this offset inside a comment" is the only
+  question `scan:` asks. It handles the parts that bite: Rust block comments nest,
+  `&'a str` is a lifetime and not a char literal, `r#"..."#` carries its own
+  delimiter, Go's backtick strings span lines, `${#items}` in shell is a length and
+  not a comment, and an unterminated string ends at the newline instead of
+  swallowing the file.
+- **A Python docstring is documentation, not a string value.** A triple-quoted
+  string alone on its line is classified as a comment, so a rule about strings no
+  longer fires on prose.
+
+Measured over 927 real files and 350k lines of Python, Go and Rust: **37 findings
+removed, 0 added**. Every one was documentation — RFC references, CGNAT ranges,
+a SQL injection payload in a benchmark, a log-sanitiser test asserting redaction.
+
+**Four rules ported**, each reworked rather than merely widened:
+
+- `VBC-039` eval now guards its left edge, so `model.eval()` is not a security
+  finding. Reaches Python, Ruby and PHP.
+- `VBC-049` magic boolean learns `True`/`False`, and stops reporting
+  `flag.store(false, Ordering::Relaxed)`, which is the atomic API taking a value,
+  and `typer.Option(False, "--dry-run")`, which is a default followed by the name
+  that documents it.
+- `VBC-928` lorem ipsum and `VBC-917` shouting reach the languages that have
+  comments to shout in.
+
+Coverage, counting the rules enabled by default: Python 23 to 27, Go 4 to 7,
+Rust 1 to 3, Java 3 to 4, Ruby 1 to 2.
+
+**What was not ported, and why.** The rules about colours, font sizes, inline
+styles and missing `alt` do fire on the HTML that Python files generate — but that
+HTML lives in string literals, and reaching it means telling those rules to read
+strings, which is exactly where a WAF keeps its XSS payloads. Widening them would
+reproduce the false positives this release removes.
+
+- **A rule file with a repeated key is now refused.** Two `quiet:` blocks meant the
+  second won and the first was dropped: half a rule's examples gone, every test
+  still green. Found by writing that exact mistake.
+- **The schema no longer accepts a check nobody implements.** `circular-dependency`
+  sat in the `heuristic_check` enum with no branch behind it, so a rule naming it
+  would load, validate and check nothing. A test now holds every enum value to an
+  implementation.
+
 # 1.4.6 - 2026-09-01
 
 - **A run now says what it checked.** Pointed at a Rust file holding a hardcoded

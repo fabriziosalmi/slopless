@@ -5,14 +5,21 @@ category: core
 tags:
   - security
 match:
-  regex: eval\(
+  regex: (?<![.\w])eval\s*\(
   file_types:
     - js
     - ts
+    - py
+    - rb
+    - php
 message: >-
   Use of 'eval()' detected at line {line}. This is a massive security risk.
 tests:
   fire:
     - eval(userInput);
+    - { file: a.py, code: 'result = eval(expr)' }
   quiet:
     - JSON.parse(userInput);
+    # PyTorch puts a model into evaluation mode several times per script.
+    - { file: a.py, code: 'model.eval()' }
+    - { file: a.py, code: 'if is_eval(node): pass' }
