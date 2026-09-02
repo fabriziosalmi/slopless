@@ -8,6 +8,28 @@ match:
   ast_check:
     type: file-length-limit
     threshold: 500
+  # Code files. A long piece of documentation is not a module that wants
+  # splitting, and telling a README to become smaller modules is nonsense.
+  file_types:
+    - js
+    - ts
+    - tsx
+    - jsx
+    - py
+    - go
+    - rs
+    - java
+    - c
+    - cpp
+    - cs
+    - kt
+    - swift
+    - rb
+    - sh
+    - php
+    - css
+    - scss
+    - less
 message: >-
   File is too long ({count} lines). Consider splitting it into smaller modules. Max recommended:
   {threshold}.

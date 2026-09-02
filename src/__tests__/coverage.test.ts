@@ -79,10 +79,18 @@ describe('coverage over the real rule set', () => {
         expect(found.map(c => [c.ext, c.files])).toEqual([['ts', 2], ['rs', 1]]);
     });
 
-    it('names the languages it read, and says when one was read by nothing', () => {
+    it('names every language it read and how much reached each', () => {
         const line = describeCoverage(coverageOf(['a.ts', 'c.zig'], rules), rules.length);
         expect(line).toMatch(/\.ts \d+ rules/);
-        expect(line).toContain('.zig nothing applies');
+        expect(line).toMatch(/\.zig \d+ rules?/);
+    });
+
+    it('gives a language it has never heard of the checks that only count', () => {
+        // An empty file and a file of 4000 lines are counted, not parsed, so
+        // nothing is now read by no rule at all.
+        const [zig] = coverageOf(['c.zig'], rules);
+        expect(zig.rules).toBeGreaterThan(0);
+        expect(zig.rules).toBeLessThan(5);
     });
 
     it('counts one rule as a rule', () => {
@@ -95,5 +103,17 @@ describe('every rule lands in exactly one tier', () => {
         for (const r of rules) {
             expect(['regex', 'ast', 'semantic', 'heuristic', 'type', 'git'], r.id).toContain(tierOf(r));
         }
+    });
+});
+
+describe('the checks that count rather than parse', () => {
+    it('reaches a language the parser has never seen', () => {
+        const empty = rules.find(r => r.match.ast_check?.type === 'empty-file');
+        const long = rules.find(r => r.match.ast_check?.type === 'file-length-limit');
+        expect(appliesTo(empty!, 'zig')).toBe(true);
+        // Length is about code. A long piece of documentation is not a module
+        // that wants splitting.
+        expect(appliesTo(long!, 'py')).toBe(true);
+        expect(appliesTo(long!, 'md')).toBe(false);
     });
 });

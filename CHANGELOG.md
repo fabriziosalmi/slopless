@@ -1,3 +1,19 @@
+# 1.7.1 - 2026-09-02
+
+- **Two checks never needed a parser.** An empty file and a long file are counted,
+  not parsed, and both sat behind the TypeScript-only gate saying nothing about
+  any other language. They now run everywhere, including languages slopless has
+  never heard of: nothing is read by no rule at all any more.
+- **A file's length is its code, not its tests.** Rust keeps `#[cfg(test)] mod
+  tests` in the file it tests, and counting those flagged a third of the Rust
+  corpus. Measured across 927 files, the median Rust file is 300 lines and the
+  75th percentile is 691, against 140 and 225 for Go: the convention, not sprawl.
+- **Length is about code.** The rule now names the file types it means. Telling a
+  README to split itself into smaller modules is nonsense, and it was doing that
+  26 times in one repository.
+- **An 830-line file is 830 lines.** A trailing newline ends the last line rather
+  than starting another, and the count was one too many.
+
 # 1.7.0 - 2026-09-01
 
 **The part no native linter covers, in every language.** clippy finds an

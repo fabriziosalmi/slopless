@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { Rule } from '../engine/schema';
 import { PARSED_LANGUAGES, extensionOf } from '../engine/coverage';
 import { isExcludedFile } from '../engine/file-scope';
+import { testRegionsFor } from '../engine/test-regions';
 import { Violation } from './regex-checker';
 
 interface NodeCheckContext {
@@ -89,16 +90,46 @@ function isFunctionLikeWithBody(node: ts.Node): boolean {
     return functionBody(node) !== undefined;
 }
 
+/** Lines of a file that are not part of a test block inside it. */
+function countLinesOutsideTests(source: string, ext: string): number {
+    // A trailing newline ends the last line, it does not start another: counting
+    // the split parts reported an 830-line file as 831.
+    const total = source.split('\n').length - (source.endsWith('\n') ? 1 : 0);
+    const regions = testRegionsFor(ext, source);
+    if (regions.length === 0) return total;
+    const tested = regions.reduce((sum, r) =>
+        sum + source.slice(r.start, r.end).split('\n').length - 1, 0);
+    return total - tested;
+}
+
+/** Checks that read the file as text, so every language gets them. */
+export const TEXT_ONLY_CHECKS = new Set(['empty-file', 'file-length-limit']);
+
 export class AstChecker {
     static check(file: string, rules: Rule[], content?: string): Violation[] {
         const violations: Violation[] = [];
+        const sourceCode = content !== undefined ? content : fs.readFileSync(file, 'utf8');
+
+        // Two of these never needed a parser: an empty file and a long file are
+        // counted, not parsed. They sat behind the language gate for no reason,
+        // and so said nothing about Python, Go or anything else.
+        for (const rule of rules) {
+            const type = rule.match.ast_check?.type;
+            if (!type || !TEXT_ONLY_CHECKS.has(type)) continue;
+            if (isExcludedFile(file, rule)) continue;
+            if (rule.match.file_types && !rule.match.file_types.includes(extensionOf(file))) continue;
+            violations.push(...this.checkByCounting(type, sourceCode, {
+                rule, file,
+                threshold: rule.match.threshold ?? rule.match.ast_check?.threshold,
+            }));
+        }
+
         // Same source as the coverage report: a rule counted as covering this
         // file has to be a rule that can actually run on it.
         if (!PARSED_LANGUAGES.has(extensionOf(file))) {
-            return [];
+            return violations;
         }
 
-        const sourceCode = content !== undefined ? content : fs.readFileSync(file, 'utf8');
         const sourceFile = ts.createSourceFile(
             file,
             sourceCode,
@@ -114,34 +145,7 @@ export class AstChecker {
             const threshold = rule.match.threshold ?? rule.match.ast_check.threshold;
             const ctx: NodeCheckContext = { rule, sourceFile, file, violations };
 
-            if (type === 'empty-file') {
-                if (sourceCode.trim().length === 0) {
-                    violations.push({
-                        ruleId: rule.id,
-                        name: rule.name,
-                        severity: rule.severity,
-                        message: this.formatMessage(rule.message, { file, line: 0 }),
-                        file,
-                        line: 0,
-                    });
-                }
-                continue;
-            }
-
-            if (type === 'file-length-limit' && threshold) {
-                const lineCount = sourceCode.split('\n').length;
-                if (lineCount > threshold) {
-                    violations.push({
-                        ruleId: rule.id,
-                        name: rule.name,
-                        severity: rule.severity,
-                        message: this.formatMessage(rule.message, { threshold, count: lineCount }),
-                        file,
-                        line: 0,
-                    });
-                }
-                continue;
-            }
+            if (TEXT_ONLY_CHECKS.has(type)) continue;   // already counted above
 
             this.traverse(sourceFile, (node) => {
                 if (type === 'function-params-limit' && threshold) {
@@ -297,6 +301,31 @@ export class AstChecker {
             message: this.formatMessage(ctx.rule.message, { name: fnName, line: line + 1 }),
             file: ctx.file, line: line + 1,
         });
+    }
+
+    /** The two checks that count rather than parse. */
+    private static checkByCounting(type: string, source: string,
+        ctx: { rule: Rule; file: string; threshold?: number }): Violation[] {
+        const { rule, file, threshold } = ctx;
+        if (type === 'empty-file' && source.trim().length === 0) {
+            return [{
+                ruleId: rule.id, name: rule.name, severity: rule.severity,
+                message: this.formatMessage(rule.message, { file, line: 0 }), file, line: 0,
+            }];
+        }
+        if (type === 'file-length-limit' && threshold) {
+            // Tests that live in the file they test are a convention, not sprawl.
+            // Counting them flagged a third of the Rust corpus, where 154 files
+            // of 282 carry a `#[cfg(test)] mod tests`.
+            const count = countLinesOutsideTests(source, extensionOf(file));
+            if (count > threshold) {
+                return [{
+                    ruleId: rule.id, name: rule.name, severity: rule.severity,
+                    message: this.formatMessage(rule.message, { threshold, count }), file, line: 0,
+                }];
+            }
+        }
+        return [];
     }
 
     private static checkEmptyInterface(node: ts.Node, ctx: NodeCheckContext) {

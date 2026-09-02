@@ -1,4 +1,5 @@
 import { Rule } from './schema';
+import { TEXT_ONLY_CHECKS } from '../checkers/ast-checker';
 
 // The tiers that parse with the TypeScript compiler can only read what it can
 // parse. This is not a policy, it is the parser, so it lives here rather than
@@ -36,6 +37,9 @@ export function appliesTo(rule: Rule, ext: string): boolean {
     switch (tierOf(rule)) {
         case 'regex': return true;   // no file_types means every file, as the checker reads it
         case 'ast':
+            // Two of them count lines instead of parsing, so every language gets them.
+            if (TEXT_ONLY_CHECKS.has(rule.match.ast_check?.type ?? '')) return true;
+            return PARSED_LANGUAGES.has(ext);
         case 'semantic': return PARSED_LANGUAGES.has(ext);
         case 'type': return TYPED_LANGUAGES.has(ext);
         // Not one tier but two checks with different reach: link-checker only
