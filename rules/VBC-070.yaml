@@ -5,8 +5,20 @@ category: core
 tags:
   - security
 match:
+  # A literal has no injection point, and neither does a run of them joined with
+  # `+`: a tip string split over three lines for readability is still a constant.
   regex: >-
-    \.innerHTML\s*=(?!=)(?!\s*(['"])(?:(?!\1)[^\\])*\1\s*[;\n])
+    \.innerHTML\s*=(?!=)(?!\s*(?:(['"])(?:(?!\1)[^\\])*\1|\s|\+)+[;\n])
+  # The exclusion has to see the lines after the `=`, which line-by-line
+  # matching cannot.
+  multiline: true
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/*.test.*'
+    - '**/*.spec.*'
   file_types:
     - js
     - ts
@@ -21,4 +33,9 @@ tests:
     - el.textContent = text;
     - alert.innerHTML = '<i class="fa-check"></i> <span id="t"></span>';
     - el.innerHTML = "";
+    # A tip split over several lines for readability is still a constant.
+    - |
+      el.innerHTML =
+        "Tip: try <code>/status</code>, " +
+        "or <code>/help</code> for all commands.";
     - if (el.innerHTML === "") { init(); }

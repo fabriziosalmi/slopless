@@ -6,7 +6,11 @@ tags:
   - security
 match:
   regex: >-
-    (?<!new URL\([^)]{0,200})http://(?!localhost|127\.|0\.0\.0\.0|169\.254\.|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)
+    (?<!new URL\([^)]{0,200})http://(?!localhost|127\.|0\.0\.0\.0|169\.254\.|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)(?=[\w\[$\{])
+  # A scheme with no host after it is prose about the scheme, not an endpoint:
+  # a security standard writing "a single http:// subresource downgrades the
+  # page" is describing the hazard, and an error message saying "must use
+  # http:// or https://" is naming it.
   scan: strings
   file_types:
     - js
@@ -43,5 +47,8 @@ tests:
     - const dev = 'http://localhost:3000';
     - const dev2 = 'http://127.0.0.1:8000';
     - "refuse http://169.254.169.254 (cloud metadata) before connecting"
+    - '"A single http:// subresource downgrades the page"'
+    - "\"the {label} must use http:// or https://\""
+
     - const parsed = new URL(req.url, `http://${req.headers.host}`);
     - const svg = 'http://www.w3.org/2000/svg';

@@ -1,3 +1,27 @@
+# 1.8.0 - 2026-09-02
+
+Four false positives, each found by pointing slopless at one more repository it
+did not write, and each fixed in the rule rather than in the repository.
+
+- **`VBC-034` wants a host, not a scheme.** `http://` with nothing after it is
+  prose about the scheme: a security standard writing "a single http://
+  subresource downgrades the page", an error message saying "must use http:// or
+  https://", `startswith('http://')`, `session.mount('http://', adapter)`. Twelve
+  of the corpus's nineteen reports were that, and every one of them was the
+  scheme used as a prefix to compare against rather than an endpoint to reach.
+- **`VBC-004` knows a placeholder from a value.** `q += " AND project = ?"` beside
+  `args = append(args, f.Project)` injects nothing; it is how every Go and Python
+  query builder assembles a dynamic WHERE clause safely.
+- **`VBC-070` reads a run of literals as one literal.** A tip string split over
+  three lines for readability is still a constant, and has no injection point. The
+  rule also stops reading test files, where asserting on markup is the test.
+- **`VBC-928` stops reading the corpus that tests for placeholders.** It found
+  `Lorem ipsum dolor sit amet.` inside a Go test table for a gate that detects
+  exactly that.
+
+None of this changes the fleet: five repositories measured before and after,
+identical.
+
 # 1.7.1 - 2026-09-02
 
 - **Two checks never needed a parser.** An empty file and a long file are counted,

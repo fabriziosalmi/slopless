@@ -9,6 +9,22 @@ match:
   regex: Lorem ipsum dolor sit amet
   flags: i
   scan: all
+  # A corpus that tests for placeholder text is full of placeholder text. This
+  # rule found `Lorem ipsum dolor sit amet.` inside the table of a Go test for a
+  # gate that detects exactly that.
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/*_test.go'
+    - '**/*_test.rs'
+    - '**/*.test.*'
+    - '**/*.spec.*'
   file_types:
     - md
     - txt
