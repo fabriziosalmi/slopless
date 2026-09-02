@@ -31,6 +31,7 @@ export default {
         lastUpdated: { text: 'Updated' },
         nav: [
             { text: "Rules", link: "/rules/" },
+            { text: "Languages", link: "/languages" },
             { text: "Configuration", link: "/configuration" },
             { text: "Story", link: "/story" },
             { text: "Changelog", link: "/changelog" },
@@ -41,6 +42,7 @@ export default {
                 text: "Getting started",
                 items: [
                     { text: "What slopless is", link: "/" },
+                    { text: "What reaches which language", link: "/languages" },
                     { text: "Configuration", link: "/configuration" },
                     { text: "Writing a rule", link: "/writing-a-rule" }
                 ]

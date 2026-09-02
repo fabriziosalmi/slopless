@@ -1,6 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
+import { appliesTo } from '../src/engine/coverage';
+import type { Rule as EngineRule } from '../src/engine/schema';
+import { RuleLoader } from '../src/engine/loader';
 
 const RULES_DIR = path.join(__dirname, '../rules');
 const DOCS_DIR = path.join(__dirname, '../docs/rules');
@@ -179,6 +182,44 @@ function syncRuleCounts(total: number) {
     }
 }
 
+
+/**
+ * How much of the tool reaches each language, written from the rules rather than
+ * from memory. The claim drifts the moment a rule declares a new file type, and
+ * a tool whose whole argument is that silence should be legible cannot be vague
+ * about where it is silent.
+ */
+function syncLanguageCoverage(rules: EngineRule[]) {
+    const languages: [string, string][] = [
+        ['ts', 'TypeScript'], ['tsx', 'TypeScript (JSX)'], ['js', 'JavaScript'],
+        ['py', 'Python'], ['css', 'CSS'], ['md', 'Markdown'], ['go', 'Go'],
+        ['sh', 'Shell'], ['rs', 'Rust'], ['java', 'Java'], ['rb', 'Ruby'],
+        ['c', 'C and C++'], ['cs', 'C#'], ['kt', 'Kotlin'], ['swift', 'Swift'],
+    ];
+    const rows = languages
+        .map(([ext, name]) => ({ ext, name, n: rules.filter(r => appliesTo(r, ext)).length }))
+        .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+
+    const table = [
+        '| language | rules |',
+        '| --- | --- |',
+        ...rows.map(({ ext, name, n }) => `| ${name} (\`.${ext}\`) | ${n} of ${rules.length} |`),
+    ].join('\n');
+
+    const block = `<!-- coverage:start -->\n${table}\n<!-- coverage:end -->`;
+    for (const file of ['README.md', 'docs/languages.md']) {
+        const full = path.join(__dirname, '..', file);
+        if (!fs.existsSync(full)) continue;
+        const before = fs.readFileSync(full, 'utf8');
+        const after = before.replace(/<!-- coverage:start -->[\s\S]*?<!-- coverage:end -->/, block);
+        if (after !== before) {
+            fs.writeFileSync(full, after);
+            console.log(`Updated the language coverage table in ${file}.`);
+        }
+    }
+}
+
+
 function main() {
     const yamlFiles = fs.readdirSync(RULES_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
     const allRules: { id: string; name: string; category: string; severity: string;
@@ -244,6 +285,9 @@ function main() {
 
     generateChangelog();
     syncRuleCounts(allRules.length);
+    // Through the loader the engine uses, so the table cannot describe a rule set
+    // the tool does not have.
+    syncLanguageCoverage(RuleLoader.loadRules([RULES_DIR]));
     console.log(`Generated ${allRules.length} rule documents.`);
 }
 

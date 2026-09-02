@@ -11,7 +11,8 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 - **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
 - **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
 - **Concurrency Pooling**: Fault-tolerant AST parsing distributed across CPU-bound boundaries to guarantee stability on massive monorepos without OOM crashes.
-- **Lexical Scoping**: AST-aware token scanning maps every string and comment in JS/TS, and each rule declares the scope it applies to (`code`, `strings`, `comments`, `all`). A rule about `eval()` stays quiet inside a comment; a rule about hardcoded IPs looks only inside string literals.
+- **Lexical Scoping**: Every string, comment and regular expression literal is mapped before a rule reads a byte — with the TypeScript scanner where it can, and a declarative tokeniser for Python, Go, Rust, shell, Java, C, C++, C#, Kotlin, Swift and Ruby. Each rule declares what it looks at (`code`, `strings`, `comments`, `regex`, `all`). A rule about `eval()` stays quiet inside a comment; a rule about insecure URLs does not read the pattern that validates them; a Python docstring is documentation rather than a string value.
+- **Exceptions That Say Why**: A rule can skip test code that lives inside the file it tests (`#[cfg(test)] mod tests`), skip documentation comments in languages that mandate them, and be excused by name on one line with `// slopless-disable-next-line VBC-001 -- reason`. A project can claim its own vocabulary, so `blacklist` in a firewall is the domain rather than a finding — and the run reports how many findings that excused.
 - **Rule Precedence**: A specific rule declares the general ones it `supersedes`, so a single `// TODO: implement this` produces one finding, not four.
 - **LSP IDE Integration**: Ships with `vscode-slopless` for real-time Squiggly-Line diagnostics inside VS Code and Cursor.
 
@@ -112,6 +113,42 @@ Also `// slopless-disable-line VBC-001` at the end of the line it applies to. Th
 directive is read from the raw line, so `#`, `/* */` and `<!-- -->` work too, and
 it covers every checker tier. Full rules in
 [docs/configuration.md](docs/configuration.md).
+
+## What reaches which language
+
+Every run ends by saying how many rules applied to each language it read, because
+a file nothing checked looks exactly like a file that came back clean. The same
+count, written from the rules rather than from memory:
+
+<!-- coverage:start -->
+| language | rules |
+| --- | --- |
+| TypeScript (`.ts`) | 93 of 148 |
+| JavaScript (`.js`) | 92 of 148 |
+| TypeScript (JSX) (`.tsx`) | 37 of 148 |
+| Python (`.py`) | 31 of 148 |
+| Markdown (`.md`) | 25 of 148 |
+| CSS (`.css`) | 22 of 148 |
+| Go (`.go`) | 18 of 148 |
+| Shell (`.sh`) | 15 of 148 |
+| Java (`.java`) | 14 of 148 |
+| Rust (`.rs`) | 14 of 148 |
+| Ruby (`.rb`) | 13 of 148 |
+| C# (`.cs`) | 12 of 148 |
+| C and C++ (`.c`) | 11 of 148 |
+| Kotlin (`.kt`) | 11 of 148 |
+| Swift (`.swift`) | 11 of 148 |
+<!-- coverage:end -->
+
+The parsing tiers use the TypeScript compiler, so the AST, semantic-naming and
+type checks are TypeScript and JavaScript only. Everywhere else a declarative
+tokeniser finds the comments and strings, which is enough for `scan:` and for the
+rules that matter there: unattributed TODOs, FIXMEs describing live defects,
+placeholder text, generated prose, hardcoded secrets, insecure URLs.
+
+That split is deliberate. `clippy` finds an unhandled `unwrap` better than a regex
+ever will and has the types to prove it; `staticcheck` and `pylint` are the same.
+None of them has an opinion about a section that says "coming soon".
 
 ## Rule Taxonomy
 

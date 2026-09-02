@@ -16,6 +16,7 @@ did not write, and each fixed in the rule rather than in the repository.
   three lines for readability is still a constant, and has no injection point. The
   rule also stops reading test files, where asserting on markup is the test.
 - **`VBC-928` stops reading the corpus that tests for placeholders.** It found
+<!-- slopless-disable-next-line VBC-928 -- quoting the finding, which is the point of the entry -->
   `Lorem ipsum dolor sit amet.` inside a Go test table for a gate that detects
   exactly that.
 
