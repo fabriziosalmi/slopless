@@ -6,7 +6,7 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 ## Architecture and Capabilities
 
-- **Rule Engine**: 148 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
+- **Rule Engine**: 150 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
 - **AST Inspection**: Deep structural validation to identify excessive cyclomatic complexity, parameter limits, and empty control flow blocks.
 - **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
 - **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
@@ -123,21 +123,21 @@ count, written from the rules rather than from memory:
 <!-- coverage:start -->
 | language | rules |
 | --- | --- |
-| TypeScript (`.ts`) | 93 of 148 |
-| JavaScript (`.js`) | 92 of 148 |
-| TypeScript (JSX) (`.tsx`) | 37 of 148 |
-| Python (`.py`) | 31 of 148 |
-| Markdown (`.md`) | 25 of 148 |
-| CSS (`.css`) | 22 of 148 |
-| Go (`.go`) | 18 of 148 |
-| Shell (`.sh`) | 15 of 148 |
-| Java (`.java`) | 14 of 148 |
-| Rust (`.rs`) | 14 of 148 |
-| Ruby (`.rb`) | 13 of 148 |
-| C# (`.cs`) | 12 of 148 |
-| C and C++ (`.c`) | 11 of 148 |
-| Kotlin (`.kt`) | 11 of 148 |
-| Swift (`.swift`) | 11 of 148 |
+| TypeScript (`.ts`) | 95 of 150 |
+| JavaScript (`.js`) | 94 of 150 |
+| TypeScript (JSX) (`.tsx`) | 39 of 150 |
+| Python (`.py`) | 32 of 150 |
+| Markdown (`.md`) | 26 of 150 |
+| CSS (`.css`) | 23 of 150 |
+| Go (`.go`) | 19 of 150 |
+| Shell (`.sh`) | 16 of 150 |
+| Java (`.java`) | 15 of 150 |
+| Rust (`.rs`) | 15 of 150 |
+| Ruby (`.rb`) | 14 of 150 |
+| C# (`.cs`) | 13 of 150 |
+| C and C++ (`.c`) | 12 of 150 |
+| Kotlin (`.kt`) | 12 of 150 |
+| Swift (`.swift`) | 12 of 150 |
 <!-- coverage:end -->
 
 The parsing tiers use the TypeScript compiler, so the AST, semantic-naming and
@@ -158,7 +158,7 @@ None of them has an opinion about a section that says "coming soon".
 - **Documentation**: Detection of generated filler content, non-inclusive language, and broken external references.
 
 Full documentation at [fabriziosalmi.github.io/slopless](https://fabriziosalmi.github.io/slopless/):
-[all 148 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
+[all 150 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
 [configuration](https://fabriziosalmi.github.io/slopless/configuration) ·
 [writing a rule](https://fabriziosalmi.github.io/slopless/writing-a-rule) ·
 [the scanner bug story](https://fabriziosalmi.github.io/slopless/story)

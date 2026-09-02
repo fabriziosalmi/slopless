@@ -1,6 +1,6 @@
 # Rules
 
-All 148 rules. **39** are errors and fail the run; the remaining 109 are warnings and only report.
+All 150 rules. **41** are errors and fail the run; the remaining 109 are warnings and only report.
 
 Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
@@ -82,6 +82,8 @@ Use the search box above to find a rule by what it catches.
 
 | Rule | Catches | Severity | Analysis |
 |---|---|---|---|
+| [VBC-006-B](./VBC-006-B.md)<br>`merge-conflict-markers` | Merge conflict marker | **error** | Regex |
+| [VBC-017-B](./VBC-017-B.md)<br>`focused-test-committed` | Focused test | **error** | Regex |
 | [VBC-946](./VBC-946.md)<br>`no-verification-after-operation` | Destructive async operation with no verification of success | warning | Regex |
 
 ## Docs

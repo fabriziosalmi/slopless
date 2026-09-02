@@ -4,6 +4,35 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.9.0 - 2026-09-02
+
+Two rules that cannot be wrong, and a test that would have noticed a third.
+
+- **`VBC-006-B` merge conflict markers.** A committed `<<<<<<< HEAD` means nobody
+  finished the merge: the file holds both sides and compiles as neither. Read as
+  text rather than through the scanner, because a conflicted file does not parse.
+- **`VBC-017-B` focused tests.** A committed `describe.only` runs one test, skips
+  every other one in the file, and reports green — which is worse than a failure,
+  because nothing looks wrong.
+
+Both were chosen by measurement rather than intuition. Across **7,179 files** from
+every instrumented repository they produce **zero findings**, and a control file
+per language proves they fire when they should.
+
+Four other candidates were measured and rejected, all for the same reason: an
+"obviously bad" marker fires hardest on the tools and documents that describe it.
+A private key header appears 58 times — in documentation, in fixtures, and in the
+patterns of a secret scanner. Disabled TLS verification appears six times — in a
+`doctor` command that diagnoses TLS, in a scanner that has to inspect a broken
+certificate, and in tests. `pdb.set_trace` appears five times, all of them in
+`docs/testing.md` teaching people to use the debugger.
+
+- **A rule file that does not parse is no longer silent.** `VBC-006-B` arrived
+  with a regex containing `: `, which YAML reads as a mapping. The loader logged
+  and moved on, the rule was absent, and every fixture test passed — because they
+  iterate the rules that loaded. The suite now asserts one rule per file in
+  `rules/`, and that each carries the id its filename promises.
+
 # 1.8.0 - 2026-09-02
 
 Four false positives, each found by pointing slopless at one more repository it

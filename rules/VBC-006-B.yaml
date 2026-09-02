@@ -1,0 +1,34 @@
+id: VBC-006-B
+name: merge-conflict-markers
+severity: error
+category: correctness
+tags:
+  - correctness
+  - git
+match:
+  # Anchored to the line start and requiring exactly seven characters, because
+  # that is what git writes. Read as text rather than through the scanner: a
+  # file with conflict markers in it does not parse, so there is no scope to ask.
+  regex: '^(?:<{7}|={7}|>{7})(?: |$)'
+  flags: m
+  scan: all
+  exclude_files:
+    - '**/*.md'
+    - '**/*.txt'
+    - '**/*.mdx'
+message: >-
+  Merge conflict marker at line {line}. Git wrote this and nobody finished the merge, so
+  the file holds both sides of a change and compiles as neither.
+tests:
+  fire:
+    - |
+      const a = 1;
+      <<<<<<< HEAD
+      const b = 2;
+      =======
+      const b = 3;
+      >>>>>>> feature/x
+  quiet:
+    - const arrow = a >>> b;
+    - '// ======= section ======='
+    - const shifted = value >>> 2;

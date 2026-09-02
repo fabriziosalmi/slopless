@@ -18,21 +18,21 @@ rather than written by hand.
 <!-- coverage:start -->
 | language | rules |
 | --- | --- |
-| TypeScript (`.ts`) | 93 of 148 |
-| JavaScript (`.js`) | 92 of 148 |
-| TypeScript (JSX) (`.tsx`) | 37 of 148 |
-| Python (`.py`) | 31 of 148 |
-| Markdown (`.md`) | 25 of 148 |
-| CSS (`.css`) | 22 of 148 |
-| Go (`.go`) | 18 of 148 |
-| Shell (`.sh`) | 15 of 148 |
-| Java (`.java`) | 14 of 148 |
-| Rust (`.rs`) | 14 of 148 |
-| Ruby (`.rb`) | 13 of 148 |
-| C# (`.cs`) | 12 of 148 |
-| C and C++ (`.c`) | 11 of 148 |
-| Kotlin (`.kt`) | 11 of 148 |
-| Swift (`.swift`) | 11 of 148 |
+| TypeScript (`.ts`) | 95 of 150 |
+| JavaScript (`.js`) | 94 of 150 |
+| TypeScript (JSX) (`.tsx`) | 39 of 150 |
+| Python (`.py`) | 32 of 150 |
+| Markdown (`.md`) | 26 of 150 |
+| CSS (`.css`) | 23 of 150 |
+| Go (`.go`) | 19 of 150 |
+| Shell (`.sh`) | 16 of 150 |
+| Java (`.java`) | 15 of 150 |
+| Rust (`.rs`) | 15 of 150 |
+| Ruby (`.rb`) | 14 of 150 |
+| C# (`.cs`) | 13 of 150 |
+| C and C++ (`.c`) | 12 of 150 |
+| Kotlin (`.kt`) | 12 of 150 |
+| Swift (`.swift`) | 12 of 150 |
 <!-- coverage:end -->
 
 Counts are of every rule, including the ten that ship disabled and wait to be

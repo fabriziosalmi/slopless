@@ -1,0 +1,30 @@
+id: VBC-017-B
+name: focused-test-committed
+severity: error
+category: correctness
+tags:
+  - correctness
+  - testing
+match:
+  # `.only` is the dangerous one: the suite still passes, having run one test.
+  # A skipped test is at least visibly skipped.
+  regex: \b(?:describe|it|test|context|suite)\.only\s*\(|^\s*(?:fdescribe|fit)\s*\(
+  flags: m
+  scan: code
+  file_types:
+    - js
+    - jsx
+    - ts
+    - tsx
+message: >-
+  Focused test at line {line}. Committed, it runs this test and silently skips every other
+  one in the file, and the suite still reports green.
+tests:
+  fire:
+    - describe.only("the parser", () => {});
+    - it.only("returns the cached value", async () => {});
+    - '  fdescribe("suite", () => {});'
+  quiet:
+    - describe("the parser", () => {});
+    - const only = items.only;
+    - expect(list.only).toBe(true);

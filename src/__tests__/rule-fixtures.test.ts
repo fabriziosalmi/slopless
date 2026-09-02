@@ -129,3 +129,23 @@ describe('rule fixtures — cross-rule guarantees', () => {
         }
     });
 });
+
+// A rule file that does not parse is silently absent: the loader logs and moves
+// on, and every test below iterates the rules that loaded. A regex containing
+// `: ` reads as a YAML mapping, which is how one arrived with no test to notice.
+describe('every rule file produces a rule', () => {
+    it('loads one rule per file in rules/', () => {
+        const dir = path.resolve(__dirname, '../../rules');
+        const files = fs.readdirSync(dir).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+        expect(rules.length, `${files.length} files in rules/ but ${rules.length} rules loaded`)
+            .toBe(files.length);
+    });
+
+    it('gives every rule the id its filename promises', () => {
+        const dir = path.resolve(__dirname, '../../rules');
+        for (const file of fs.readdirSync(dir).filter(f => f.endsWith('.yaml'))) {
+            const id = file.replace(/\.yaml$/, '');
+            expect(rules.some(r => r.id === id), `${file} declares no rule called ${id}`).toBe(true);
+        }
+    });
+});
