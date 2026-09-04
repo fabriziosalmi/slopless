@@ -10,8 +10,12 @@ match:
   # settles it first: `mailto:${addr}` and `/blog/${slug}` cannot become
   # `javascript:` whatever the value is, and that is how a template builds
   # every ordinary link.
+  #
+  # import.meta.env.X is replaced by the bundler before the page ever runs, so
+  # it is a literal by the time a request exists. Vite and Astro spell every
+  # base path that way.
   regex: >-
-    href\s*=\s*\{[^}]*\+|href\s*=\s*[`'"]\s*\$\{|href\s*=\s*\{\s*[`'"]\s*\$\{
+    href\s*=\s*\{[^}]*\+|href\s*=\s*[`'"]\s*\$\{(?!\s*import\.meta\.env\.)|href\s*=\s*\{\s*[`'"]\s*\$\{(?!\s*import\.meta\.env\.)
   scan: all
   file_types:
     - js
@@ -32,4 +36,7 @@ tests:
     - '<a href={`mailto:${contact.email}`}>write to us</a>'
     - '<a href={`/blog/${slug}`}>read on</a>'
     - '<a href={`https://example.org/u/${user}`}>profile</a>'
+    # Replaced by the bundler before a request exists.
+    - '<link href={`${import.meta.env.BASE_URL}favicon.svg`} />'
+    - '<a href={`${import.meta.env.BASE_URL}docs/${slug}`}>docs</a>'
     - <a href="/static/page">page</a>

@@ -28,12 +28,15 @@ export class HeuristicChecker {
     private static findStaleCopyright(file: string, content: string, rule: Rule): Violation[] {
         const violations: Violation[] = [];
         const currentYear = new Date().getFullYear();
-        const notice = /(?:©|\(c\)|copyright)\s*((?:19|20)\d{2})(?:\s*[-–—]\s*((?:19|20)?\d{2}|present))?/gi;
+        const notice =
+            /(?:©|\(c\)|copyright)\s*((?:19|20)\d{2})(?:\s*[-–—]\s*((?:19|20)?\d{2}|present|\$?\{|<%))?/gi;
 
         content.split('\n').forEach((text, index) => {
             for (const match of text.matchAll(notice)) {
                 const [, startYear, endYear] = match;
-                if (endYear && /present/i.test(endYear)) continue;
+                // A range whose end is computed cannot go stale. `2025-{new Date().getFullYear()}`
+                // is the thing the message asks for, so reporting it would be reporting the fix.
+                if (endYear && (/present/i.test(endYear) || /^(?:\$?\{|<%)/.test(endYear))) continue;
                 const latest = endYear
                     ? Number(endYear.length === 2 ? startYear.slice(0, 2) + endYear : endYear)
                     : Number(startYear);
