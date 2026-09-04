@@ -4,6 +4,30 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.11.0 - 2026-09-04
+
+Two things the tool was doing that it should not, both found by pointing it at
+five more repositories.
+
+- **Code nobody here wrote is skipped by default.** A Django project reported
+  **2,436 errors**, of which 2,419 were `var` inside `vendor/xregexp.js`,
+  `vendor/select2`, `vendor/jquery` and Django's collected `staticfiles`. Real
+  matches, in libraries nobody in that repository wrote. `--init` has written
+  these paths into `.sloplessignore` all along; applying them without being asked
+  is the difference between a tool that is right by default and one that is right
+  once you have read the manual. The same project now reports 5, and the run says
+  how many files it set aside.
+- **A link is broken only when the server says it is not there.** `VBC-401` was
+  non-deterministic: three identical runs over one repository gave 1, 4 and 4
+  findings. A slow server, a rate limit and a bot block were all reported as
+  broken links, and every one of those findings claimed something the check had
+  not established. Now only 404 and 410 count, plus a DNS answer of "no such
+  host", which is definite. Four identical runs now give the same number.
+
+The second one also means some of the small before-and-after numbers in the
+previous few entries carried a few findings of network noise. The direction was
+right; the last digit was not always earned.
+
 # 1.10.0 - 2026-09-03
 
 **`VBC-001` was missing the commonest real case and finding only test fixtures.**

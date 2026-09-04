@@ -92,7 +92,30 @@ function applyFixes(violations: Violation[]): number {
  * Paths outside the project cannot be matched by a .sloplessignore rule at all,
  * so they pass through untouched.
  */
+/**
+ * Paths that are never the author's code. Without these a Django project's
+ * collected staticfiles reported 1,122 findings inside xregexp.js and 319 inside
+ * jquery.js — real matches, in libraries nobody in that repository wrote.
+ *
+ * `--init` has written these into `.sloplessignore` all along; applying them
+ * without being asked is the difference between a tool that is right by default
+ * and one that is right once you have read the manual.
+ */
+export const NEVER_YOURS = [
+    'node_modules/', 'bower_components/', 'vendor/', 'third_party/', 'thirdparty/',
+    '.venv/', 'venv/', 'site-packages/', 'staticfiles/', '.tox/',
+    '.git/', 'dist/', 'build/', 'out/', '.next/', 'coverage/', '*.min.js', '*.min.css',
+];
+
 export function applyIgnoreRules(files: string[], configIgnore?: string[]): string[] {
+    return partitionIgnored(files, configIgnore).kept;
+}
+
+/** The files that survive the ignore rules, and how many each source removed. */
+export function partitionIgnored(files: string[], configIgnore?: string[]): {
+    kept: string[];
+    vendored: number;
+} {
     const patterns: string[] = [];
     const ignorePath = path.join(process.cwd(), '.sloplessignore');
     if (fs.existsSync(ignorePath)) {
@@ -101,15 +124,24 @@ export function applyIgnoreRules(files: string[], configIgnore?: string[]): stri
         patterns.push(...fs.readFileSync(ignorePath, 'utf8').split(/\r?\n/));
     }
     if (configIgnore?.length) patterns.push(...configIgnore);
-    if (patterns.length === 0) return files;
 
-    const ig = ignore().add(patterns);
     const cwd = process.cwd();
-    return files.filter(file => {
+    const relativeTo = (file: string) => {
         const relative = path.relative(cwd, path.resolve(cwd, file));
-        if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return true;
-        return !ig.ignores(relative);
+        return !relative || relative.startsWith('..') || path.isAbsolute(relative) ? null : relative;
+    };
+
+    const asked = patterns.length > 0 ? ignore().add(patterns) : null;
+    const never = ignore().add(NEVER_YOURS);
+    let vendored = 0;
+    const kept = files.filter(file => {
+        const relative = relativeTo(file);
+        if (relative === null) return true;
+        if (asked?.ignores(relative)) return false;
+        if (never.ignores(relative)) { vendored++; return false; }
+        return true;
     });
+    return { kept, vendored };
 }
 
 /**
@@ -146,6 +178,8 @@ export function selectRules(rules: Rule[], options: { only?: string; minSeverity
 }
 
 interface LintOptions {
+    /** Files removed because nobody in this repository wrote them. */
+    vendored?: number;
     only?: string;
     minSeverity?: string;
     format: string;
@@ -312,6 +346,10 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
             const named = blind.map(c => `.${c.ext || '(no extension)'} (${c.files})`).join(', ');
             console.log(`No rule covers ${named}: those files were read by nothing.`);
         }
+        if (options.vendored) {
+            console.log(`\nSkipped ${options.vendored} file${options.vendored === 1 ? '' : 's'} `
+                + 'nobody here wrote (vendor, node_modules, collected static files).');
+        }
         if (generatedCount > 0) {
             console.log(`\nSkipped ${generatedCount} generated file${generatedCount === 1 ? '' : 's'} `
                 + '(minified or bundled output).');
@@ -371,10 +409,13 @@ program
         const config = loadConfig(options.config);
 
         let targetFiles: string[] = [];
+        let vendored = 0;
 
         if (patterns.length > 0) {
             targetFiles = globSync(patterns, { ignore: ['node_modules/**'] });
-            targetFiles = applyIgnoreRules(targetFiles, config.ignore);
+            const partitioned = partitionIgnored(targetFiles, config.ignore);
+            targetFiles = partitioned.kept;
+            vendored = partitioned.vendored;
         } else {
             if (options.format === 'default') console.log('No patterns provided. Falling back to git staged files...');
             targetFiles = getStagedFiles();
@@ -382,6 +423,7 @@ program
 
         const shouldTypeCheck = options.typeCheck || config.typeCheck || false;
         await runLint(targetFiles, config, {
+            vendored,
             only: options.only,
             minSeverity: options.minSeverity,
             format: options.format,

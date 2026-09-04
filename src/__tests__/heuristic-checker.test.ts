@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import * as path from 'path';
 import { HeuristicChecker } from '../checkers/heuristic-checker';
 import { RuleLoader } from '../engine/loader';
+import type { Rule } from '../engine/schema';
 
 const RULES_DIR = path.resolve(__dirname, '../../rules');
 const rules = RuleLoader.loadRules([RULES_DIR]).filter(rule => rule.id === 'VBC-401');
@@ -57,5 +58,52 @@ describe('HeuristicChecker — VBC-921 stale-copyright-year', () => {
     it('flags a range that stopped before the current year', async () => {
         const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright 2019-${thisYear - 2} Someone\n`);
         expect(found).toHaveLength(1);
+    });
+});
+
+// Three identical runs over one repository gave 1, 4 and 4 findings, because a
+// slow server, a rate limit and a bot block were all reported as broken links.
+describe('a link is broken only when the server says it is not there', () => {
+    const rule = { id: 'VBC-401', name: 'broken-links', severity: 'warning', category: 'docs',
+        message: "Broken link '{url}' at line {line}.",
+        match: { heuristic_check: 'link-checker' } } as unknown as Rule;
+
+    const withFetch = async (impl: (url: string, init: RequestInit) => Promise<Response>) => {
+        const original = globalThis.fetch;
+        globalThis.fetch = ((u: string, i: RequestInit) => impl(u, i)) as typeof fetch;
+        try {
+            return await HeuristicChecker.check('a.md', [rule], '[x](https://example.com/p)\n');
+        } finally {
+            globalThis.fetch = original;
+        }
+    };
+    const reply = (status: number) => new Response(null, { status });
+
+    it('reports a 404', async () => {
+        expect(await withFetch(async () => reply(404))).toHaveLength(1);
+    });
+
+    it('reports a 410', async () => {
+        expect(await withFetch(async () => reply(410))).toHaveLength(1);
+    });
+
+    it('says nothing when the request never finished', async () => {
+        expect(await withFetch(async () => { throw new Error('timeout'); })).toHaveLength(0);
+    });
+
+    it('says nothing about a rate limit or a bot block', async () => {
+        for (const status of [403, 429]) {
+            expect(await withFetch(async () => reply(status)), String(status)).toHaveLength(0);
+        }
+    });
+
+    it('says nothing when the server was having a bad minute', async () => {
+        expect(await withFetch(async () => reply(503))).toHaveLength(0);
+    });
+
+    it('accepts a link whose server refuses HEAD but answers GET', async () => {
+        const found = await withFetch(async (_u, init) =>
+            init.method === 'HEAD' ? reply(405) : reply(200));
+        expect(found).toHaveLength(0);
     });
 });

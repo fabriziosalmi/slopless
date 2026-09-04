@@ -57,7 +57,7 @@ export class HeuristicChecker {
     private static async findBrokenLinks(file: string, content: string, rule: Rule): Promise<Violation[]> {
         const violations: Violation[] = [];
         for (const link of this.extractLinks(content)) {
-            if (await this.checkLink(link)) continue;
+            if (await this.checkLink(link) !== 'broken') continue;
             const line = this.getLineNumber(content, link);
             violations.push({
                 ruleId: rule.id,
@@ -81,19 +81,40 @@ export class HeuristicChecker {
         return links;
     }
 
-    private static async checkLink(url: string): Promise<boolean> {
-        try {
-            const response = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
-            return response.ok;
-        } catch (e) {
-            // If HEAD fails, try GET (some servers block HEAD)
+    /**
+     * Whether the link is definitely broken. A timeout is not evidence of that:
+     * it says the server was slow, or the runner was, or a rate limit was hit.
+     * Reporting it anyway made this rule non-deterministic — three identical runs
+     * over one repository gave 1, 4 and 4 findings — and every one of those
+     * findings claimed something the check had not established.
+     */
+    private static async checkLink(url: string): Promise<'broken' | 'ok' | 'unknown'> {
+        for (const method of ['HEAD', 'GET'] as const) {
             try {
-                const response = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(3000) });
-                return response.ok;
-            } catch (e2) {
-                return false;
+                const response = await fetch(url, { method, signal: AbortSignal.timeout(5000) });
+                // Some servers refuse HEAD; a GET decides it.
+                if (response.ok) return 'ok';
+                // 404 and 410 are the only answers that mean the page is not there.
+                // 403 and 429 mean the server declined to talk to a script, and 5xx
+                // means it was having a bad minute; neither is a broken link.
+                if (method === 'GET') {
+                    return response.status === 404 || response.status === 410 ? 'broken' : 'unknown';
+                }
+            } catch (error) {
+                // DNS answering "no such host" is a definite answer and worth
+                // reporting; a timeout or a reset is the network being the
+                // network, and says nothing about the link.
+                if (this.isUnknownHost(error)) return 'broken';
+                // Otherwise fall through to GET, then give up without claiming
+                // anything.
             }
         }
+        return 'unknown';
+    }
+
+    private static isUnknownHost(error: unknown): boolean {
+        const code = (error as { cause?: { code?: string } })?.cause?.code;
+        return code === 'ENOTFOUND' || code === 'EAI_AGAIN';
     }
 
     private static getLineNumber(content: string, substring: string): number {
