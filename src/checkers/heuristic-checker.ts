@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import { Rule } from '../engine/schema';
 import { Violation } from './regex-checker';
 import { isExcludedFile } from '../engine/file-scope';
+import { isBlockedAddress, requestStatus } from '../engine/safe-request';
 
 export class HeuristicChecker {
     static async check(file: string, rules: Rule[], rawContent?: string): Promise<Violation[]> {
@@ -94,16 +95,22 @@ export class HeuristicChecker {
     private static async checkLink(url: string): Promise<'broken' | 'ok' | 'unknown'> {
         for (const method of ['HEAD', 'GET'] as const) {
             try {
-                const response = await fetch(url, { method, signal: AbortSignal.timeout(5000) });
-                // Some servers refuse HEAD; a GET decides it.
-                if (response.ok) return 'ok';
+                const status = await requestStatus(url, method, 5000);
+                // A redirect means the server knows the URL and is pointing
+                // somewhere else, so the link is not broken. It is not followed:
+                // following it would let a public host forward this request at
+                // an address the guard just refused.
+                if (status >= 200 && status < 400) return 'ok';
                 // 404 and 410 are the only answers that mean the page is not there.
                 // 403 and 429 mean the server declined to talk to a script, and 5xx
                 // means it was having a bad minute; neither is a broken link.
                 if (method === 'GET') {
-                    return response.status === 404 || response.status === 410 ? 'broken' : 'unknown';
+                    return status === 404 || status === 410 ? 'broken' : 'unknown';
                 }
             } catch (error) {
+                // An address we refused to connect to tells us nothing about the
+                // link, so nothing is claimed about it either way.
+                if (isBlockedAddress(error)) return 'unknown';
                 // DNS answering "no such host" is a definite answer and worth
                 // reporting; a timeout or a reset is the network being the
                 // network, and says nothing about the link.
@@ -116,7 +123,9 @@ export class HeuristicChecker {
     }
 
     private static isUnknownHost(error: unknown): boolean {
-        const code = (error as { cause?: { code?: string } })?.cause?.code;
+        // `fetch` wrapped the cause; a raw request throws the errno itself.
+        const wrapped = error as { code?: string; cause?: { code?: string } } | undefined;
+        const code = wrapped?.code ?? wrapped?.cause?.code;
         return code === 'ENOTFOUND' || code === 'EAI_AGAIN';
     }
 

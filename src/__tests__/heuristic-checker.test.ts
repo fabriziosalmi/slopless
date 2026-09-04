@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import * as path from 'path';
 import { HeuristicChecker } from '../checkers/heuristic-checker';
 import { RuleLoader } from '../engine/loader';
 import type { Rule } from '../engine/schema';
+import * as safeRequest from '../engine/safe-request';
+
+// The checker no longer goes through `fetch`, so a stubbed global would sit
+// there unused while the tests hit the network for real. The seam is the module
+// it does go through, and its default behaviour stays the real one so the
+// unresolvable-host test below still exercises DNS.
+vi.mock('../engine/safe-request', async importOriginal => {
+    const actual = await importOriginal<typeof safeRequest>();
+    return { ...actual, requestStatus: vi.fn(actual.requestStatus) };
+});
 
 const RULES_DIR = path.resolve(__dirname, '../../rules');
 const rules = RuleLoader.loadRules([RULES_DIR]).filter(rule => rule.id === 'VBC-401');
@@ -80,42 +90,51 @@ describe('a link is broken only when the server says it is not there', () => {
         message: "Broken link '{url}' at line {line}.",
         match: { heuristic_check: 'link-checker' } } as unknown as Rule;
 
-    const withFetch = async (impl: (url: string, init: RequestInit) => Promise<Response>) => {
-        const original = globalThis.fetch;
-        globalThis.fetch = ((u: string, i: RequestInit) => impl(u, i)) as typeof fetch;
-        try {
-            return await HeuristicChecker.check('a.md', [rule], '[x](https://example.com/p)\n');
-        } finally {
-            globalThis.fetch = original;
-        }
+    const stub = vi.mocked(safeRequest.requestStatus);
+    afterEach(() => { stub.mockReset(); });
+
+    const withStatus = async (answer: (method: 'HEAD' | 'GET') => Promise<number>) => {
+        stub.mockImplementation((_url, method) => answer(method));
+        return HeuristicChecker.check('a.md', [rule], '[x](https://example.com/p)\n');
     };
-    const reply = (status: number) => new Response(null, { status });
 
     it('reports a 404', async () => {
-        expect(await withFetch(async () => reply(404))).toHaveLength(1);
+        expect(await withStatus(async () => 404)).toHaveLength(1);
     });
 
     it('reports a 410', async () => {
-        expect(await withFetch(async () => reply(410))).toHaveLength(1);
+        expect(await withStatus(async () => 410)).toHaveLength(1);
     });
 
     it('says nothing when the request never finished', async () => {
-        expect(await withFetch(async () => { throw new Error('timeout'); })).toHaveLength(0);
+        expect(await withStatus(async () => { throw new Error('timeout'); })).toHaveLength(0);
     });
 
     it('says nothing about a rate limit or a bot block', async () => {
         for (const status of [403, 429]) {
-            expect(await withFetch(async () => reply(status)), String(status)).toHaveLength(0);
+            expect(await withStatus(async () => status), String(status)).toHaveLength(0);
         }
     });
 
+    it('says nothing about an address it refused to reach', async () => {
+        expect(await withStatus(async () => {
+            const blocked: NodeJS.ErrnoException = new Error('refused');
+            blocked.code = 'ESLOPLESSBLOCKED';
+            throw blocked;
+        })).toHaveLength(0);
+    });
+
+    it('accepts a redirect rather than following it', async () => {
+        expect(await withStatus(async () => 301)).toHaveLength(0);
+        expect(await withStatus(async () => 308)).toHaveLength(0);
+    });
+
     it('says nothing when the server was having a bad minute', async () => {
-        expect(await withFetch(async () => reply(503))).toHaveLength(0);
+        expect(await withStatus(async () => 503)).toHaveLength(0);
     });
 
     it('accepts a link whose server refuses HEAD but answers GET', async () => {
-        const found = await withFetch(async (_u, init) =>
-            init.method === 'HEAD' ? reply(405) : reply(200));
+        const found = await withStatus(async method => (method === 'HEAD' ? 405 : 200));
         expect(found).toHaveLength(0);
     });
 });
