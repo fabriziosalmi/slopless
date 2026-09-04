@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - py
+    - astro
 message: >-
   Potential command injection at line {line}. Shell commands constructed with string interpolation
   or concatenation allow attackers to execute arbitrary commands. Use parameterized commands

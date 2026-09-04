@@ -9,7 +9,7 @@ editLink: false
 
 **Category:** correctness  
 **Analysis:** `Regex` (line by line)  
-**File types:** `.js`, `.jsx`, `.ts`, `.tsx`  
+**File types:** `.js`, `.jsx`, `.ts`, `.tsx`, `.astro`  
 **Scope:** source code only, ignoring anything inside strings and comments  
 **Tags:** `correctness` `testing`
 

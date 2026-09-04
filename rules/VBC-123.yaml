@@ -14,6 +14,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: >-
   Using placeholder as the only label at line {line} is bad for accessibility.
 tests:

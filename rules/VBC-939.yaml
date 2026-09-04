@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   File upload handler at line {line} may lack type/size restrictions. Without validating MIME
   type, file extension, and size, attackers can upload malicious executables or exhaust disk

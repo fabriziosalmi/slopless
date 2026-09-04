@@ -12,6 +12,7 @@ match:
     - ts
     - py
     - go
+    - astro
 message: >-
   Line is too long ({count} characters). Consider wrapping it. Max recommended: 120.
 tests:

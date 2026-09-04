@@ -13,6 +13,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: target='_blank' without rel='noopener' detected at line {line}.
 tests:
   fire:

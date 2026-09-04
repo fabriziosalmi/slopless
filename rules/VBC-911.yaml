@@ -11,6 +11,7 @@ match:
     - js
     - ts
     - py
+    - astro
 message: >-
   Generic class name '{match}' detected. Use more specific semantic names (e.g., 'AuthValidator'
   instead of 'AuthHelper').

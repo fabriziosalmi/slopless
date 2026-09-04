@@ -30,6 +30,7 @@ match:
     - jsx
     - py
     - sh
+    - astro
 message: >-
   Potential AI-generated fluff or overused cliché '{match}' detected at line {line}. Keep
   documentation concise and human-centric.

@@ -13,6 +13,7 @@ match:
     - js
     - ts
     - py
+    - astro
 supersedes:
   - VBC-007
 message: >-

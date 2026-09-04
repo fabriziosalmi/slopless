@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - html
+    - astro
 message: >-
   Blocking paste in input fields harms both UX and security (password managers).
 tests:

@@ -1,3 +1,26 @@
+# 1.12.0 - 2026-09-04
+
+**Astro goes from 1 rule to 82.** An `.astro` file is TypeScript frontmatter
+between `---` fences and then HTML, so both halves were being read as neither.
+The tokeniser now knows the language and the HTML and TypeScript rules reach it.
+
+Extending them turned up two false positives that were never about Astro:
+
+- **`var(--x)` is CSS asking for a custom property**, not a JavaScript
+  declaration. `VBC-005` reported 23 of them inside one inline `<style>` block.
+  `var (x)` is not valid JavaScript, so excluding `var(` costs nothing and fixes
+  every file that carries a stylesheet inside it.
+- **A literal prefix settles the scheme before the value arrives.**
+  `href={`+"`mailto:${addr}`}"+` and `href={`+"`/blog/${slug}`}"+` cannot become
+  `javascript:` whatever the value is, and that is how a template builds every
+  ordinary link. `VBC-944` now fires only when the interpolation is what decides
+  the scheme.
+
+Two of three Astro repositories go to zero errors; the third keeps three, where
+the interpolation genuinely is first.
+
+Nine repositories measured before and after: unchanged.
+
 # 1.11.0 - 2026-09-04
 
 Two things the tool was doing that it should not, both found by pointing it at

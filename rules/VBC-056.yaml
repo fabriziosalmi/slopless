@@ -24,6 +24,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 supersedes:
   - VBC-907
   - VBC-150

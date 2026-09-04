@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: Autoplay video backgrounds can be distracting and impact performance.
 tests:
   fire:

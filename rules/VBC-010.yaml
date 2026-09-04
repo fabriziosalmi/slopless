@@ -13,6 +13,7 @@ match:
     - ts
     - tsx
     - jsx
+    - astro
 message: >-
   Clickable <div> with onclick handler at line {line}. Use <button> or <a> for interactive
   elements. Non-semantic clickable divs are invisible to keyboard navigation and screen readers,

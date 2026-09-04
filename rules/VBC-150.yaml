@@ -22,6 +22,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 message: >-
   Tracked debt marker still in the code at line {line}. It is attributed, so close the ticket
   or delete the marker before shipping.

@@ -15,6 +15,7 @@ match:
     - ts
     - tsx
     - jsx
+    - astro
 message: >-
   Placeholder image service URL detected at line {line}. External placeholder services break
   when the service is down, look unfinished, and represent content that was never completed.

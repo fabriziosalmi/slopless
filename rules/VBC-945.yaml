@@ -18,6 +18,7 @@ match:
     - py
     - go
     - java
+    - astro
 supersedes:
   - VBC-907
   - VBC-150

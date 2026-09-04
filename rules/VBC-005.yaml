@@ -5,10 +5,14 @@ category: core
 tags:
   - best-practice
 match:
-  regex: (?<!\bdeclare\s{1,4})\bvar\b
+  # `var(--x)` is CSS asking for a custom property, not a JavaScript
+  # declaration. An inline <style> block in an .astro or .html file is full
+  # of them, and `var (x)` is not valid JavaScript, so the exclusion is free.
+  regex: (?<!\bdeclare\s{1,4})\bvar\b(?!\s*\()
   file_types:
     - js
     - ts
+    - astro
 fix:
   regex_replace:
     pattern: \bvar\b
@@ -18,6 +22,9 @@ tests:
   fire:
     - var total = 0;
   quiet:
+    # CSS asking for a custom property, which an inline <style> block is full of.
+    - '  font-family: var(--font-serif);'
+    - '  width: calc(100% - var(--gap));'
     - const total = 0;
     - let total = 0;
     - file: global.d.ts

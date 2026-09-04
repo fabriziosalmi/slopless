@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Potential commented-out code detected at line {line}. If the code is no longer needed, delete
   it. Use Git for history.

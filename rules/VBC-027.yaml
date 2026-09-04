@@ -15,6 +15,7 @@ match:
     - ts
     - css
     - scss
+    - astro
 message: >-
   Parallax scrolling effect detected at line {line}. Parallax effects can trigger vestibular
   disorders (nausea, dizziness) in sensitive users, carry significant GPU cost, and break

@@ -12,6 +12,7 @@ match:
     - ts
     - tsx
     - jsx
+    - astro
 message: >-
   jQuery dependency detected at line {line}. In 2026, native DOM APIs (querySelector, fetch,
   classList, addEventListener) are sufficient and far lighter. Dropping jQuery reduces bundle

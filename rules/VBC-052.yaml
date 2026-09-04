@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Single-letter variable name detected at line {line}. Use more descriptive names.
 tests:

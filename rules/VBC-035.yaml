@@ -11,6 +11,7 @@ match:
     - html
     - tsx
     - jsx
+    - astro
 message: >-
   Icon-only button without aria-label at line {line}. A button containing only an SVG icon
   has no accessible name, making it completely opaque to screen readers. Add aria-label="Descriptive

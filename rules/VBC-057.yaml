@@ -9,6 +9,7 @@ match:
   file_types:
     - ts
     - tsx
+    - astro
 message: >-
   Avoid using 'any' type at line {line}. Use a more specific type or 'unknown'.
 tests:

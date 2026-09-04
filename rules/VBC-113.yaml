@@ -9,6 +9,7 @@ match:
   flags: i
   file_types:
     - html
+    - astro
 message: Disabling pinch-to-zoom is an accessibility violation.
 tests:
   fire:

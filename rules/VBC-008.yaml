@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Using setTimeout as a sleep to paper over a race condition at line {line}. This is a flaky
   band-aid that slows the app down. Fix the underlying async coordination with proper event

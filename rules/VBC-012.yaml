@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Redundant Promise constructor wrapping at line {line}. This is an anti-pattern called "Promise
   constructor anti-pattern". Use Promise.resolve() directly or return the value/promise without

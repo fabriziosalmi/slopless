@@ -18,6 +18,7 @@ match:
     - rs
     - js
     - ts
+    - astro
 opt_in: true
 message: >-
   Sustained all-caps text at line {line}. Shouting does not add emphasis, it costs readability.

@@ -12,6 +12,7 @@ match:
     - html
     - tsx
     - jsx
+    - astro
 message: >-
   Vague link text '{match}' detected at line {line}. Use descriptive labels (e.g., 'View detailed
   report') for clarity and screen reader accessibility.

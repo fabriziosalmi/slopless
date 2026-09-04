@@ -13,6 +13,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: Multiple <br> tags used for layout. Use CSS margin or padding instead.
 tests:
   fire:

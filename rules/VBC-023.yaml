@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Notification.requestPermission() detected at line {line}. Requesting browser notification
   permissions immediately on page load is hostile UX that causes most users to click "Block"

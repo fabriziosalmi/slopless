@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Direct document.cookie write at line {line}. Manual cookie manipulation is error-prone and
   easy to misconfigure. Use a cookie library that enforces proper security flags (HttpOnly,

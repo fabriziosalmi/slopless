@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Unnecessary 'else' after 'return' at line {line}. Remove the else and flatten the code.
 tests:

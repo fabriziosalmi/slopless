@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Overly long variable name (>35 chars) detected at line {line}. This is getting too vibey.
 tests:

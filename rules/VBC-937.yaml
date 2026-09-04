@@ -13,6 +13,7 @@ match:
     - ts
     - jsx
     - tsx
+    - astro
 message: >-
   Authentication token or role stored/read from browser storage at line {line}. Client-side
   auth logic is trivially bypassable. Validate identity server-side on every request. Never

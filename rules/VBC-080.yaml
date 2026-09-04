@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Avoid using alert() at line {line}. Use a modern UI notification system.
 tests:

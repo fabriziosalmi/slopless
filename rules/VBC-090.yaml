@@ -25,6 +25,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 message: >-
   Passive-aggressive or helpless comment '{match}' detected at line {line}. Replace with a
   technical explanation of the actual constraint or a link to the relevant issue tracker ticket.

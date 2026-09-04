@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: >-
   Overly long inline style attribute at line {line}. Move styles to a CSS file or component.
 tests:

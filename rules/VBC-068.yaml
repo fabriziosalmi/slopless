@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Chained or nested ternary at line {line}. Stacked conditionals are hard to read and hard
   to debug; use an if/else block or a lookup table.

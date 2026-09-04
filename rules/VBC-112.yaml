@@ -10,6 +10,7 @@ match:
     - js
     - ts
     - css
+    - astro
 message: >-
   Potential scroll hijacking or forced smooth scrolling detected at line {line}.
 tests:

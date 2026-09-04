@@ -44,6 +44,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 message: >-
   Placeholder text 'Lorem ipsum' detected at line {line}. Replace with real content before
   committing.

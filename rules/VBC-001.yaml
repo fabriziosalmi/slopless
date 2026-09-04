@@ -21,6 +21,7 @@ match:
     - env
     - yaml
     - json
+    - astro
 message: >-
   Hardcoded credential at line {line}. Read it from the environment. Values that name what
   they are, such as CHANGEME or a fixture spelling out "secret", are not reported: they describe

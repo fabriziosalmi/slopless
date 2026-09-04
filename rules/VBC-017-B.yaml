@@ -16,6 +16,7 @@ match:
     - jsx
     - ts
     - tsx
+    - astro
 message: >-
   Focused test at line {line}. Committed, it runs this test and silently skips every other
   one in the file, and the suite still reports green.

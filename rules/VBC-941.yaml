@@ -13,6 +13,7 @@ match:
     - ts
     - jsx
     - tsx
+    - astro
 supersedes:
   - VBC-070
 message: >-

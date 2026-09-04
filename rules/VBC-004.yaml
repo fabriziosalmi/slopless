@@ -23,6 +23,7 @@ match:
     - rb
     - java
     - cs
+    - astro
 message: >-
   SQL built by string concatenation at line {line}. An attacker controlling the interpolated
   value can rewrite the statement. Use parameterized queries or a query builder that binds

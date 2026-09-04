@@ -14,6 +14,7 @@ match:
     - js
     - ts
     - py
+    - astro
 message: >-
   Too many consecutive comment lines at line {line}. Code should be self-documenting.
 tests:

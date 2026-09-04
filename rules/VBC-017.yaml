@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Trivially true test assertion at line {line}. This test always passes regardless of the
   code under test and provides zero confidence. Write a real assertion that can actually fail

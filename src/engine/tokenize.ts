@@ -97,6 +97,19 @@ const SYNTAX: Record<string, Syntax> = {
             { open: '"', close: '"', escape: '\\' },
         ],
     },
+    // An .astro file is TypeScript frontmatter between --- fences and then HTML.
+    // One table cannot switch modes halfway, but it does not need to: both halves
+    // are covered by accepting each other's comment and string forms.
+    astro: {
+        lineComments: ['//'],
+        blockComments: [{ open: '/*', close: '*/' }, { open: '<!--', close: '-->' }],
+        docBlockComments: ['/**'],
+        strings: [
+            { open: '`', close: '`', escape: '\\' },
+            { open: '"', close: '"', escape: '\\', singleLine: true },
+            { open: "'", close: "'", escape: '\\', singleLine: true },
+        ],
+    },
     java: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
     c: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },
     cs: { lineComments: ['//'], docBlockComments: ['/**'], blockComments: [{ open: '/*', close: '*/' }], strings: C_LIKE_STRINGS },

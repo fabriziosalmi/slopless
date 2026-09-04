@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - py
+    - astro
 message: >-
   Monetary value declared as a floating point literal at line {line}. Binary floats cannot
   represent decimal cents exactly. Store money as integer minor units or use a decimal type.

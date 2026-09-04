@@ -12,6 +12,7 @@ match:
     - py
     - rb
     - php
+    - astro
 message: >-
   Use of 'eval()' detected at line {line}. This is a massive security risk.
 tests:

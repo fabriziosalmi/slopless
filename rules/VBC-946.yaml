@@ -12,6 +12,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Destructive async operation at line {line} with no verification of success. AI agents frequently
   execute irreversible actions (delete, drop, rm) based on assumed success without checking

@@ -6,8 +6,12 @@ tags:
   - security
   - ai-error
 match:
+  # The hazard is an interpolation that decides the scheme. A literal prefix
+  # settles it first: `mailto:${addr}` and `/blog/${slug}` cannot become
+  # `javascript:` whatever the value is, and that is how a template builds
+  # every ordinary link.
   regex: >-
-    href\s*=\s*\{[^}]*\+|href\s*=\s*[`'"][^`'"]*\$\{|href\s*=\s*\{\s*`[^`]*\$\{
+    href\s*=\s*\{[^}]*\+|href\s*=\s*[`'"]\s*\$\{|href\s*=\s*\{\s*[`'"]\s*\$\{
   scan: all
   file_types:
     - js
@@ -15,6 +19,7 @@ match:
     - jsx
     - tsx
     - html
+    - astro
 message: >-
   Dynamic href constructed with string interpolation at line {line}. If the value originates
   from user input or an untrusted source, this is a javascript: URL injection vector. Validate
@@ -23,4 +28,8 @@ tests:
   fire:
     - const link = `href="${untrusted}"`;
   quiet:
+    # A literal prefix settles the scheme before the value arrives.
+    - '<a href={`mailto:${contact.email}`}>write to us</a>'
+    - '<a href={`/blog/${slug}`}>read on</a>'
+    - '<a href={`https://example.org/u/${user}`}>profile</a>'
     - <a href="/static/page">page</a>

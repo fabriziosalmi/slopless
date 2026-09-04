@@ -12,6 +12,7 @@ match:
     - html
     - tsx
     - jsx
+    - astro
 message: >-
   Vague button label '{match}' detected at line {line}. Use action-oriented labels (e.g.,
   'Save Changes', 'Create Account').

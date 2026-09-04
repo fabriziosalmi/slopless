@@ -12,6 +12,7 @@ match:
     - js
     - ts
     - tsx
+    - astro
 message: Image missing 'alt' attribute at line {line}.
 tests:
   fire:

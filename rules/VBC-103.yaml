@@ -25,6 +25,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 message: >-
   Block of decoration at line {line}: three or more comment lines that are shape and nothing
   else. A rule around a section heading is punctuation and is not reported; a banner is furniture

@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Catch clause with ignored error variable at line {line}. Using '_' as the catch binding
   signals the exception is intentionally discarded. AI-generated code often silently suppresses

@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: >-
   Assignment to a window property at line {line}. Globals collide across scripts and outlive
   the code that set them. Export the value, or attach it under one namespaced object if a

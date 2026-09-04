@@ -25,6 +25,7 @@ match:
     - kt
     - swift
     - rb
+    - astro
 message: >-
   Unattributed debt marker at line {line}. Nobody owns it, so nobody will fix it. Use TODO(owner):
   or reference an issue such as TODO: #123.

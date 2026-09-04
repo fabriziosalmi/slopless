@@ -12,6 +12,7 @@ match:
   file_types:
     - js
     - ts
+    - astro
 message: Mixing 'require' and 'import' in the same file at line {line}.
 tests:
   fire:
