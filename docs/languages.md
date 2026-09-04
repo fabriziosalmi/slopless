@@ -20,19 +20,30 @@ rather than written by hand.
 | --- | --- |
 | TypeScript (`.ts`) | 95 of 150 |
 | JavaScript (`.js`) | 94 of 150 |
+| Astro (`.astro`) | 83 of 150 |
 | TypeScript (JSX) (`.tsx`) | 39 of 150 |
 | Python (`.py`) | 32 of 150 |
+| JavaScript (JSX) (`.jsx`) | 31 of 150 |
 | Markdown (`.md`) | 26 of 150 |
 | CSS (`.css`) | 23 of 150 |
+| HTML (`.html`) | 21 of 150 |
 | Go (`.go`) | 19 of 150 |
+| Plain text (`.txt`) | 18 of 150 |
 | Shell (`.sh`) | 16 of 150 |
 | Java (`.java`) | 15 of 150 |
 | Rust (`.rs`) | 15 of 150 |
+| Sass (SCSS) (`.scss`) | 15 of 150 |
 | Ruby (`.rb`) | 14 of 150 |
 | C# (`.cs`) | 13 of 150 |
-| C and C++ (`.c`) | 12 of 150 |
+| C (`.c`) | 12 of 150 |
+| C++ (`.cpp`) | 12 of 150 |
 | Kotlin (`.kt`) | 12 of 150 |
 | Swift (`.swift`) | 12 of 150 |
+| Less (`.less`) | 9 of 150 |
+| JSON (`.json`) | 5 of 150 |
+| PHP (`.php`) | 5 of 150 |
+| Dotenv (`.env`) | 4 of 150 |
+| YAML (`.yaml`) | 3 of 150 |
 <!-- coverage:end -->
 
 Counts are of every rule, including the ten that ship disabled and wait to be
