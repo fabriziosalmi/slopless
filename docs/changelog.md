@@ -4,6 +4,21 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.12.4 - 2026-09-04
+
+**Framework build caches are code nobody here wrote.** 1.11.0 stopped reading
+`node_modules/` and the other places dependencies land. It missed the caches
+that sit *inside* the source tree, so a pattern written for the source reaches
+them: `.vitepress/cache/` holds rewritten copies of every dependency, and
+`.astro/`, `.svelte-kit/`, `.nuxt/`, `.docusaurus/`, `.parcel-cache/`,
+`.turbo/`, `.angular/` and `__pycache__/` are the same idea. One VitePress cache
+in this fleet answered with hundreds of `var` errors from a bundled copy of
+minisearch.
+
+Found while measuring seven proposed rules against 84 repositories: the caches
+kept showing up in the samples, which is how the hole surfaced. None of the
+seven rules made it in — the measurement is in the pull request.
+
 # 1.12.3 - 2026-09-04
 
 **`VBC-035` is named icon-only and was matching icon-first.** A button carrying
