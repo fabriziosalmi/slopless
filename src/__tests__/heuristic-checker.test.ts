@@ -48,6 +48,18 @@ describe('HeuristicChecker — VBC-921 stale-copyright-year', () => {
         expect(found).toHaveLength(0);
     });
 
+    it('ignores a range whose end is generated, which is what the message asks for', async () => {
+        const generated = [
+            '<p>© 2020-{new Date().getFullYear()} Someone</p>',
+            '<p>© 2020-${new Date().getFullYear()} Someone</p>',
+            '<p>© 2020-{{ year }} Someone</p>',
+            '<p>© 2020-<%= year %> Someone</p>',
+        ];
+        for (const line of generated) {
+            expect(await HeuristicChecker.check('a.ts', copyright, `${line}\n`)).toEqual([]);
+        }
+    });
+
     it('flags a notice that stopped at a year gone by', async () => {
         const found = await HeuristicChecker.check('a.ts', copyright, `// Copyright (c) ${thisYear - 3} Someone\n`);
         expect(found).toHaveLength(1);
