@@ -1,3 +1,32 @@
+# 1.12.6 - 2026-09-04
+
+Three defects found by measuring a change that was then not made. Widening the
+rules to `.tsx` was measured across 525 files and rejected; half of the 28 new
+errors it produced were false, and the shapes were not about `.tsx` at all.
+
+- **`VBC-001` had no test exclusion.** Every other rule that reports on the
+  content of a value carries one; this one carried none, and ten of the eleven
+  findings it produced across 2,892 files were fixtures — `NewPw-987654`,
+  `Str0ng&Pass!`, `admin123`. Excluding tests from a secrets rule is a real
+  trade, and what carries the other side is GitHub secret scanning: it reads
+  every file including tests, and matches on issuer format rather than on a
+  variable's name. A genuine `ghp_...` in a test is its find.
+- **`VBC-001` read a public address as a secret.** `token` matches inside
+  `TAM_TOKEN_ADDRESS` and `[\w]*` swallowed the `_ADDRESS` that says what the
+  value is. A contract address is 42 characters of hex with no spaces, so it
+  passed every other test the rule applies. The camelCase spelling was never
+  affected: `tokenAddress` fails the letter boundary after the keyword.
+- **`VBC-080` reported a method declaration.** `alert(text: string): void {` is
+  the signature of a method that happens to be called alert. A parameter with a
+  type annotation cannot be an argument, so that is what the rule now excludes —
+  and a ternary argument, `alert(ok ? "saved" : "failed")`, still reports,
+  because the colon there does not follow the name.
+
+**Measured: 11 findings removed across 2,892 files, 0 added. All 11 were false.**
+The `VBC-080` fix removes nothing today — no `.ts` file in the corpus declares a
+method called alert — it removes a false positive that only appears once the
+rules reach `.tsx`.
+
 # 1.12.5 - 2026-09-04
 
 **The coverage table listed 15 languages. The tool reaches 26.**

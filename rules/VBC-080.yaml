@@ -5,7 +5,12 @@ category: clean-code
 tags:
   - ux
 match:
-  regex: \balert\(
+  # A parameter carrying a type annotation cannot be an argument: `alert(text:
+  # string)` is the signature of a method that happens to be called alert, not a
+  # call to the browser's. The `?` covers an optional parameter, and requires the
+  # colon to follow it immediately, so a ternary argument — `alert(a ? b : c)` —
+  # still reports.
+  regex: \balert\((?!\s*\w+\s*\??:\s*\w)
   file_types:
     - js
     - ts
@@ -15,5 +20,12 @@ message: >-
 tests:
   fire:
     - alert("saved");
+    - alert(message);
+    # A ternary argument is still a call.
+    - 'alert(ok ? "saved" : "failed");'
+    - 'alert({ tone: "warning" });'
   quiet:
     - showToast("saved");
+    # A method signature, not a call.
+    - 'alert(text: string): void {'
+    - 'alert(text?: string): void {'

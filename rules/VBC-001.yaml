@@ -11,8 +11,15 @@ match:
   # value with a space in it is not a credential, while one with no digit at all
   # is indistinguishable from a placeholder: across 7,179 files this rule fired
   # six times and every one was a test fixture.
+  #
+  # A third: an address is public by construction. `token` matches inside
+  # TAM_TOKEN_ADDRESS and `[\w]*` swallows the `_ADDRESS` that says what the
+  # value is, and a contract address is 42 characters of hex with no spaces —
+  # every test this rule applies. Five reports in one repository, all of the
+  # same constant. The camelCase spelling was never affected: `tokenAddress`
+  # fails the letter boundary after the keyword.
   regex: >-
-    (?<![A-Za-z])(api_key|secret|password|passwd|token|bearer|auth[_-]?key|access[_-]?key)(?![A-Za-z])[\w]*\s*[:=]\s*['"\`](?![^'"\`]*(?:secret|password|passwd|token|apikey|api[_-]?key|credential|dummy|example|sample|test|fake|changeme|placeholder|your[_-]|xxx|\.\.\.))(?=[^'"\`]*\d)(?![^'"\`]* )([^'"\`]){8,}
+    (?<![A-Za-z])(api_key|secret|password|passwd|token|bearer|auth[_-]?key|access[_-]?key)(?![A-Za-z])[\w]*(?<![_-]addr)(?<![_-]address)\s*[:=]\s*['"\`](?![^'"\`]*(?:secret|password|passwd|token|apikey|api[_-]?key|credential|dummy|example|sample|test|fake|changeme|placeholder|your[_-]|xxx|\.\.\.))(?=[^'"\`]*\d)(?![^'"\`]* )([^'"\`]){8,}
   flags: i
   file_types:
     - js
@@ -22,6 +29,32 @@ match:
     - yaml
     - json
     - astro
+  # A credential in a test is a fixture. Ten of the eleven findings this rule
+  # produced across 2,892 files were test fixtures — 'NewPw-987654',
+  # 'Str0ng&Pass!', 'admin123' — and none of them was a key.
+  #
+  # Excluding tests from a secrets rule is a real trade, so it is worth saying
+  # what carries the other side: GitHub runs secret scanning and push protection
+  # on public repositories, over every file including tests, and it matches on
+  # issuer format rather than on a variable's name. A genuine `ghp_...` pasted
+  # into a test is its find, and it is better at it than this regex. What this
+  # rule is for is the credential written into shipping code, which is where it
+  # keeps looking.
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*_bench.go'
+    - '**/*.test.*'
+    - '**/*.spec.*'
 message: >-
   Hardcoded credential at line {line}. Read it from the environment. Values that name what
   they are, such as CHANGEME or a fixture spelling out "secret", are not reported: they describe
@@ -45,3 +78,6 @@ tests:
     - secret = "REAL-HMAC-SECRET"
     - 'api_key: "your-api-key-here"'
     - access_key = "AKIAIOSFODNN7EXAMPLE"
+    # An address is public by construction, and the name says which it is.
+    - const TAM_TOKEN_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512';
+    - token_address = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
