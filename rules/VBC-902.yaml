@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   document.write() is prohibited at line {line}. It is insecure and performance-heavy.

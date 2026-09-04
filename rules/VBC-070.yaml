@@ -22,6 +22,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Use of 'innerHTML' detected at line {line}. Use 'textContent' or a sanitizer to avoid XSS.

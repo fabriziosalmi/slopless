@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - py
     - astro
 message: >-

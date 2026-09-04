@@ -18,6 +18,7 @@ match:
     - rs
     - js
     - ts
+    - tsx
     - astro
 opt_in: true
 message: >-

@@ -123,10 +123,10 @@ count, written from the rules rather than from memory:
 <!-- coverage:start -->
 | language | rules |
 | --- | --- |
+| TypeScript (JSX) (`.tsx`) | 97 of 150 |
 | TypeScript (`.ts`) | 95 of 150 |
 | JavaScript (`.js`) | 94 of 150 |
 | Astro (`.astro`) | 83 of 150 |
-| TypeScript (JSX) (`.tsx`) | 39 of 150 |
 | Python (`.py`) | 32 of 150 |
 | JavaScript (JSX) (`.jsx`) | 31 of 150 |
 | Markdown (`.md`) | 26 of 150 |

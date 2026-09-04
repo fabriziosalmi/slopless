@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   snake_case and camelCase mixed at line {line}. Pick one convention per file. Object keys

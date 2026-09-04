@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Route handler at line {line} may be missing authentication middleware. AI-generated route

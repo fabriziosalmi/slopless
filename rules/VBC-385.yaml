@@ -12,6 +12,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Improper success message grammar at line {line}. Use 'Data saved successfully'.

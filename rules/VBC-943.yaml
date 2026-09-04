@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Catch clause with ignored error variable at line {line}. Using '_' as the catch binding

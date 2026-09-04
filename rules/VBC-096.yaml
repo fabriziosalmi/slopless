@@ -12,6 +12,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Long regular expression literal at line {line} with no explanation. Add a comment stating

@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Production code with console usage '{match}' found at line {line}. Consider a professional

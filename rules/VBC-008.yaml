@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Using setTimeout as a sleep to paper over a race condition at line {line}. This is a flaky

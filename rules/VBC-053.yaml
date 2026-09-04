@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Redundant string interpolation detected at line {line}. Use the variable directly.

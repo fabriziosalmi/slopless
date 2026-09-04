@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Notification.requestPermission() detected at line {line}. Requesting browser notification

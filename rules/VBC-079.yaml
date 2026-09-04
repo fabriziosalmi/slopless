@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   debugger; statement found at line {line}. This should never reach production.

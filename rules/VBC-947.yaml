@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Merging untrusted request body directly at line {line}. This pattern enables prototype pollution:
