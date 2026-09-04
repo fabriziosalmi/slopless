@@ -1,3 +1,41 @@
+# 1.13.1 - 2026-09-04
+
+Two things the tool could do to the person running it.
+
+**The link checker made requests on someone else's behalf.** `VBC-401` fetches
+the URLs written in Markdown, and the workflow that runs it triggers on
+`pull_request`, which includes pull requests from forks. The URL was therefore
+an attacker-supplied string and the CI runner was the thing making the request:
+a link to `http://169.254.169.254/` or `http://127.0.0.1:6379/` was a request
+the runner made, and `fetch` followed redirects, so a public host could forward
+one inward.
+
+Requests now go through a guard that refuses private and reserved addresses, and
+it validates the address the connection actually uses rather than one a
+preliminary lookup returned — a name that answers publicly and then answers
+`127.0.0.1` cannot slip through the gap between the two. Redirects are no longer
+followed at all: a 3xx means the server knows the URL, which is all this rule
+needs. An address that is refused is reported as nothing, never as broken.
+
+Writing the address check was where it earned its keep: `new URL()` normalises
+`::ffff:127.0.0.1` to `::ffff:7f00:1`, so the first version matched the dotted
+form as text and let the hex form straight through to a live socket.
+
+**`--fix` could write a file that no longer runs.** A fix is a regex applied to
+one line, and a regex does not know what it is standing in. Turning both `var a`
+in a scope into `let a` leaves a file `node --check` refuses. The file is now
+parsed before it is written and the fixes are dropped if it would not survive:
+
+```
+Left alone: work.js. Applying 2 fixes would have left it unparseable —
+Identifier 'count' has already been declared
+```
+
+Redeclaration is not a *syntax* error — `parseDiagnostics` is empty for it — so
+checking syntax alone would have missed the very case this is about. The guard
+also hands the file to V8, which reports early errors, and refuses only when the
+file was fine before the fix.
+
 # 1.13.0 - 2026-09-04
 
 **`.tsx` goes from 39 rules to 97.** A `.tsx` file is TypeScript with JSX in it,

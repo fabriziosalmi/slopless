@@ -19,6 +19,7 @@ import { SemanticChecker } from './checkers/semantic-checker';
 import { TypeCheckerEngine } from './checkers/type-checker';
 import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
+import { fixWouldBreak } from './engine/fix-guard';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
 import { applySuppressions } from './engine/suppressions';
@@ -57,14 +58,29 @@ function applyFixToLine(lines: string[], viol: Violation, file: string): boolean
 
 function applyFixesToFile(file: string, items: Violation[]): number {
     if (!fs.existsSync(file)) return 0;
-    const lines = fs.readFileSync(file, 'utf8').split('\n');
+    const original = fs.readFileSync(file, 'utf8');
+    const lines = original.split('\n');
 
     let fixCount = 0;
     for (const viol of items) {
         if (applyFixToLine(lines, viol, file)) fixCount++;
     }
+    if (fixCount === 0) return 0;
 
-    if (fixCount > 0) fs.writeFileSync(file, lines.join('\n'), 'utf8');
+    // A fix is a regex applied to a line, and a regex does not know what it is
+    // standing in. Writing the file is the last step, so it is the one that gets
+    // to refuse.
+    const updated = lines.join('\n');
+    const broken = fixWouldBreak(file, original, updated);
+    if (broken) {
+        console.error(
+            `Left alone: ${file}. Applying ${fixCount} fix${fixCount === 1 ? '' : 'es'} would have ` +
+            `left it unparseable — ${broken}`,
+        );
+        return 0;
+    }
+
+    fs.writeFileSync(file, updated, 'utf8');
     return fixCount;
 }
 
