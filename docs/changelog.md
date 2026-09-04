@@ -4,6 +4,28 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.12.3 - 2026-09-04
+
+**`VBC-035` is named icon-only and was matching icon-first.** A button carrying
+an icon *and* a visible label already has an accessible name, and that is how
+most toolbars are written:
+
+```html
+<button id="btn-download-zip">
+  <svg width="18" height="18" ...></svg>
+  Download Project ZIP
+</button>
+```
+
+The regex was `<button ...>\s*<svg`, which is true of that button. It now
+requires the svg to be the only thing between the tags, which is what both the
+rule name and its message claim. A button holding only an icon is still an
+error, and so is one whose label is an `sr-only` span — that one is now quiet,
+correctly: the span is an accessible name.
+
+Three reports in one repository, all wrong, all of them buttons with a label
+printed next to the icon.
+
 # 1.12.2 - 2026-09-04
 
 Two rules stopped reporting the fix they ask for.
