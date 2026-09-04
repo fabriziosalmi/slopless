@@ -1,3 +1,14 @@
+# 1.12.1 - 2026-09-04
+
+- **Appending a literal concatenates nothing.** `VBC-004` reported
+  `q += " ORDER BY acquired DESC;"` as SQL built by concatenation. Nothing is
+  concatenated there: the clause was decided by the code that wrote it. The rule
+  now asks that a value actually arrive, which is the thing it is about.
+
+Found while writing down why twelve other concatenated queries in one repository
+are safe — the thirteenth turned out not to need an explanation, only a better
+rule.
+
 # 1.12.0 - 2026-09-04
 
 **Astro goes from 1 rule to 82.** An `.astro` file is TypeScript frontmatter
