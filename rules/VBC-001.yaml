@@ -6,8 +6,13 @@ tags:
   - security
   - secrets
 match:
+  # Two changes, both measured. An underscore is a word character, so `\bsecret\b`
+  # never matched AWS_SECRET_ACCESS_KEY, which is the commonest real case. And a
+  # value with a space in it is not a credential, while one with no digit at all
+  # is indistinguishable from a placeholder: across 7,179 files this rule fired
+  # six times and every one was a test fixture.
   regex: >-
-    \b(api_key|secret|password|token|bearer|auth[_-]?key|access[_-]?key)\b\s*[:=]\s*['\"`](?![^'\"`]*(?:secret|password|passwd|token|apikey|api[_-]?key|credential|dummy|example|sample|test|fake|changeme|placeholder|your[_-]|xxx|\.\.\.))([^'\"`]){8,}
+    (?<![A-Za-z])(api_key|secret|password|passwd|token|bearer|auth[_-]?key|access[_-]?key)(?![A-Za-z])[\w]*\s*[:=]\s*['"\`](?![^'"\`]*(?:secret|password|passwd|token|apikey|api[_-]?key|credential|dummy|example|sample|test|fake|changeme|placeholder|your[_-]|xxx|\.\.\.))(?=[^'"\`]*\d)(?![^'"\`]* )([^'"\`]){8,}
   flags: i
   file_types:
     - js
@@ -22,10 +27,18 @@ message: >-
   a field rather than hold a key.
 tests:
   fire:
+    - AWS_SECRET_ACCESS_KEY = "wJalrXUtnFEMI/K7MDENG/bPxRfiCY"
     - const password = "hunter2abc";
     - 'api_key: "A9dK2mQ7xR4vL8nP1sT6wY3z"'
     - token = "ghp_9fK2mQ7xR4vL8nP1sT6wY3zB5cE0"
   quiet:
+    # A value with a space is a passphrase in a test, not a credential.
+    - PASSWORD = "correct horse battery staple"
+    # No digit at all: indistinguishable from a placeholder, and these are the
+    # literal strings a local model server asks for.
+    - api_key = "lm-studio"
+    - secret = "user-message-content-visible-in-trace"
+    - const secretary = "Ada Lovelace 1843"
     - const password = process.env.PASSWORD;
     - const token = "";
     - secret = "REAL-HMAC-SECRET"

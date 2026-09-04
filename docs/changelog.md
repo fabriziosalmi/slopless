@@ -4,6 +4,28 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.10.0 - 2026-09-03
+
+**`VBC-001` was missing the commonest real case and finding only test fixtures.**
+Both halves were measured before either was changed.
+
+- **An underscore is a word character**, so `\bsecret\b` never matched
+  `AWS_SECRET_ACCESS_KEY = "..."`. The rule now treats an underscore as a
+  boundary, which is what every environment-style name is written with.
+- **A value with a space is not a credential**, and one with no digit at all is
+  indistinguishable from a placeholder. Across 7,179 files the rule fired six
+  times and every one was a test fixture: an xkcd passphrase, a fake PAT, a test
+  password. In one repository it found twenty, all of them `api_key="lm-studio"`
+  and `api_key="llamacpp"` — the literal strings a local model server asks for.
+
+After the change the same corpus reports five, and one of them is new: a
+forty-character random token behind a `GOOD_TOKEN` name the old boundary could
+not see.
+
+The remaining reports are test fixtures whose values look like real credentials,
+which is the right default. A rule about secrets cannot tell an invented key from
+a live one, and the cost of being wrong in the other direction is a leaked key.
+
 # 1.9.0 - 2026-09-02
 
 Two rules that cannot be wrong, and a test that would have noticed a third.
