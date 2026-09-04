@@ -5,7 +5,11 @@ category: ux-dx
 tags:
   - accessibility
 match:
-  regex: <button\b(?![^>]*(?:aria-label|aria-labelledby|title))[^>]*>\s*<svg
+  # "Icon-only" is the whole claim: a button holding an icon *and* a visible
+  # label already has an accessible name, and that is how most toolbars are
+  # written. The svg has to be the only thing between the tags.
+  regex: >-
+    <button\b(?![^>]*(?:aria-label|aria-labelledby|title))[^>]*>\s*<svg\b[^>]*(?:/>|>(?:(?!</svg>)[\s\S])*?</svg>)\s*</button>
   multiline: true
   file_types:
     - html
@@ -23,9 +27,27 @@ tests:
         <button onClick={close}>
           <svg viewBox="0 0 24 24" />
         </button>
+    - file: fixture.tsx
+      code: |
+        <button onClick={close}>
+          <svg viewBox="0 0 24 24"><path d="M6 6l12 12"/></svg>
+        </button>
   quiet:
     - file: fixture.tsx
       code: |
         <button aria-label="Close" onClick={close}>
           <svg viewBox="0 0 24 24" />
+        </button>
+    # A visible label is an accessible name.
+    - file: fixture.tsx
+      code: |
+        <button class="btn-primary" id="btn-download-zip">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path d="M21 15v4"/></svg>
+          Download Project ZIP
+        </button>
+    - file: fixture.tsx
+      code: |
+        <button onClick={close}>
+          <svg viewBox="0 0 24 24" />
+          <span class="sr-only">Close</span>
         </button>
