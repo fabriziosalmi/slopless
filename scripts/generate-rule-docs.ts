@@ -189,13 +189,48 @@ function syncRuleCounts(total: number) {
  * a tool whose whole argument is that silence should be legible cannot be vague
  * about where it is silent.
  */
+/**
+ * Display names only. Which languages appear is read off the rules, because a
+ * hand-written list is the drift this whole function exists to prevent: the
+ * counts were generated and the list was not, so Astro and HTML were missing
+ * from the table for four releases after the rules started reaching them.
+ */
+const LANGUAGE_NAMES: Record<string, string> = {
+    ts: 'TypeScript', tsx: 'TypeScript (JSX)', js: 'JavaScript', jsx: 'JavaScript (JSX)',
+    py: 'Python', css: 'CSS', md: 'Markdown', go: 'Go', sh: 'Shell', rs: 'Rust',
+    java: 'Java', rb: 'Ruby', cs: 'C#', kt: 'Kotlin', swift: 'Swift',
+    html: 'HTML', astro: 'Astro', yaml: 'YAML', yml: 'YAML', json: 'JSON',
+    txt: 'Plain text', toml: 'TOML', vue: 'Vue', svelte: 'Svelte', php: 'PHP',
+    scss: 'Sass (SCSS)', less: 'Less', env: 'Dotenv',
+    // `.c` used to be labelled "C and C++", which the count could not support:
+    // the row counts rules that apply to `.c`, and says nothing about `.cpp`.
+    // They are separate declarations in the rules, so they are separate rows.
+    c: 'C', cpp: 'C++',
+};
+
+function declaredFileTypes(rules: EngineRule[]): string[] {
+    const seen = new Set<string>();
+    for (const rule of rules) {
+        for (const ext of rule.match.file_types ?? []) seen.add(ext);
+        for (const variant of rule.match.variants ?? []) {
+            for (const ext of variant.file_types) seen.add(ext);
+        }
+    }
+    return [...seen];
+}
+
 function syncLanguageCoverage(rules: EngineRule[]) {
-    const languages: [string, string][] = [
-        ['ts', 'TypeScript'], ['tsx', 'TypeScript (JSX)'], ['js', 'JavaScript'],
-        ['py', 'Python'], ['css', 'CSS'], ['md', 'Markdown'], ['go', 'Go'],
-        ['sh', 'Shell'], ['rs', 'Rust'], ['java', 'Java'], ['rb', 'Ruby'],
-        ['c', 'C and C++'], ['cs', 'C#'], ['kt', 'Kotlin'], ['swift', 'Swift'],
-    ];
+    const declared = declaredFileTypes(rules);
+    const unnamed = declared.filter(ext => !LANGUAGE_NAMES[ext]).sort();
+    if (unnamed.length) {
+        // Dropping it silently is how the table came to understate the tool.
+        throw new Error(
+            `No display name for ${unnamed.join(', ')}. Add it to LANGUAGE_NAMES in ` +
+            `scripts/generate-rule-docs.ts, or the coverage table will not mention it.`,
+        );
+    }
+    const languages: [string, string][] = declared
+        .map(ext => [ext, LANGUAGE_NAMES[ext]] as [string, string]);
     const rows = languages
         .map(([ext, name]) => ({ ext, name, n: rules.filter(r => appliesTo(r, ext)).length }))
         .sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));

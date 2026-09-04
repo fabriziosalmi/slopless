@@ -1,3 +1,38 @@
+# 1.12.5 - 2026-09-04
+
+**The coverage table listed 15 languages. The tool reaches 26.**
+
+`syncLanguageCoverage` generates the counts from the rules, and its own comment
+says the claim "drifts the moment a rule declares a new file type". The counts
+never drifted; the *list of languages* did, because it was still written by hand.
+Astro was added in 1.12.0 and never appeared in the table it belongs at the top
+of, at 83 rules of 150.
+
+The list is now read off the rules. Eleven languages arrive with it:
+
+| | rules |
+| --- | ---: |
+| Astro (`.astro`) | 83 |
+| JavaScript (JSX) (`.jsx`) | 31 |
+| HTML (`.html`) | 21 |
+| Plain text (`.txt`) | 18 |
+| Sass (SCSS) (`.scss`) | 15 |
+| C++ (`.cpp`) | 12 |
+| Less (`.less`) | 9 |
+| JSON (`.json`) | 5 |
+| PHP (`.php`) | 5 |
+| Dotenv (`.env`) | 4 |
+| YAML (`.yaml`) | 3 |
+
+A file type with no display name now stops the generator with a message naming
+it, rather than being dropped — which is how eleven of them went missing.
+
+`.c` was labelled "C and C++". The row counts the rules that apply to `.c` and
+says nothing about `.cpp`, so they are two rows now.
+
+CI checks that the generated docs in git match the rules, and `docs/languages.md`
+was not in the list of files it checked. It is now.
+
 # 1.12.4 - 2026-09-04
 
 **Framework build caches are code nobody here wrote.** 1.11.0 stopped reading
