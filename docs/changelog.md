@@ -4,6 +4,46 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.13.0 - 2026-09-04
+
+**`.tsx` goes from 39 rules to 97.** A `.tsx` file is TypeScript with JSX in it,
+and 58 rules declared `ts` without ever mentioning `tsx`. No commit ever decided
+that: the rules were written in 1.0.0 with `ts`, `astro` was added to many of
+them in 1.12.0, and `tsx` was never revisited. Meanwhile six instrumented
+repositories point their patterns straight at `.tsx`.
+
+Measured across 525 `.tsx` files, deduplicated by content:
+
+| | |
+| --- | ---: |
+| findings before | 989 |
+| findings after | 1,902 |
+| new | 913 |
+| of those, errors | 19 |
+
+**`long-line-limit` is deliberately not among them.** Over 525 `.tsx` and 716
+`.ts` files from the same repositories, lines past 120 characters run **8.0 per
+`.tsx` file against 0.7 per `.ts` file**. That is JSX — a className string and
+three props on one tag — not a difference in how the code was written. Turning it
+on would have filed 4,274 warnings, 82% of the whole delta, over everything else
+the rules have to say about those files. The number and the reason are written in
+the rule.
+
+Also here, and it applies everywhere, not only to `.tsx`:
+
+- **`VBC-901` reported the addresses reserved for documentation.** `192.0.2.0/24`,
+  `198.51.100.0/24` and `203.0.113.0/24` exist so that documentation has
+  addresses to use, and the rule was reporting an example for being an example.
+- **`VBC-901` reported netmasks.** Nothing starting with `255` is a host —
+  `240.0.0.0/4` is reserved — so `isInNet(host, "172.16.0.0", "255.240.0.0")`
+  names a mask, not a machine. It still reports the `172.16.0.0`, which is an
+  address.
+
+Of the six instrumented repositories that read `.tsx`, three gain errors: five in
+total, and none of them is a false positive — two `http://` RSS feeds that answer
+over `https`, a `document.write`, an `http://` endpoint with an interpolated
+host, and an absolute path in placeholder text.
+
 # 1.12.6 - 2026-09-04
 
 Three defects found by measuring a change that was then not made. Widening the
