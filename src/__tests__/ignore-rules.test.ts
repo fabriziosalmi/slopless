@@ -52,6 +52,21 @@ describe('applyIgnoreRules', () => {
         expect(kept).toEqual(['src/index.ts']);
     });
 
+    it('drops framework build caches, which sit inside the source tree', () => {
+        // None of these paths may contain a segment the sandbox ignore file
+        // already covers, or the test would pass without the list being read.
+        const generated = [
+            'apps/site/.vitepress/cache/deps/vue.js',
+            'web/.astro/types.d.ts',
+            'web/.svelte-kit/generated/root.svelte',
+            'app/.nuxt/app.config.mjs',
+            'www/.docusaurus/registry.js',
+            'src/__pycache__/mod.cpython-311.pyc',
+            'ui/.turbo/turbo-build.log',
+        ];
+        expect(applyIgnoreRules([...generated, 'src/app.ts'])).toEqual(['src/app.ts']);
+    });
+
     it('returns the list untouched when nothing is configured', () => {
         fs.rmSync(path.join(sandbox, '.sloplessignore'));
         const files = ['src/index.ts', 'docs/story.md'];

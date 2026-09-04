@@ -103,8 +103,15 @@ function applyFixes(violations: Violation[]): number {
  */
 export const NEVER_YOURS = [
     'node_modules/', 'bower_components/', 'vendor/', 'third_party/', 'thirdparty/',
-    '.venv/', 'venv/', 'site-packages/', 'staticfiles/', '.tox/',
+    '.venv/', 'venv/', 'site-packages/', 'staticfiles/', '.tox/', '__pycache__/',
     '.git/', 'dist/', 'build/', 'out/', '.next/', 'coverage/', '*.min.js', '*.min.css',
+    // Framework build caches. They sit inside the source tree rather than beside
+    // it, so a pattern written for the source reaches them: `.vitepress/cache`
+    // holds rewritten copies of dependencies, and the rest are the same idea.
+    // The `**/` matters: a pattern carrying a slash is anchored to the root,
+    // and these live under whichever app directory owns them.
+    '**/.vitepress/cache/', '.astro/', '.svelte-kit/', '.nuxt/', '.docusaurus/',
+    '.parcel-cache/', '.turbo/', '.angular/',
 ];
 
 export function applyIgnoreRules(files: string[], configIgnore?: string[]): string[] {
