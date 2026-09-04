@@ -4,6 +4,22 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.12.2 - 2026-09-04
+
+Two rules stopped reporting the fix they ask for.
+
+- **`import.meta.env.X` is replaced by the bundler before a request exists.**
+  `VBC-944` reported ``href={`${import.meta.env.BASE_URL}favicon.svg`}``, which
+  is how Vite and Astro spell every base path. The value is a literal by the time
+  the page runs, so the interpolation cannot decide the scheme.
+- **A copyright range whose end is computed cannot go stale.** `VBC-921` told a
+  page to "generate the year at build time" and then reported
+  `© 2025-{new Date().getFullYear()}`. A range ending in `{`, `${` or `<%` is
+  now read the same way as one ending in `present`.
+
+Both were found by pointing the check at Astro files that nothing had been
+reading, in four repositories where the language went from 1 rule to 82.
+
 # 1.12.1 - 2026-09-04
 
 - **Appending a literal concatenates nothing.** `VBC-004` reported
