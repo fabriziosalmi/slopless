@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   console.table() left in code at line {line}. Useful for debug, but clutters production logs.

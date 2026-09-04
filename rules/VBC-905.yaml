@@ -9,6 +9,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: Debug console method '{line}' left in code. Remove before committing.
 tests:

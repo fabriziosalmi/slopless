@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Magic string literal passed to function at line {line}. Use a named constant instead.

@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Confetti or particle animation library detected at line {line}. Overusing celebration effects

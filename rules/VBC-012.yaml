@@ -10,6 +10,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Redundant Promise constructor wrapping at line {line}. This is an anti-pattern called "Promise

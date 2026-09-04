@@ -12,6 +12,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 fix:
   regex_replace:

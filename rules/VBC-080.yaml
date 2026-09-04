@@ -14,6 +14,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   Avoid using alert() at line {line}. Use a modern UI notification system.

@@ -5,12 +5,20 @@ category: security
 tags:
   - security
 match:
+  # 192.0.2.0/24, 198.51.100.0/24 and 203.0.113.0/24 are the ranges RFC 5737
+  # reserves so that documentation has addresses to use. Reporting one is
+  # reporting an example for being an example.
+  #
+  # Nothing starting with 255 is a host: 240.0.0.0/4 is reserved, so a dotted
+  # quad there is a netmask or a broadcast address — `isInNet(host, "172.16.0.0",
+  # "255.240.0.0")` names a mask, not a machine.
   regex: >-
-    \b(?!127\.|0\.0\.0\.0\b)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
+    \b(?!127\.|0\.0\.0\.0\b|255\.|192\.0\.2\.|198\.51\.100\.|203\.0\.113\.)(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\b
   scan: strings
   file_types:
     - js
     - ts
+    - tsx
     - py
     - go
     - java
@@ -50,3 +58,11 @@ tests:
     - const version = '1.2';
     - const local = '127.0.0.1';
     - const bind = '0.0.0.0';
+    # RFC 5737 reserves these so documentation has addresses to use.
+    - const doc = '203.0.113.0';
+    - const example = "192.0.2.10";
+    - const other = '198.51.100.7';
+    # A mask is not a machine. (The full call `isInNet(host, "172.16.0.0",
+    # "255.240.0.0")` still reports — on the 172.16.0.0, which is an address.)
+    - const netmask = "255.240.0.0";
+    - const mask = '255.255.255.0';

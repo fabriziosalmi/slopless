@@ -11,6 +11,7 @@ match:
   file_types:
     - js
     - ts
+    - tsx
     - astro
 message: >-
   File upload handler at line {line} may lack type/size restrictions. Without validating MIME
