@@ -4,20 +4,20 @@ layout: home
 hero:
   name: slopless
   text: AI-written code has a smell. This catches it.
-  tagline: "150 deterministic rules · AST checkers · auto-fix · SARIF · zero telemetry"
+  tagline: "152 deterministic rules · AST checkers · auto-fix · SARIF · zero telemetry"
   actions:
     - theme: brand
       text: npx @fabriziosalmi/slopless
       link: "#in-ten-seconds"
     - theme: alt
-      text: The 150 rules
+      text: The 152 rules
       link: /rules/
     - theme: alt
       text: GitHub
       link: https://github.com/fabriziosalmi/slopless
 
 features:
-  - title: "[ 150 rules ]"
+  - title: "[ 152 rules ]"
     details: Security, correctness, readability, documentation honesty. Every rule is a YAML file you can read, disable, or extend.
   - title: "[ --fix ]"
     details: Known anti-patterns are rewritten in place. What cannot be fixed safely is only reported.
@@ -43,7 +43,7 @@ Summary: 0 errors, 7 warnings.</pre>
 </div>
 
 <div class="sl-stats">
-  <span><b>150</b> rules</span>
+  <span><b>152</b> rules</span>
   <span><b>0</b> dependencies</span>
   <span><b>560</b> tests</span>
   <span><b>0</b> errors on itself</span>
