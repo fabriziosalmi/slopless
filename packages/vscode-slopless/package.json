@@ -39,6 +39,27 @@
                 "command": "slopless.reveal",
                 "title": "Go to finding",
                 "category": "Slopless"
+            },
+            {
+                "command": "slopless.copyReport",
+                "title": "Copy the report",
+                "category": "Slopless",
+                "icon": "$(clippy)"
+            },
+            {
+                "command": "slopless.copyFinding",
+                "title": "Copy this finding, with its lines",
+                "category": "Slopless"
+            },
+            {
+                "command": "slopless.copySuppression",
+                "title": "Copy a disable marker for this rule",
+                "category": "Slopless"
+            },
+            {
+                "command": "slopless.openRuleDocs",
+                "title": "What this rule is about",
+                "category": "Slopless"
             }
         ],
         "menus": {
@@ -47,12 +68,46 @@
                     "command": "slopless.scan",
                     "when": "view == sloplessFindings",
                     "group": "navigation"
+                },
+                {
+                    "command": "slopless.copyReport",
+                    "when": "view == sloplessFindings",
+                    "group": "navigation@1"
                 }
             ],
             "commandPalette": [
                 {
                     "command": "slopless.reveal",
                     "when": "false"
+                },
+                {
+                    "command": "slopless.copyFinding",
+                    "when": "false"
+                },
+                {
+                    "command": "slopless.copySuppression",
+                    "when": "false"
+                },
+                {
+                    "command": "slopless.openRuleDocs",
+                    "when": "false"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "slopless.copyFinding",
+                    "when": "view == sloplessFindings && viewItem == finding",
+                    "group": "1@1"
+                },
+                {
+                    "command": "slopless.copySuppression",
+                    "when": "view == sloplessFindings && viewItem == finding",
+                    "group": "1@2"
+                },
+                {
+                    "command": "slopless.openRuleDocs",
+                    "when": "view == sloplessFindings && viewItem == finding",
+                    "group": "2@1"
                 }
             ]
         },

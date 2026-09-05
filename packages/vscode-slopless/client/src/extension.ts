@@ -10,6 +10,10 @@ import {
 
 import { lintText, applyIgnoreRules } from 'slopless/dist/engine/api';
 
+import {
+    commentSyntax, findingBlock, plural, report, suppression, type Finding,
+} from './report';
+
 /**
  * The languages the rules actually reach, which is what `docs/languages.md`
  * generates from the rules themselves. Listing fewer here would leave a file
@@ -39,14 +43,6 @@ const SCANNED = '**/*.{ts,tsx,js,jsx,mjs,cjs,astro,py,go,rs,java,rb,cs,c,h,cpp,k
 const CHEAP_EXCLUDE = '**/{node_modules,.git,dist,build,out,coverage}/**';
 const SCAN_LIMIT = 2000;
 
-interface Finding {
-    ruleId: string;
-    name: string;
-    severity: string;
-    message: string;
-    line: number;
-}
-
 type Node = FileNode | FindingNode;
 
 class FileNode {
@@ -61,6 +57,8 @@ class FindingNode {
 
 class FindingsProvider implements vscode.TreeDataProvider<Node> {
     private files: FileNode[] = [];
+    /** How many files the last scan read, so a report can say what it covered. */
+    read = 0;
     private readonly changed = new vscode.EventEmitter<Node | undefined>();
     readonly onDidChangeTreeData = this.changed.event;
 
@@ -88,6 +86,10 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
             warnings: all.filter(v => v.severity !== 'error').length,
             files: this.files.length,
         };
+    }
+
+    all(): FileNode[] {
+        return this.files;
     }
 
     getChildren(node?: Node): Node[] {
@@ -124,6 +126,7 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
 
         const { finding } = node;
         const item = new vscode.TreeItem(finding.message, vscode.TreeItemCollapsibleState.None);
+        item.contextValue = 'finding';   // what the right-click menu matches on
         item.description = `${finding.ruleId} · ${finding.name} · line ${finding.line}`;
         item.tooltip = new vscode.MarkdownString(
             `**${finding.ruleId} — ${finding.name}**\n\n${finding.message}`,
@@ -163,10 +166,6 @@ function describe(view: vscode.TreeView<Node>, provider: FindingsProvider, read?
         ? `${plural(files, 'file')}`
         : `${plural(files, 'file')}, out of ${read} read`;
     view.message = `${plural(errors, 'error')} and ${plural(warnings, 'warning')} in ${where}.`;
-}
-
-function plural(n: number, word: string): string {
-    return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
 let client: LanguageClient | undefined;
@@ -221,6 +220,7 @@ export function activate(context: vscode.ExtensionContext) {
                         output.appendLine(`${uri.fsPath}: ${(error as Error).message}`);
                     }
                 }
+                provider.read = files.length;
                 provider.replace(withFindings);
                 describe(view, provider, files.length);
             },
@@ -228,6 +228,76 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
     context.subscriptions.push(vscode.commands.registerCommand('slopless.scan', scan));
+
+    const version = context.extension.packageJSON.version as string;
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.copyReport', async () => {
+            const { errors, warnings } = provider.counts();
+            await vscode.env.clipboard.writeText(report(
+                provider.all().map(file => ({
+                    path: vscode.workspace.asRelativePath(file.uri, false),
+                    findings: file.findings,
+                })),
+                provider.read,
+                version,
+            ));
+            vscode.window.showInformationMessage(
+                `Copied: ${plural(errors, 'error')}, ${plural(warnings, 'warning')}.`,
+            );
+        }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.copyFinding', async (node: Node) => {
+            if (!node || node.kind !== 'finding') return;
+            const { finding, uri } = node;
+            const document = await vscode.workspace.openTextDocument(uri);
+            const lines = Array.from({ length: document.lineCount }, (_, n) => document.lineAt(n).text);
+            await vscode.env.clipboard.writeText(findingBlock(
+                vscode.workspace.asRelativePath(uri, false), finding, lines,
+            ));
+            vscode.window.showInformationMessage(`Copied ${finding.ruleId} with its lines.`);
+        }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.copySuppression', async (node: Node) => {
+            if (!node || node.kind !== 'finding') return;
+            const { finding, uri } = node;
+            const comment = commentSyntax(uri.fsPath);
+            if (!comment) {
+                // .astro and .md have more than one comment syntax depending on
+                // where in the file you are, and guessing wrong writes a line
+                // that silences nothing while looking as though it does.
+                vscode.window.showWarningMessage(
+                    `${path.extname(uri.fsPath)} has more than one comment syntax; `
+                    + 'write the marker yourself so it lands in the right one.',
+                );
+                return;
+            }
+            // Indented to match the line it will sit above, and the reason left
+            // empty on purpose: a suppression without one is the thing this tool
+            // exists to complain about.
+            const document = await vscode.workspace.openTextDocument(uri);
+            const target = document.lineAt(Math.max(0, finding.line - 1)).text;
+            await vscode.env.clipboard.writeText(
+                suppression(comment, finding.ruleId, target),
+            );
+            vscode.window.showInformationMessage(
+                `Copied the marker for ${finding.ruleId}. It ends in "-- "; say why.`,
+            );
+        }),
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.openRuleDocs', async (node: Node) => {
+            if (!node || node.kind !== 'finding') return;
+            await vscode.env.openExternal(vscode.Uri.parse(
+                `https://fabriziosalmi.github.io/slopless/rules/${node.finding.ruleId}`,
+            ));
+        }),
+    );
 
     // Saving one file used to rescan the whole workspace — up to the limit, on
     // every save. Only the saved file can have changed, so only the saved file
