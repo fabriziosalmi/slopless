@@ -33,6 +33,7 @@ export default {
             { text: "Rules", link: "/rules/" },
             { text: "Languages", link: "/languages" },
             { text: "Configuration", link: "/configuration" },
+            { text: "Editor", link: "/editor" },
             { text: "Story", link: "/story" },
             { text: "Changelog", link: "/changelog" },
             { text: "Action", link: "https://github.com/marketplace/actions/slopless-static-analysis" }
@@ -43,7 +44,8 @@ export default {
                 items: [
                     { text: "What slopless is", link: "/" },
                     { text: "What reaches which language", link: "/languages" },
-                    { text: "Configuration", link: "/configuration" },
+                            { text: "Configuration", link: "/configuration" },
+                    { text: "In the editor, and while writing", link: "/editor" },
                     { text: "Writing a rule", link: "/writing-a-rule" }
                 ]
             },

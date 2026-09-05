@@ -28,17 +28,25 @@ interface Finding {
 
 const server = new McpServer({ name: 'slopless', version: '1.14.0' });
 
+function plural(n: number, word: string): string {
+    return `${n} ${word}${n === 1 ? '' : 's'}`;
+}
+
 function render(findings: Finding[], label: string): string {
     if (!findings.length) return `${label}: nothing found.`;
+
     const errors = findings.filter(f => f.severity === 'error').length;
     const lines = findings
         .slice()
         .sort((a, b) => a.line - b.line)
-        .map(f => `${f.severity === 'error' ? 'error' : 'warning'} ${f.ruleId} ${f.name} line ${f.line}: ${f.message}`);
-    return [
-        `${label}: ${errors} error${errors === 1 ? '' : 's'}, ${findings.length - errors} warning${findings.length - errors === 1 ? '' : 's'}.`,
-        ...lines,
-    ].join('\n');
+        .map(f => {
+            const level = f.severity === 'error' ? 'error' : 'warning';
+            return `${level} ${f.ruleId} ${f.name} line ${f.line}: ${f.message}`;
+        });
+
+    const summary = `${label}: ${plural(errors, 'error')}, `
+        + `${plural(findings.length - errors, 'warning')}.`;
+    return [summary, ...lines].join('\n');
 }
 
 server.tool(
@@ -50,9 +58,9 @@ server.tool(
         content: z.string().describe('The code to check.'),
         file_path: z.string().describe('The path this code will have. The extension selects the rules.'),
     },
-    async ({ content, file_path }) => {
-        const findings = (await lintText(content, file_path)) as unknown as Finding[];
-        return { content: [{ type: 'text', text: render(findings, file_path) }] };
+    async ({ content, file_path: filePath }) => {
+        const findings = (await lintText(content, filePath)) as unknown as Finding[];
+        return { content: [{ type: 'text', text: render(findings, filePath) }] };
     },
 );
 

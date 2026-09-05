@@ -71,7 +71,10 @@ export class SemanticChecker {
                     if (ts.isVariableDeclaration(node) && node.initializer) {
                         const name = node.name.getText();
                         const isArray = this.isArrayType(node);
-                        const lacksCollectionSuffix = !name.endsWith('s') &&
+                        // The suffix check was already case-insensitive; the plural
+                        // was not, so every SCREAMING_CASE constant array was told
+                        // it was missing the `s` it ends with.
+                        const lacksCollectionSuffix = !/s$/i.test(name) &&
                             !new RegExp('(List|Map|Set|Collection|Array)$', 'i').test(name);
                         if (isArray && lacksCollectionSuffix) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());

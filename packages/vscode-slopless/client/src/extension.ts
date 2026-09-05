@@ -24,8 +24,12 @@ const LANGUAGES = [
 ];
 
 /** The same set as file extensions, for the workspace scan. */
-const SCANNED = '**/*.{ts,tsx,js,jsx,mjs,cjs,astro,py,go,rs,java,rb,cs,c,h,cpp,kt,swift,php,sh,html,css,scss,less,md,json,yaml,yml}';
-const NEVER = '**/{node_modules,dist,build,out,vendor,venv,.venv,coverage,.git,.next,.astro,.svelte-kit,.nuxt,__pycache__}/**';
+const SCANNED = '**/*.{ts,tsx,js,jsx,mjs,cjs,astro,py,go,rs,java,rb,cs,c,h,cpp,kt,swift,'
+    + 'php,sh,html,css,scss,less,md,json,yaml,yml}';
+
+/** The places dependencies and build output land, which nobody here wrote. */
+const NEVER = '**/{node_modules,dist,build,out,vendor,venv,.venv,coverage,.git,.next,'
+    + '.astro,.svelte-kit,.nuxt,__pycache__}/**';
 const SCAN_LIMIT = 2000;
 
 interface Finding {
@@ -64,6 +68,12 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
         this.changed.fire(undefined);
     }
 
+    /** Replaces one file's findings, dropping the file when nothing is left. */
+    update(uri: vscode.Uri, findings: Finding[]) {
+        const rest = this.files.filter(file => file.uri.fsPath !== uri.fsPath);
+        this.replace(findings.length ? [...rest, new FileNode(uri, findings)] : rest);
+    }
+
     counts(): { errors: number; warnings: number; files: number } {
         const all = this.files.flatMap(f => f.findings);
         return {
@@ -87,14 +97,15 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
     getTreeItem(node: Node): vscode.TreeItem {
         if (node.kind === 'file') {
             const errors = node.findings.filter(v => v.severity === 'error').length;
+            const warnings = node.findings.length - errors;
             const item = new vscode.TreeItem(
                 path.basename(node.uri.fsPath),
                 vscode.TreeItemCollapsibleState.Collapsed,
             );
             item.resourceUri = node.uri;
             item.description = errors
-                ? `${errors} error${errors === 1 ? '' : 's'}, ${node.findings.length - errors} warning${node.findings.length - errors === 1 ? '' : 's'}`
-                : `${node.findings.length} warning${node.findings.length === 1 ? '' : 's'}`;
+                ? `${plural(errors, 'error')}, ${plural(warnings, 'warning')}`
+                : plural(warnings, 'warning');
             item.iconPath = vscode.ThemeIcon.File;
             return item;
         }
@@ -118,6 +129,32 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
         };
         return item;
     }
+}
+
+/** The one-line summary under the panel's title. */
+function describe(view: vscode.TreeView<Node>, provider: FindingsProvider, read?: number) {
+    const { errors, warnings, files } = provider.counts();
+    view.title = errors || warnings ? `Slopless — ${errors} / ${warnings}` : 'Slopless';
+
+    if (read !== undefined && read >= SCAN_LIMIT) {
+        view.message = `Stopped at ${SCAN_LIMIT} files. What is below is complete; `
+            + 'what is beyond it was not read.';
+        return;
+    }
+    if (!errors && !warnings) {
+        view.message = read === undefined
+            ? 'Nothing found.'
+            : `Nothing found in ${plural(read, 'file')}.`;
+        return;
+    }
+    const where = read === undefined
+        ? `${plural(files, 'file')}`
+        : `${plural(files, 'file')}, out of ${read} read`;
+    view.message = `${plural(errors, 'error')} and ${plural(warnings, 'warning')} in ${where}.`;
+}
+
+function plural(n: number, word: string): string {
+    return `${n} ${word}${n === 1 ? '' : 's'}`;
 }
 
 let client: LanguageClient | undefined;
@@ -148,7 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
             { location: { viewId: 'sloplessFindings' }, title: 'Scanning' },
             async () => {
                 const files = await vscode.workspace.findFiles(SCANNED, NEVER, SCAN_LIMIT);
-                const found: FileNode[] = [];
+                const withFindings: FileNode[] = [];
                 for (const uri of files) {
                     try {
                         const bytes = await vscode.workspace.fs.readFile(uri);
@@ -156,26 +193,38 @@ export function activate(context: vscode.ExtensionContext) {
                             Buffer.from(bytes).toString('utf8'),
                             uri.fsPath,
                         )) as unknown as Finding[];
-                        if (findings.length) found.push(new FileNode(uri, findings));
+                        if (findings.length) withFindings.push(new FileNode(uri, findings));
                     } catch (error) {
                         output.appendLine(`${uri.fsPath}: ${(error as Error).message}`);
                     }
                 }
-                provider.replace(found);
-
-                const { errors, warnings, files: n } = provider.counts();
-                view.title = errors || warnings ? `Slopless — ${errors} / ${warnings}` : 'Slopless';
-                view.message = files.length >= SCAN_LIMIT
-                    ? `Stopped at ${SCAN_LIMIT} files. What is below is complete; what is beyond it was not read.`
-                    : errors || warnings
-                        ? `${errors} error${errors === 1 ? '' : 's'} and ${warnings} warning${warnings === 1 ? '' : 's'} in ${n} file${n === 1 ? '' : 's'}, out of ${files.length} read.`
-                        : `Nothing found in ${files.length} file${files.length === 1 ? '' : 's'}.`;
+                provider.replace(withFindings);
+                describe(view, provider, files.length);
             },
         );
     };
 
     context.subscriptions.push(vscode.commands.registerCommand('slopless.scan', scan));
-    context.subscriptions.push(vscode.workspace.onDidSaveTextDocument(() => scan()));
+
+    // Saving one file used to rescan the whole workspace — up to the limit, on
+    // every save. Only the saved file can have changed, so only the saved file
+    // is read again and its entry in the tree replaced.
+    context.subscriptions.push(
+        vscode.workspace.onDidSaveTextDocument(async document => {
+            if (!vscode.workspace.getWorkspaceFolder(document.uri)) return;
+            try {
+                const findings = (await lintText(
+                    document.getText(),
+                    document.uri.fsPath,
+                )) as unknown as Finding[];
+                provider.update(document.uri, findings);
+                describe(view, provider);
+            } catch (error) {
+                output.appendLine(`${document.uri.fsPath}: ${(error as Error).message}`);
+            }
+        }),
+    );
+
     void scan();
 }
 
