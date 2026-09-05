@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as os from 'os';
+import * as cp from 'child_process';
 import { GitChecker } from '../checkers/git-checker';
 import * as path from 'path';
 import { RuleLoader } from '../engine/loader';
@@ -23,6 +24,78 @@ describe('GitChecker — committed_env', () => {
         const violations = gitCheck(['.env.example']);
         const match = violations.filter(v => v.ruleId === 'VBC-002');
         expect(match).toHaveLength(0);
+    });
+});
+
+describe('GitChecker — VBC-949 committed-private-key', () => {
+    let sandbox: string;
+    const original = process.cwd();
+
+    beforeEach(() => {
+        sandbox = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'slopless-keys-')));
+        process.chdir(sandbox);
+    });
+    afterEach(() => {
+        process.chdir(original);
+        fs.rmSync(sandbox, { recursive: true, force: true });
+    });
+
+    const write = (name: string, body: string) => {
+        fs.mkdirSync(path.dirname(path.join(sandbox, name)), { recursive: true });
+        fs.writeFileSync(path.join(sandbox, name), body);
+        return name;
+    };
+    const found = (files: string[]) => gitCheck(files).filter(v => v.ruleId === 'VBC-949');
+
+    it('flags a .pem holding a private key', () => {
+        const f = write('backend/key.pem', '-----BEGIN PRIVATE KEY-----\nMIIJQwIBADANBg\n');
+        expect(found([f])).toHaveLength(1);
+    });
+
+    it('flags the labelled headers too', () => {
+        for (const label of ['RSA ', 'EC ', 'OPENSSH ', 'ENCRYPTED ']) {
+            const f = write(`k-${label.trim()}.pem`, `-----BEGIN ${label}PRIVATE KEY-----\nx\n`);
+            expect(found([f]), label).toHaveLength(1);
+        }
+    });
+
+    it('says nothing about a certificate, which is public', () => {
+        const f = write('backend/cert.pem', '-----BEGIN CERTIFICATE-----\nMIIFhzCCA2\n');
+        expect(found([f])).toHaveLength(0);
+    });
+
+    it('flags a container that holds nothing else, without reading it', () => {
+        for (const name of ['store.p12', 'bundle.pfx', 'keys.jks', 'a.keystore']) {
+            expect(found([name]), name).toHaveLength(1);
+        }
+    });
+
+    it('says nothing about a file that is not key-shaped', () => {
+        const f = write('notes.md', 'A key file starts with -----BEGIN PRIVATE KEY----- and then base64.\n');
+        expect(found([f])).toHaveLength(0);
+        expect(found(['src/keyboard.ts', 'monkey.png'])).toHaveLength(0);
+    });
+
+    it('is asked over tracked files, not only staged ones', () => {
+        // Every other git check runs only when no patterns were given, which is
+        // the pre-commit path. A key committed two years ago is not staged, and
+        // that is the case this rule is for — so this uses a real repository
+        // with a real commit rather than a list handed in.
+        write('key.pem', '-----BEGIN PRIVATE KEY-----\nx\n');
+        write('safe.ts', 'export const x = 1;\n');
+        const git = (args: string) => cp.execSync(`git ${args}`, { cwd: sandbox, stdio: 'pipe' });
+        git('init -q');
+        git('config user.email t@example.org');
+        git('config user.name Test');
+        git('add -A');
+        git('commit -qm committed');
+
+        const staged = cp.execSync('git diff --cached --name-only', { cwd: sandbox, encoding: 'utf8' });
+        expect(staged.trim()).toBe('');   // nothing is staged any more
+
+        const seen = GitChecker.checkTracked(rules).filter(v => v.ruleId === 'VBC-949');
+        expect(seen).toHaveLength(1);
+        expect(seen[0].file).toBe('key.pem');
     });
 });
 

@@ -60,6 +60,7 @@ export const RuleSchema = z.object({
         exclude_doc_comments: z.boolean().optional(),
         git_check: z.enum([
             'committed_env',
+            'private_key',
             'binary_file',
             'node_modules',
             'commit_message_too_short',

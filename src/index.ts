@@ -267,6 +267,11 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
 
     if (options.gitMode) {
         allViolations = allViolations.concat(GitChecker.checkFiles(files, rules));
+    } else {
+        // The git checks read the staged files, which exist only on the
+        // pre-commit path. A key that was committed long ago is still committed,
+        // so that one check is asked on every run instead.
+        allViolations = allViolations.concat(GitChecker.checkTracked(rules));
     }
 
     // Analyze files concurrently with a CPU core boundary

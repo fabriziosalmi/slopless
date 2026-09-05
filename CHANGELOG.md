@@ -1,3 +1,45 @@
+# 1.14.0 - 2026-09-04
+
+Two rules brought over from `vibe-check`, which is being retired. Its 115 rules
+were compared against these 150 one by one; almost all of it was already here,
+and of what was not, these two survived measurement.
+
+**`VBC-949` — a committed private key.** Found one on the first run: `proximity`
+has `backend/key.pem` and `frontend/key.pem`, both `-----BEGIN PRIVATE KEY-----`,
+in a public repository.
+
+The obvious rule is the wrong one. Matching that header in any file was measured
+across 24,876 files: it fired 85 times, and 83 were test fixtures, code that
+writes the header, documentation about keys, and three YARA rules whose job is
+to find private keys. **The signal is the file, not the string.** A `.p12`,
+`.pfx`, `.jks` or `.keystore` holds nothing else, so the extension settles it. A
+`.pem` or `.key` does not — half of them are certificates, which are public —
+so those are read, and only the ones carrying the header are reported. Across 84
+repositories that is four key-shaped files, two keys, two certificates, and no
+noise.
+
+It is also asked differently. Every other git check reads the *staged* files,
+which is the pre-commit path and the only place they run — `gitMode` is on when
+no patterns were given. That is right for "you are adding a .env" and useless
+for a key committed two years ago, so this one is asked on every run, over what
+git is tracking.
+
+**`VBC-950` — `window.open` without `noopener`.** An anchor with
+`target="_blank"` has had implied `noopener` in every browser since 2021.
+`window.open` never has: the page it opens gets `window.opener` and can navigate
+this one somewhere else while the user is looking away.
+
+Two shapes are not that, and both are excluded. `window.open('', '_blank')`
+returns a handle the code is about to use — one repository opens a blank window
+and writes a print preview into it — and `noopener` makes that handle null. So an
+empty first argument, an explicit `about:blank`, and no argument at all are left
+alone. Six findings across the corpus, no false ones.
+
+The version `vibe-check` shipped was `window\.open\([^)]+\)(?!.*noopener)`,
+which cannot see past the first `)`: on
+`window.open(\`…${q.toString()}\`, "_blank", "noopener,noreferrer")` it never
+reaches the `noopener` that is right there.
+
 # 1.13.1 - 2026-09-04
 
 Two things the tool could do to the person running it.
