@@ -1,3 +1,21 @@
+# 1.15.2 - 2026-09-05
+
+**Every release now carries the extension.** The `.vsix` is built by the release
+workflow out of the commit the tag points at, with a `.sha256` beside it, so
+installing it is a download rather than a build. Told to build it by hand most
+people will not, and then the panel exists only for whoever wrote it.
+
+Every pull request carries the built `.vsix` as an artifact too, so a change can
+be installed and tried rather than only read.
+
+**The packages had already drifted.** Both said `1.14.0` while the root had moved
+on twice, and the MCP server announced `1.14.0` in its handshake — a version in a
+handshake that disagrees with the package it came from is worse than no version
+at all. `npm version` now writes the version into both packages, the server reads
+its own rather than repeating it, and both CI and a release refuse to go on when
+they disagree. A release also unzips the packaged extension and checks the
+version inside it is the version being released.
+
 # 1.15.1 - 2026-09-05
 
 **The panel rescanned the whole workspace on every save.** Saving one file
