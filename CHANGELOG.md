@@ -1,3 +1,26 @@
+# 1.17.0 - 2026-09-05
+
+**The panel can hand what it found to something else.** A finding names a rule
+and a line; what to do about it is in the code around it, so that goes too
+rather than leaving the reader to open the file.
+
+- **Copy the report** — counts, a tally by rule, then every finding by file. It
+  stops at 300 and says how many it left behind.
+- **Copy this finding, with its lines** — the rule, the location, seven lines of
+  code with the offending one marked, and the message.
+- **Copy a disable marker** — indented to sit above the line it silences, and
+  ending at the `--` because a suppression with no reason is the thing this tool
+  exists to complain about. On a `.astro` or `.md` it **refuses** rather than
+  guessing: those have more than one comment syntax depending on where in the
+  file you are, and a marker in the wrong one silences nothing while looking as
+  though it does.
+- **What this rule is about** — opens the rule's page.
+
+The text is built in `client/src/report.ts`, which does not import the editor
+API. That is the point: it is under test with the rest of the suite — 855 now —
+rather than only looked at, and the extension imports it instead of keeping a
+second copy.
+
 # 1.16.0 - 2026-09-05
 
 Draconian dogfooding: the check on this repository now reads everything —

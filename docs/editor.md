@@ -24,6 +24,29 @@ It stops at 2,000 files, and when it does it says so — *"What is below is
 complete; what is beyond it was not read"* — rather than reporting on a subset as
 though it were the whole thing.
 
+### Taking it somewhere else
+
+A finding names a rule and a line. What to do about it is in the code around it,
+so the panel copies that too rather than making the reader open the file.
+
+- **Copy the report** (the clipboard icon in the panel's title) — counts, a
+  tally by rule, then every finding by file. It stops at 300 and says how many
+  it left behind.
+- **Copy this finding, with its lines** (right-click a finding) — the rule, the
+  location, seven lines of code with the offending one marked, and the message.
+- **Copy a disable marker for this rule** — `// slopless-disable-next-line
+  VBC-005 -- `, indented to sit above the line it silences, and ending at the
+  `--` because a suppression with no reason is the thing this tool exists to
+  complain about. On a `.astro` or a `.md` it refuses instead of guessing: those
+  have more than one comment syntax depending on where in the file you are, and
+  a marker written in the wrong one silences nothing while looking as though it
+  does.
+- **What this rule is about** — opens the rule's page.
+
+The text these produce is built in `client/src/report.ts`, which does not import
+the editor API, so it is under test with the rest of the suite rather than only
+looked at.
+
 ### Installing
 
 It is not on the Marketplace. Every release carries the `.vsix` as an asset,
