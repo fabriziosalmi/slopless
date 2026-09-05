@@ -1,0 +1,24 @@
+{
+    "name": "mcp-slopless",
+    "version": "1.14.0",
+    "description": "Slopless as an MCP server: lint a buffer before it is written, not after it is committed",
+    "license": "MIT",
+    "private": true,
+    "type": "commonjs",
+    "bin": {
+        "mcp-slopless": "out/server.js"
+    },
+    "scripts": {
+        "build": "tsc -p tsconfig.json",
+        "start": "node out/server.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^1.0.0",
+        "slopless": "file:../..",
+        "zod": "^4.5.4"
+    },
+    "devDependencies": {
+        "@types/node": "^20.0.0",
+        "typescript": "^5.0.0"
+    }
+}

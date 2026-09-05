@@ -1,19 +1,61 @@
 {
     "name": "vscode-slopless",
-    "description": "Slopless language server and VS Code integration",
-    "version": "1.0.0",
+    "description": "Static analysis for AI-slop patterns: squiggles as you type, and a panel for the whole workspace.",
+    "version": "1.14.0",
     "publisher": "slopless",
     "engines": {
         "vscode": "^1.75.0"
     },
     "activationEvents": [
-        "onLanguage:javascript",
-        "onLanguage:typescript",
-        "onLanguage:javascriptreact",
-        "onLanguage:typescriptreact"
+        "onStartupFinished"
     ],
     "main": "./client/out/extension.js",
     "contributes": {
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "slopless",
+                    "title": "Slopless",
+                    "icon": "media/slopless.svg"
+                }
+            ]
+        },
+        "views": {
+            "slopless": [
+                {
+                    "id": "sloplessFindings",
+                    "name": "Findings"
+                }
+            ]
+        },
+        "commands": [
+            {
+                "command": "slopless.scan",
+                "title": "Scan the workspace",
+                "category": "Slopless",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "slopless.reveal",
+                "title": "Go to finding",
+                "category": "Slopless"
+            }
+        ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "slopless.scan",
+                    "when": "view == sloplessFindings",
+                    "group": "navigation"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "slopless.reveal",
+                    "when": "false"
+                }
+            ]
+        },
         "configuration": {
             "type": "object",
             "title": "Slopless",
@@ -27,9 +69,10 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "npm run compile",
-        "compile": "tsc -b",
-        "watch": "tsc -b -w"
+        "vscode:prepublish": "npm run bundle",
+        "typecheck": "tsc -b",
+        "bundle": "node build.js",
+        "package": "npm run bundle && npx --yes @vscode/vsce package --no-dependencies --out slopless.vsix"
     },
     "dependencies": {
         "vscode-languageclient": "^8.1.0",
@@ -42,5 +85,16 @@
         "@types/node": "^16.0.0",
         "@types/vscode": "^1.75.0",
         "typescript": "^5.0.0"
-    }
+    },
+    "displayName": "Slopless",
+    "categories": [
+        "Linters",
+        "Programming Languages"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/fabriziosalmi/slopless.git",
+        "directory": "packages/vscode-slopless"
+    },
+    "license": "MIT"
 }

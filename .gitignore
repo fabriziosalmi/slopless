@@ -52,3 +52,11 @@ docs/public/*.pdf
 # Local dogfooding worklist, not part of the project.
 REPOS.md
 .local/
+
+# Built by the packages' own build steps; the sources are tracked, the outputs
+# are not. The rules are copied into the extension at build time so that the
+# path the engine already looks in keeps working inside the .vsix.
+packages/**/out/
+packages/vscode-slopless/rules/
+packages/vscode-slopless/*.vsix
+packages/**/tsconfig.tsbuildinfo

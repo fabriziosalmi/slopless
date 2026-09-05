@@ -11,7 +11,16 @@ import * as ts from 'typescript';
 
 const RULES_DIR = path.join(__dirname, '..', '..', 'rules');
 
-export async function lintText(content: string, filePath: string, configPath?: string): Promise<Violation[]> {
+/**
+ * The rules a run would use: what is on disk, plus whatever the config adds,
+ * with severities overridden, rules turned off removed, and opt-in rules kept
+ * only when the config asked for them.
+ *
+ * Exported because anything that lists rules — an editor panel, an MCP tool —
+ * has to list the same ones the linter runs, and rebuilding that set somewhere
+ * else is how the two drift apart.
+ */
+export function resolveRules(configPath?: string) {
     const config = loadConfig(configPath);
 
     const ruleDirs = [RULES_DIR];
@@ -36,7 +45,11 @@ export async function lintText(content: string, filePath: string, configPath?: s
     // An opt-in rule runs only when the config names it, which the block above
     // has already applied, so its severity is whatever the user asked for.
     const named = new Set(Object.keys(config.rules ?? {}));
-    rules = rules.filter(rule => !rule.opt_in || named.has(rule.id));
+    return rules.filter(rule => !rule.opt_in || named.has(rule.id));
+}
+
+export async function lintText(content: string, filePath: string, configPath?: string): Promise<Violation[]> {
+    const rules = resolveRules(configPath);
 
     let violations: Violation[] = [];
 
