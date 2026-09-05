@@ -54,6 +54,7 @@ export const RuleSchema = z.object({
         // Tests live inside the source file in some languages. A rule that already
         // excludes test *files* usually means the same thing about test *code*.
         exclude_test_code: z.boolean().optional(),
+        exclude_programs: z.boolean().optional(),
         // Go requires a doc comment on every exported symbol and on the package;
         // Rust writes them with ///. A rule that reads those is asking a language
         // to stop following its own convention.

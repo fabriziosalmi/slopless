@@ -120,3 +120,38 @@ describe('RegexChecker — new AI error rules', () => {
         expect(violations.length).toBeGreaterThan(0);
     });
 });
+
+describe('a rule file\'s own examples', () => {
+    const secrets = RuleLoader.loadRules([RULES_DIR]).filter(r => r.id === 'VBC-001');
+
+    const ruleFile = [
+        'id: VBC-999',
+        'name: made-up',
+        'severity: error',
+        'match:',
+        '  regex: nothing',
+        'message: >-',
+        '  A hardcoded credential.',
+        'tests:',
+        '  fire:',
+        '    - const password = "hunter2abc";',
+    ].join('\n');
+
+    it('says nothing about the fire examples, which exist to be reported', () => {
+        expect(RegexChecker.check('rules/VBC-999.yaml', secrets, ruleFile)).toEqual([]);
+    });
+
+    it('still reads everything above the tests block', () => {
+        const above = ruleFile.replace('message: >-', 'password = "hunter2abc"\nmessage: >-');
+        const found = RegexChecker.check('rules/VBC-999.yaml', secrets, above);
+        expect(found).toHaveLength(1);
+        expect(found[0].ruleId).toBe('VBC-001');
+    });
+
+    it('has no opinion about a yaml file that is not a rule', () => {
+        // No `tests:` block and none of a rule's shape, so nothing is skipped.
+        const workflow = 'name: ci\njobs:\n  a:\n    env:\n      password = "hunter2abc"\n';
+        expect(RegexChecker.check('.github/workflows/ci.yml', secrets, workflow)).toHaveLength(1);
+        expect(RegexChecker.check('config/app.yaml', secrets, workflow)).toHaveLength(1);
+    });
+});

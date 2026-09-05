@@ -6,6 +6,11 @@ tags:
   - clean-code
 match:
   regex: console\.(log|info|debug|dir)\(
+  # A file that opens with a shebang is run directly, and what it prints is its
+  # interface. Telling a CLI to route its own report through "a professional
+  # logging library" is advice that would break the thing it is aimed at, and it
+  # was 26 of the 35 findings this rule produced against slopless itself.
+  exclude_programs: true
   file_types:
     - js
     - ts
@@ -19,3 +24,8 @@ tests:
     - console.log("debug me");
   quiet:
     - logger.info("started");
+    # A program's output is not a leftover.
+    - file: cli.js
+      code: |
+        #!/usr/bin/env node
+        console.log("2 errors, 5 warnings");

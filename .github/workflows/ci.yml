@@ -79,6 +79,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      # Everything, not just src/. The panel showed what the narrow pattern was
+      # hiding: rule files, scripts, the two packages, the docs and the
+      # changelog were never read by the check that is supposed to be this
+      # tool's own proof.
       - name: slopless on itself, as the published Action
         uses: ./
-        with: { patterns: "src/**/*.ts" }
+        with:
+          patterns: >-
+            src/**/*.ts scripts/*.js scripts/*.ts packages/*/src/**/*.ts
+            packages/*/*.js rules/*.yaml *.md docs/*.md .github/workflows/*.yml
