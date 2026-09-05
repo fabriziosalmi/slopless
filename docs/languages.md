@@ -44,6 +44,7 @@ rather than written by hand.
 | PHP (`.php`) | 5 of 152 |
 | Dotenv (`.env`) | 4 of 152 |
 | YAML (`.yaml`) | 3 of 152 |
+| YAML (`.yml`) | 3 of 152 |
 <!-- coverage:end -->
 
 Counts are of every rule, including the ten that ship disabled and wait to be
