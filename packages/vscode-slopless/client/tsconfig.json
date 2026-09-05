@@ -1,10 +1,11 @@
 {
     "extends": "../tsconfig.json",
     "compilerOptions": {
-        "outDir": "../client/out",
-        "rootDir": "../client/src"
+        "outDir": "out",
+        "rootDir": "src",
+        "composite": true
     },
     "include": [
-        "../client/src"
+        "src"
     ]
 }

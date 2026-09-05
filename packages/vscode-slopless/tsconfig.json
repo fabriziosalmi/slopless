@@ -9,9 +9,19 @@
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "forceConsistentCasingInFileNames": true
+        "forceConsistentCasingInFileNames": true,
+        "composite": true
     },
     "exclude": [
         "node_modules"
+    ],
+    "files": [],
+    "references": [
+        {
+            "path": "./client"
+        },
+        {
+            "path": "./server"
+        }
     ]
 }

@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "slopless": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        "packages/mcp-slopless/out/server.js"
+      ],
+      "env": {}
+    }
+  }
+}

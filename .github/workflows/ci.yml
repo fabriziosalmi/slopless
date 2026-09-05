@@ -35,6 +35,38 @@ jobs:
           }
       - name: the docs site must build
         run: npm run docs:build
+  # The extension's package.json pointed `main` at a file its own build script
+  # never produced, and nothing said so — it was not on the Marketplace, not in
+  # the npm package, and not buildable, while the README said it shipped. A job
+  # that builds it is the thing that would have caught that.
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm run build
+      - name: the VS Code extension must build and package
+        working-directory: packages/vscode-slopless
+        run: |
+          npm install --no-audit --no-fund
+          npm run typecheck
+          npm run package
+      - name: what package.json declares as the entry point must exist
+        working-directory: packages/vscode-slopless
+        run: |
+          main=$(node -p "require('./package.json').main")
+          test -f "$main" || { echo "main is $main and nothing produced it"; exit 1; }
+          test -f server/out/server.js || { echo "the client starts server/out/server.js, which is missing"; exit 1; }
+          test -f rules/VBC-001.yaml || { echo "the rules were not copied into the extension"; exit 1; }
+      - name: the MCP server must build and answer
+        working-directory: packages/mcp-slopless
+        run: |
+          npm install --no-audit --no-fund
+          npm run build
+          node ../../scripts/probe-mcp.js
+
   dogfood:
     runs-on: ubuntu-latest
     steps:
