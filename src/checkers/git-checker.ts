@@ -16,11 +16,59 @@ function pushViolation(violations: Violation[], rule: Rule, file: string, extra:
     });
 }
 
+/**
+ * A container that holds nothing but a private key is one by its extension. A
+ * `.pem` or `.key` is not: half of them are certificates, which are public and
+ * exist to be handed out, so those are read before anything is claimed.
+ */
+const KEY_CONTAINERS = ['.p12', '.pfx', '.jks', '.keystore'];
+const KEY_TEXT = ['.pem', '.key'];
+const PRIVATE_KEY_HEADER = /-----BEGIN (?:[A-Z0-9 ]+ )?PRIVATE KEY-----/;
+
+function isPrivateKeyFile(file: string): boolean {
+    const ext = path.extname(file).toLowerCase();
+    if (KEY_CONTAINERS.includes(ext)) return true;
+    if (!KEY_TEXT.includes(ext)) return false;
+    try {
+        // The header is in the first line of a PEM file, so a slice is enough
+        // and a 4 GB file cannot be read into memory by accident.
+        const head = fs.readFileSync(file, 'utf8').slice(0, 4096);
+        return PRIVATE_KEY_HEADER.test(head);
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Every other git check reads the staged files, which is the pre-commit path and
+ * the only one where they run: `gitMode` is on when no patterns were given. That
+ * is right for "you are about to commit .env" and wrong for a key that was
+ * committed two years ago and is still sitting in the tree, so this one is also
+ * asked on every run, over what git is tracking.
+ */
+const ALWAYS_ASKED = new Set(['private_key']);
+
+function trackedFiles(): string[] {
+    try {
+        return cp.execSync('git ls-files -z', { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+            .split('\0')
+            .filter(f => f.length > 0);
+    } catch {
+        return [];
+    }
+}
+
 function rootFiles(): string[] {
     try { return fs.readdirSync('.'); } catch { return []; }
 }
 
 export class GitChecker {
+    /** The checks that do not depend on something being staged. */
+    static checkTracked(rules: Rule[]): Violation[] {
+        const asked = rules.filter(r => r.match.git_check && ALWAYS_ASKED.has(r.match.git_check));
+        return asked.length ? this.checkFiles(trackedFiles(), asked) : [];
+    }
+
     static checkFiles(stagedFiles: string[], rules: Rule[]): Violation[] {
         const violations: Violation[] = [];
 
@@ -28,6 +76,13 @@ export class GitChecker {
             if (!rule.match.git_check) continue;
 
             switch (rule.match.git_check) {
+                case 'private_key': {
+                    stagedFiles
+                        .filter(isPrivateKeyFile)
+                        .forEach(f => pushViolation(violations, rule, f));
+                    break;
+                }
+
                 case 'committed_env': {
                     stagedFiles
                         .filter(f => path.basename(f) === '.env')

@@ -1,0 +1,41 @@
+id: VBC-950
+name: window-open-without-noopener
+severity: error
+category: security
+tags:
+  - security
+match:
+  # `target="_blank"` on an anchor has implied `noopener` in every browser since
+  # 2021. `window.open` never has: the page it opens gets `window.opener` and
+  # can navigate this one somewhere else while the user is looking away.
+  #
+  # Two shapes are not that. Opening a blank window returns a handle the code is
+  # about to use — `const win = window.open('', '_blank'); win.document.write(…)`
+  # — and `noopener` makes that handle null, so an empty first argument, an
+  # explicit about:blank, and no argument at all are all left alone.
+  regex: >-
+    window\.open\(\s*(?!\))(?!['"`]\s*['"`])(?!['"`]about:blank)(?![^\n]*noopener)
+  scan: code
+  file_types:
+    - js
+    - ts
+    - tsx
+    - jsx
+    - astro
+message: >-
+  window.open() at line {line} without 'noopener'. The page it opens gets a handle on this
+  one and can navigate it. Pass 'noopener' in the third argument, or keep the handle
+  deliberately if the code needs it.
+tests:
+  fire:
+    - window.open(url, '_blank');
+    - window.open(`${base}/issues/new`, '_blank')
+    - onClick={() => window.open(previewUrl, '_blank')}
+  quiet:
+    - window.open(url, '_blank', 'noopener');
+    - window.open(target, "_blank", "noopener,noreferrer");
+    # A blank window is opened for its handle, which noopener would take away.
+    - const win = window.open('', '_blank');
+    - const win = window.open("about:blank");
+    - const win = window.open();
+    - popup.close();

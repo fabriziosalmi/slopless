@@ -1,0 +1,29 @@
+id: VBC-949
+name: committed-private-key
+severity: error
+category: security
+tags:
+  - security
+  - secrets
+  - git
+match:
+  # Asked over the tracked files on every run, not only over staged ones: every
+  # other git check reads what is about to be committed, which is right for
+  # "you are adding a .env" and wrong for a key that was committed two years ago
+  # and is still in the tree.
+  #
+  # A .p12, .pfx, .jks or .keystore holds nothing else, so the extension settles
+  # it. A .pem or .key does not — half of them are certificates, which are
+  # public and exist to be handed out — so those are read, and only the ones
+  # carrying a PRIVATE KEY header are reported.
+  #
+  # Matching that header in any file was measured and thrown away: across 24,876
+  # files it fired 85 times, and 83 were test fixtures, code that writes the
+  # header, documentation about keys, and three YARA rules whose job is to find
+  # private keys. The signal is the file, not the string.
+  git_check: private_key
+message: >-
+  A private key is committed here. Rotate it: it is in the history, and deleting the file
+  does not take it out of there. Certificates are not reported; they are public.
+tests:
+  external: 'git-checker.test.ts: needs a file list and a PEM header'
