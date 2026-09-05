@@ -67,6 +67,28 @@ describe('applyIgnoreRules', () => {
         expect(applyIgnoreRules([...generated, 'src/app.ts'])).toEqual(['src/app.ts']);
     });
 
+    it('reads .gitignore, because a file git ignores is not source either', () => {
+        fs.writeFileSync(path.join(sandbox, '.gitignore'), 'generated/\n*.tmp\n');
+        expect(applyIgnoreRules(['generated/out.js', 'notes.tmp', 'src/app.ts']))
+            .toEqual(['src/app.ts']);
+    });
+
+    it('takes a root, because an editor does not run in the directory it checks', () => {
+        fs.writeFileSync(path.join(sandbox, '.gitignore'), 'built/\n');
+        const elsewhere = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'slopless-cwd-')));
+        process.chdir(elsewhere);
+        try {
+            const files = [path.join(sandbox, 'built/x.js'), path.join(sandbox, 'src/app.ts')];
+            // Without the root it cannot see the sandbox's .gitignore at all.
+            expect(applyIgnoreRules(files)).toEqual(files);
+            expect(applyIgnoreRules(files, undefined, sandbox))
+                .toEqual([path.join(sandbox, 'src/app.ts')]);
+        } finally {
+            process.chdir(sandbox);
+            fs.rmSync(elsewhere, { recursive: true, force: true });
+        }
+    });
+
     it('returns the list untouched when nothing is configured', () => {
         fs.rmSync(path.join(sandbox, '.sloplessignore'));
         const files = ['src/index.ts', 'docs/story.md'];

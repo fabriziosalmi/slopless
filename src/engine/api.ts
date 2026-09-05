@@ -64,3 +64,14 @@ export async function lintText(content: string, filePath: string, configPath?: s
 
     return applyPrecedence(violations, rules);
 }
+
+/**
+ * The files worth reading, out of a list of candidates. Exported because an
+ * editor listing files has to leave out the same ones the CLI does, and a second
+ * list written by hand had already drifted: the panel reported 853 errors from a
+ * VitePress dependency cache the CLI has skipped since 1.12.4.
+ *
+ * From `./ignore` rather than from the CLI module, because importing that one
+ * runs it.
+ */
+export { applyIgnoreRules, NEVER_YOURS } from './ignore';
