@@ -66,6 +66,14 @@ jobs:
           npm install --no-audit --no-fund
           npm run build
           node ../../scripts/probe-mcp.js
+      - name: every package must carry the same version
+        run: node scripts/sync-versions.js --check
+      # So a pull request can be installed and tried, rather than only read.
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        with:
+          name: slopless-vsix
+          path: packages/vscode-slopless/slopless.vsix
+          if-no-files-found: error
 
   dogfood:
     runs-on: ubuntu-latest

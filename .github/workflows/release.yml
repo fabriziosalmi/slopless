@@ -67,6 +67,33 @@ jobs:
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
 
+      # The extension and the MCP server are built from this engine out of this
+      # commit, so they carry this version. They said 1.14.0 while the root had
+      # moved on twice, which is the drift this catches rather than fixes:
+      # `npm version` syncs them, and a tag that skipped it should stop here.
+      - name: every package must carry the version being released
+        run: node scripts/sync-versions.js --check
+
+      - name: build the extension
+        working-directory: packages/vscode-slopless
+        run: |
+          npm install --no-audit --no-fund
+          npm run typecheck
+          npm run package
+          mv slopless.vsix "slopless-${GITHUB_REF_NAME#v}.vsix"
+
+      - name: the packaged extension must carry the version too
+        working-directory: packages/vscode-slopless
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          unzip -p "slopless-$version.vsix" extension/package.json > /tmp/inside.json
+          inside="$(node -p "require('/tmp/inside.json').version")"
+          if [ "$inside" != "$version" ]; then
+            echo "the vsix says $inside, the tag says $version"
+            exit 1
+          fi
+          echo "the vsix says $inside"
+
       # The first publish of a scoped package cannot come from here: npm's trusted
       # publisher is configured per package, and the package has to exist first.
       # Until then a tag should say so plainly rather than leave a failed run.
@@ -103,3 +130,18 @@ jobs:
           fi
           node scripts/changelog-notes.js "$TAG" > /tmp/notes.md
           gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
+
+      # Separate from creating the release, and --clobber, because the release may
+      # already exist: the step above exits early when it does, and the extension
+      # still has to reach it. Told to build it by hand, most people will not, and
+      # then the panel exists only for whoever wrote it.
+      - name: attach the extension to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        working-directory: packages/vscode-slopless
+        run: |
+          file="slopless-${TAG#v}.vsix"
+          shasum -a 256 "$file" > "$file.sha256"
+          gh release upload "$TAG" "$file" "$file.sha256" --clobber
+          echo "::notice title=Extension attached::$file is on the $TAG release."

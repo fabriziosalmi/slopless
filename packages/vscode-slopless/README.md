@@ -26,7 +26,16 @@ reporting on a subset.
 
 ## Installing
 
-Not on the Marketplace. Build the `.vsix` from the repository:
+Not on the Marketplace. Every release carries the `.vsix` as an asset, with a
+`.sha256` beside it:
+
+```bash
+gh release download v1.15.2 --repo fabriziosalmi/slopless --pattern '*.vsix*'
+shasum -a 256 -c slopless-1.15.2.vsix.sha256
+code --install-extension slopless-1.15.2.vsix
+```
+
+Or build it from the repository:
 
 ```bash
 cd packages/vscode-slopless

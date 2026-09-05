@@ -26,7 +26,11 @@ interface Finding {
     line: number;
 }
 
-const server = new McpServer({ name: 'slopless', version: '1.14.0' });
+// Read rather than repeated: a version in a handshake that disagrees with the
+// package it came from is worse than no version at all.
+const { version } = require('../package.json') as { version: string };
+
+const server = new McpServer({ name: 'slopless', version });
 
 function plural(n: number, word: string): string {
     return `${n} ${word}${n === 1 ? '' : 's'}`;

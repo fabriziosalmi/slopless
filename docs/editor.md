@@ -26,7 +26,17 @@ though it were the whole thing.
 
 ### Installing
 
-It is not on the Marketplace. Build the `.vsix` from the repository:
+It is not on the Marketplace. Every release carries the `.vsix` as an asset,
+built by the release workflow out of the commit the tag points at, with a
+`.sha256` beside it:
+
+```bash
+gh release download v1.15.2 --repo fabriziosalmi/slopless --pattern '*.vsix*'
+shasum -a 256 -c slopless-1.15.2.vsix.sha256
+code --install-extension slopless-1.15.2.vsix
+```
+
+Or build it from the repository:
 
 ```bash
 npm install && npm run build          # the engine, at the repository root
@@ -94,7 +104,12 @@ and the language server was sound, and none of that mattered.
 So CI builds both packages, checks that the file `main` names exists, that the
 server the client spawns exists, that the rules were copied — and then **talks
 to** the MCP server over stdio: handshake, tool list, and a finding on
-`var x = 1`.
+`var x = 1`. Every pull request carries the built `.vsix` as an artifact, so a
+change can be installed and tried rather than only read.
+
+A release checks one more thing: that the version inside the packaged extension
+is the version being released. Both packages said `1.14.0` while the root had
+moved on twice, which is what that check is for.
 
 Compiling proves it builds. The probe proves it answers. Confusing those two is
 how the extension came to be broken, and nothing noticed for as long as it was.
