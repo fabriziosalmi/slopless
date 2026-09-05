@@ -83,14 +83,15 @@ describe('GitChecker — VBC-949 committed-private-key', () => {
         // with a real commit rather than a list handed in.
         write('key.pem', '-----BEGIN PRIVATE KEY-----\nx\n');
         write('safe.ts', 'export const x = 1;\n');
-        const git = (args: string) => cp.execSync(`git ${args}`, { cwd: sandbox, stdio: 'pipe' });
-        git('init -q');
-        git('config user.email t@example.org');
-        git('config user.name Test');
-        git('add -A');
-        git('commit -qm committed');
+        const git = (...args: string[]) => cp.execFileSync('git', args, { cwd: sandbox, stdio: 'pipe' });
+        git('init', '-q');
+        git('config', 'user.email', 't@example.org');
+        git('config', 'user.name', 'Test');
+        git('add', '-A');
+        git('commit', '-qm', 'committed');
 
-        const staged = cp.execSync('git diff --cached --name-only', { cwd: sandbox, encoding: 'utf8' });
+        const staged = cp.execFileSync('git', ['diff', '--cached', '--name-only'],
+            { cwd: sandbox, encoding: 'utf8' });
         expect(staged.trim()).toBe('');   // nothing is staged any more
 
         const seen = GitChecker.checkTracked(rules).filter(v => v.ruleId === 'VBC-949');
