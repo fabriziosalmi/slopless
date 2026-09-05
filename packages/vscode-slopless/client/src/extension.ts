@@ -8,7 +8,7 @@ import {
     TransportKind,
 } from 'vscode-languageclient/node';
 
-import { lintText } from 'slopless/dist/engine/api';
+import { lintText, applyIgnoreRules } from 'slopless/dist/engine/api';
 
 /**
  * The languages the rules actually reach, which is what `docs/languages.md`
@@ -27,9 +27,16 @@ const LANGUAGES = [
 const SCANNED = '**/*.{ts,tsx,js,jsx,mjs,cjs,astro,py,go,rs,java,rb,cs,c,h,cpp,kt,swift,'
     + 'php,sh,html,css,scss,less,md,json,yaml,yml}';
 
-/** The places dependencies and build output land, which nobody here wrote. */
-const NEVER = '**/{node_modules,dist,build,out,vendor,venv,.venv,coverage,.git,.next,'
-    + '.astro,.svelte-kit,.nuxt,__pycache__}/**';
+/**
+ * A coarse exclude so the search does not walk into a dependency tree at all.
+ * What is actually kept is decided by the engine's own list, below — this one is
+ * only here to keep `findFiles` from enumerating a hundred thousand files first.
+ *
+ * The list used to live here in full, and it drifted: the panel reported 853
+ * errors out of a VitePress dependency cache that the CLI had been skipping
+ * since 1.12.4, because that was two lists and only one of them was updated.
+ */
+const CHEAP_EXCLUDE = '**/{node_modules,.git,dist,build,out,coverage}/**';
 const SCAN_LIMIT = 2000;
 
 interface Finding {
@@ -103,9 +110,14 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
                 vscode.TreeItemCollapsibleState.Collapsed,
             );
             item.resourceUri = node.uri;
-            item.description = errors
+            // The directory, not just the counts: two CHANGELOG.md and two
+            // VBC-001.yaml looked like the same file listed twice.
+            const where = vscode.workspace.asRelativePath(node.uri, false);
+            const counted = errors
                 ? `${plural(errors, 'error')}, ${plural(warnings, 'warning')}`
                 : plural(warnings, 'warning');
+            item.description = `${counted} · ${path.dirname(where)}`;
+            item.tooltip = where;
             item.iconPath = vscode.ThemeIcon.File;
             return item;
         }
@@ -184,7 +196,18 @@ export function activate(context: vscode.ExtensionContext) {
         await vscode.window.withProgress(
             { location: { viewId: 'sloplessFindings' }, title: 'Scanning' },
             async () => {
-                const files = await vscode.workspace.findFiles(SCANNED, NEVER, SCAN_LIMIT);
+                const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+                const candidates = await vscode.workspace.findFiles(
+                    SCANNED, CHEAP_EXCLUDE, SCAN_LIMIT,
+                );
+                // The same decision the CLI makes, made by the same code: the
+                // engine's list plus .gitignore and .sloplessignore.
+                const keep = new Set(
+                    root
+                        ? applyIgnoreRules(candidates.map(uri => uri.fsPath), undefined, root)
+                        : candidates.map(uri => uri.fsPath),
+                );
+                const files = candidates.filter(uri => keep.has(uri.fsPath));
                 const withFindings: FileNode[] = [];
                 for (const uri of files) {
                     try {
