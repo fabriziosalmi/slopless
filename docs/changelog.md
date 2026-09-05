@@ -4,6 +4,46 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.15.0 - 2026-09-05
+
+**The README said the VS Code extension shipped. It could not be installed at
+all.** Three separate reasons, and each one alone was enough:
+
+- `package.json` pointed `main` at `./client/out/extension.js`, and the declared
+  build never produced a `client/out/` — the package's root tsconfig had no
+  references, so `tsc -b` emitted `.js` next to the `.ts` in `src/` instead.
+- It was not on the Marketplace: `slopless.vscode-slopless` answered 404.
+- It was not in the npm package either — `files` is `["dist", "rules"]`.
+
+The source was real and the language server code was sound. There was simply no
+way for anyone to get it.
+
+Now it builds, packages, and installs, and it does more than draw squiggles:
+
+- **A Slopless panel** in the activity bar. Files ordered by how much is wrong,
+  errors first, each finding naming its rule; clicking one goes to the line. It
+  scans on open and on save, and says when it stopped at its 2,000-file limit
+  rather than quietly reporting on a subset.
+- **Diagnostics in every language the rules reach** — the client used to list
+  four, and there are twenty-six.
+- Bundled with esbuild and the rules copied to the extension root, so the path
+  the engine already looks in keeps working inside a `.vsix`.
+
+**`packages/mcp-slopless` is new**: slopless as an MCP server, so a coding agent
+can check a buffer *before* it writes the file. `lint_text` takes the text and
+the path it is going to have, `lint_files` reads from disk and says which files
+it could not read, and `describe_rule` explains one. The MCP SDK is a dependency
+of that package alone — the engine still has none.
+
+**`resolveRules` is exported** from `dist/engine/api`. Anything that lists rules
+has to list the ones the linter actually runs, config overrides and opt-in rules
+included, and rebuilding that set elsewhere is how two lists drift apart.
+
+**CI now builds both packages**, checks that the file `main` names exists, and
+speaks to the MCP server over stdio — handshake, tool list, and a finding on
+`var x = 1`. Compiling proves it builds; the probe proves it answers. That
+distinction is the whole reason the extension was broken in the first place.
+
 # 1.14.0 - 2026-09-04
 
 Two rules brought over from `vibe-check`, which is being retired. Its 115 rules
