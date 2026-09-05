@@ -6,7 +6,7 @@ Slopless is a static analysis tool designed to identify and mitigate unstructure
 
 ## Architecture and Capabilities
 
-- **Rule Engine**: 150 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
+- **Rule Engine**: 152 rigorous rules spanning security, maintainability, accessibility, and documentation integrity. Every rule ships executable examples — a snippet it must flag and one it must leave alone — run on every commit.
 - **AST Inspection**: Deep structural validation to identify excessive cyclomatic complexity, parameter limits, and empty control flow blocks.
 - **Deep Semantic Validation**: Opt-in TypeScript TypeChecker (`--type-check`) for resolving inherited types, identifying floating promises, and validating structural intent beyond AST boundaries.
 - **Heuristic Auto-Fixes**: Autonomous modification of known anti-patterns (e.g., `var` to `let`) using `--fix`.
@@ -123,32 +123,32 @@ count, written from the rules rather than from memory:
 <!-- coverage:start -->
 | language | rules |
 | --- | --- |
-| TypeScript (JSX) (`.tsx`) | 97 of 150 |
-| TypeScript (`.ts`) | 95 of 150 |
-| JavaScript (`.js`) | 94 of 150 |
-| Astro (`.astro`) | 83 of 150 |
-| Python (`.py`) | 32 of 150 |
-| JavaScript (JSX) (`.jsx`) | 31 of 150 |
-| Markdown (`.md`) | 26 of 150 |
-| CSS (`.css`) | 23 of 150 |
-| HTML (`.html`) | 21 of 150 |
-| Go (`.go`) | 19 of 150 |
-| Plain text (`.txt`) | 18 of 150 |
-| Shell (`.sh`) | 16 of 150 |
-| Java (`.java`) | 15 of 150 |
-| Rust (`.rs`) | 15 of 150 |
-| Sass (SCSS) (`.scss`) | 15 of 150 |
-| Ruby (`.rb`) | 14 of 150 |
-| C# (`.cs`) | 13 of 150 |
-| C (`.c`) | 12 of 150 |
-| C++ (`.cpp`) | 12 of 150 |
-| Kotlin (`.kt`) | 12 of 150 |
-| Swift (`.swift`) | 12 of 150 |
-| Less (`.less`) | 9 of 150 |
-| JSON (`.json`) | 5 of 150 |
-| PHP (`.php`) | 5 of 150 |
-| Dotenv (`.env`) | 4 of 150 |
-| YAML (`.yaml`) | 3 of 150 |
+| TypeScript (JSX) (`.tsx`) | 98 of 152 |
+| TypeScript (`.ts`) | 96 of 152 |
+| JavaScript (`.js`) | 95 of 152 |
+| Astro (`.astro`) | 84 of 152 |
+| JavaScript (JSX) (`.jsx`) | 32 of 152 |
+| Python (`.py`) | 32 of 152 |
+| Markdown (`.md`) | 26 of 152 |
+| CSS (`.css`) | 23 of 152 |
+| HTML (`.html`) | 21 of 152 |
+| Go (`.go`) | 19 of 152 |
+| Plain text (`.txt`) | 18 of 152 |
+| Shell (`.sh`) | 16 of 152 |
+| Java (`.java`) | 15 of 152 |
+| Rust (`.rs`) | 15 of 152 |
+| Sass (SCSS) (`.scss`) | 15 of 152 |
+| Ruby (`.rb`) | 14 of 152 |
+| C# (`.cs`) | 13 of 152 |
+| C (`.c`) | 12 of 152 |
+| C++ (`.cpp`) | 12 of 152 |
+| Kotlin (`.kt`) | 12 of 152 |
+| Swift (`.swift`) | 12 of 152 |
+| Less (`.less`) | 9 of 152 |
+| JSON (`.json`) | 5 of 152 |
+| PHP (`.php`) | 5 of 152 |
+| Dotenv (`.env`) | 4 of 152 |
+| YAML (`.yaml`) | 3 of 152 |
 <!-- coverage:end -->
 
 The parsing tiers use the TypeScript compiler, so the AST, semantic-naming and
@@ -169,7 +169,7 @@ None of them has an opinion about a section that says "coming soon".
 - **Documentation**: Detection of generated filler content, non-inclusive language, and broken external references.
 
 Full documentation at [fabriziosalmi.github.io/slopless](https://fabriziosalmi.github.io/slopless/):
-[all 150 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
+[all 152 rules](https://fabriziosalmi.github.io/slopless/rules/) ·
 [configuration](https://fabriziosalmi.github.io/slopless/configuration) ·
 [writing a rule](https://fabriziosalmi.github.io/slopless/writing-a-rule) ·
 [the scanner bug story](https://fabriziosalmi.github.io/slopless/story)

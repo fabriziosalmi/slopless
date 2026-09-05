@@ -1,6 +1,6 @@
 # Rules
 
-All 150 rules. **41** are errors and fail the run; the remaining 109 are warnings and only report.
+All 152 rules. **43** are errors and fail the run; the remaining 109 are warnings and only report.
 
 Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
@@ -150,6 +150,8 @@ Use the search box above to find a rule by what it catches.
 | [VBC-940](./VBC-940.md)<br>`float-currency-arithmetic` | Floating-point arithmetic on monetary value | **error** | Regex |
 | [VBC-944](./VBC-944.md)<br>`xss-href-injection` | Dynamic href constructed with string interpolation | **error** | Regex |
 | [VBC-947](./VBC-947.md)<br>`prototype-pollution-risk` | Merging untrusted request body directly | **error** | Regex |
+| [VBC-949](./VBC-949.md)<br>`committed-private-key` | A private key is committed here | **error** | Git |
+| [VBC-950](./VBC-950.md)<br>`window-open-without-noopener` | window.open() without 'noopener' | **error** | Regex |
 | [VBC-011](./VBC-011.md)<br>`document-cookie-direct` | Direct document.cookie write | warning | Regex |
 | [VBC-901](./VBC-901.md)<br>`hardcoded-ip-v4` | Hardcoded IP address | warning | Regex |
 | [VBC-941](./VBC-941.md)<br>`missing-input-sanitization` | Unsanitized HTML sink | warning | Regex |
