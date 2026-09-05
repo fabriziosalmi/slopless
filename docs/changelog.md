@@ -4,6 +4,38 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.16.0 - 2026-09-05
+
+Draconian dogfooding: the check on this repository now reads everything —
+rule files, scripts, both packages, the docs, the changelog and the workflows,
+214 files rather than the 45 of `src/**/*.ts`. **143 findings became 86, and 4
+errors became 0**, and every one of them went by correcting the tool rather than
+by excusing the code.
+
+- **A rule's own `tests:` block is examples, by construction.** The `fire` list
+  exists *because* those lines must be reported, so reading them as code means
+  every rule finds every other rule's fixtures: `VBC-001` read its own four
+  `fire` examples as four hardcoded credentials. A file is recognised by its
+  shape rather than by living in `rules/`, so a project's `customRulesPaths` get
+  the same treatment.
+- **A file that opens with a shebang is a program, and what it prints is its
+  interface.** `VBC-018` told a CLI to route its own report through "a
+  professional logging library". 26 of its 35 findings here were that, and 106
+  across the wider corpus — every one of them in a file starting with `#!`.
+- **`const fs = require('fs')` is not shadowing `fs`.** It *is* `fs`, spelled
+  the way every Node file spells it. All twelve `VBC-504` findings here were
+  that line, and 32 more across the corpus.
+- **`VBC-001` now reads `.yml` as well as `.yaml`.** It was the only rule that
+  looked at YAML at all and it named one of the two spellings — the less common
+  one. Across the repositories measured there are 401 `.yml` files against 213
+  `.yaml`, and GitHub workflows are the former.
+
+Measured across 2,892 files: **138 findings removed, none added.**
+
+This repository also declares a vocabulary now — `blacklist`, `whitelist`,
+`master`, `sanity` — because it discusses them constantly while explaining the
+rule that reports them. 16 findings are excused by it, and the run says so.
+
 # 1.15.3 - 2026-09-05
 
 **The panel kept its own list of what to skip, and it had already drifted.** It

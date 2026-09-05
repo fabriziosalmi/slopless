@@ -149,6 +149,7 @@ count, written from the rules rather than from memory:
 | PHP (`.php`) | 5 of 152 |
 | Dotenv (`.env`) | 4 of 152 |
 | YAML (`.yaml`) | 3 of 152 |
+| YAML (`.yml`) | 3 of 152 |
 <!-- coverage:end -->
 
 The parsing tiers use the TypeScript compiler, so the AST, semantic-naming and
