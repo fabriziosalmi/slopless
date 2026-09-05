@@ -1,6 +1,6 @@
 {
     "name": "mcp-slopless",
-    "version": "1.15.1",
+    "version": "1.15.2",
     "description": "Slopless as an MCP server: lint a buffer before it is written, not after it is committed",
     "license": "MIT",
     "private": true,
