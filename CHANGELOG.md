@@ -1,3 +1,24 @@
+# 1.15.1 - 2026-09-05
+
+**The panel rescanned the whole workspace on every save.** Saving one file
+re-read up to 2,000 others, which is seconds of work for a file that could not
+have changed. It now re-reads the file that was saved and replaces that entry,
+and a full scan happens on open and from the refresh button, where it was asked
+for.
+
+**`VBC-503` told constants to add the `s` they end with.** The suffix check was
+case-insensitive and the plural check was not, so every `SCREAMING_CASE` array
+was reported: `LANGUAGES`, `COLORS`, `EDGES`, `API_PREFIXES`. Across 2,892 files
+that is **45 findings removed and none added**, and every one of the 45 ended in
+a capital `S`.
+
+Found by pointing the new MCP server at the extension I had just written, which
+is the first thing it was used for.
+
+Also here: a docs page for [the editor and the MCP server](https://fabriziosalmi.github.io/slopless/editor),
+and the tidying the tool asked for in its own two new packages — a 185-character
+nested ternary in the panel's summary line, and one in the MCP server's output.
+
 # 1.15.0 - 2026-09-05
 
 **The README said the VS Code extension shipped. It could not be installed at

@@ -16,3 +16,7 @@ tests:
   quiet:
     - const users = [1, 2, 3];
     - const userList = [1];
+    # The suffix check was case-insensitive and the plural was not, so a
+    # constant array shouting its own name was told to add the s it ends with.
+    - const LANGUAGES = ['ts', 'py'];
+    - const RULE_IDS = ['VBC-001'];
