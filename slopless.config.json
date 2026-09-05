@@ -1,4 +1,12 @@
 {
     "rules": {},
-    "ignore": []
+    "ignore": [],
+    "vocabulary": [
+        "blacklist",
+        "blacklists",
+        "whitelist",
+        "whitelists",
+        "master",
+        "sanity"
+    ]
 }

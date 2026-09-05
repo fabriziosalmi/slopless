@@ -101,7 +101,17 @@ export class SemanticChecker {
                             'fs', 'path', 'crypto', 'http', 'https',
                             'express', 'os', 'child_process', 'cluster', 'dns',
                         ];
-                        if (commonShadows.includes(name)) {
+                        // `const fs = require('fs')` is not shadowing fs; it *is*
+                        // fs, spelled the way every Node file spells it. The rule
+                        // is about a variable that takes a module's name for
+                        // something else, so a declaration initialised from that
+                        // very module is the one shape it must not report. All
+                        // twelve findings in this repository were that line.
+                        const initialiser = node.initializer?.getText() ?? '';
+                        const isTheModule = new RegExp(
+                            `^require\\(\\s*['"\`](?:node:)?${name}['"\`]\\s*\\)`,
+                        ).test(initialiser);
+                        if (commonShadows.includes(name) && !isTheModule) {
                             const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
                             violations.push({
                                 ruleId: rule.id,

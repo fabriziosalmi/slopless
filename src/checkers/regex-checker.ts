@@ -52,6 +52,20 @@ export class RegexChecker {
         // whenever a global regex has several alternatives that all hit.
         const seen = new Set<string>();
 
+        // A file that starts with a shebang is run directly, and what it
+        // prints is its interface rather than a debugging leftover. The
+        // advice to "use a logging library" is wrong for a program whose
+        // output is a report.
+        const isProgram = content.startsWith('#!');
+
+        // A rule's own `tests:` block is examples, by construction: the `fire`
+        // list exists because those lines must be reported. Reading them as code
+        // means every rule finds the fixtures of every other one — VBC-001 read
+        // its own four `fire` examples as four hardcoded credentials. This holds
+        // for custom rule directories too, which is why it looks at the shape of
+        // the file rather than at its path.
+        const fixturesFrom = fixtureOffset(file, content);
+
         for (const baseRule of rules) {
             const rule = resolveVariant(baseRule, ext);
             if (!rule || !rule.match.regex) continue;
@@ -69,6 +83,8 @@ export class RegexChecker {
                 if (selectors && lacksRequiredSelector(selectors, line, rule.match.require_selectors)) continue;
                 if (rule.match.exclude_doc_comments && isDocComment(ranges, match.start)) continue;
                 if (rule.match.exclude_test_code && isInTestRegion(testRegions(), match.start)) continue;
+                if (rule.match.exclude_programs && isProgram) continue;
+                if (fixturesFrom >= 0 && match.start >= fixturesFrom) continue;
 
                 const key = `${rule.id}:${line}`;
                 if (seen.has(key)) continue;
@@ -136,6 +152,22 @@ function compileRegex(rule: Rule): RegExp | null {
         console.warn(`Rule ${rule.id} has an invalid regex and was skipped.`);
         return null;
     }
+}
+
+/**
+ * Where a slopless rule file's examples begin, or -1 when the file is not one.
+ *
+ * A rule is recognised by its shape rather than by living in `rules/`, so a
+ * project's own `customRulesPaths` get the same treatment.
+ */
+function fixtureOffset(file: string, content: string): number {
+    if (!/\.ya?ml$/i.test(file)) return -1;
+    const looksLikeARule = /^id:\s*\S/m.test(content)
+        && /^name:\s*\S/m.test(content)
+        && /^match:\s*$/m.test(content);
+    if (!looksLikeARule) return -1;
+    const tests = content.match(/^tests:\s*$/m);
+    return tests?.index ?? -1;
 }
 
 interface RawMatch { start: number; text: string; }

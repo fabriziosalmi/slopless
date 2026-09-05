@@ -18,3 +18,9 @@ tests:
     - const filePath = req.query.path;
     - const fakeFs = createFakeFs();
     - const res = await api.getNotes();
+    # Importing a module under its own name is not shadowing it. This is how
+    # every Node file in existence spells it, and it was twelve of the twelve
+    # findings this rule produced against slopless itself.
+    - const fs = require('fs');
+    - const path = require('path');
+    - const crypto = require('node:crypto');

@@ -28,6 +28,11 @@ match:
     - py
     - env
     - yaml
+    # Both spellings. This rule was the only one that read YAML at all and it
+    # named one of them, while `.yml` is the commoner of the two — 401 against
+    # 213 across the repositories this was measured on, and it is what GitHub
+    # workflows are called.
+    - yml
     - json
     - astro
   # A credential in a test is a fixture. Ten of the eleven findings this rule
