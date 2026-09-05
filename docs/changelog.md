@@ -4,6 +4,38 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.15.3 - 2026-09-05
+
+**The panel kept its own list of what to skip, and it had already drifted.** It
+reported **853 errors and 1,058 warnings**, and four files accounted for almost
+all of them — `chunk-SNNOYR6U.js`, `vitepress___@vue_devtools-api.js` and two
+more, all inside `docs/.vitepress/cache/deps/`. The CLI has skipped that
+directory since 1.12.4. The extension had a hand-written glob that did not, one
+release after the engine's was written.
+
+The extension now filters with the engine's own list. Same repository, same
+scan:
+
+| | errors | warnings | files | read |
+| --- | ---: | ---: | ---: | ---: |
+| before | 853 | 1,058 | 73 | 572 |
+| after | **5** | **142** | 37 | 236 |
+
+**`.gitignore` is now read** — after `NEVER_YOURS`, before `.sloplessignore`,
+which still wins because it is the file written for this tool. A file git is told
+to ignore is build output or a local artefact, which is the same reason the
+built-in list exists. It was 18% of the findings in this repository, and it is
+what put `packages/vscode-slopless/rules/VBC-001.yaml` in the panel next to the
+real one.
+
+**The panel says which file it means.** Two `CHANGELOG.md` and two `VBC-001.yaml`
+looked like the same file listed twice; each row carries its directory now.
+
+The ignore rules moved into `src/engine/ignore.ts`, because importing them from
+the CLI module *ran the CLI* — and the MCP server speaks JSON-RPC on stdout,
+where a stray "No patterns provided" is a corrupted protocol rather than a stray
+line. Caught before it shipped, by importing the API and watching it talk.
+
 # 1.15.2 - 2026-09-05
 
 **Every release now carries the extension.** The `.vsix` is built by the release
