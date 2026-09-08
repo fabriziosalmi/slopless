@@ -3,18 +3,33 @@
 ## Setup
 
 ```bash
-git clone https://github.com/your-org/slopless
+git clone https://github.com/fabriziosalmi/slopless
 cd slopless
 npm install
 npm run build
 ```
 
+Node 22.12 or newer: the bundle inlines dependencies that require it.
+
 ## Running Tests
 
 ```bash
-npm test
-npm run test:coverage
+npm test              # 893 tests, under ten seconds
+npm run test:coverage # the same, with a coverage table
 ```
+
+Two further checks run in CI and are worth running before you push:
+
+```bash
+npm run verify:rules  # no rule pattern may backtrack catastrophically
+npm run verify:bundle # dist/ runs with no node_modules and does not truncate
+```
+
+`verify:rules` times every pattern against hostile input at one size and at four
+times that size, and fails anything growing faster than linearly. It is a script
+rather than a test because vitest runs its files in parallel, and the same match
+measured 12ms alone and 259ms under load. Five rules reached users growing with
+the square of their input before this existed.
 
 ## Adding a New Rule
 
@@ -42,7 +57,8 @@ npm run test:coverage
 
 - **ID**: `VBC-NNN` where NNN is the next available three-digit number.
 - **name**: kebab-case, descriptive (e.g., `float-for-currency`).
-- **category**: one of `core`, `security`, `clean-code`, `ux-dx`, `docs`, `git`, `heuristics`, `semantic`.
+- **category**: one of `core`, `security`, `clean-code`, `ux-dx`, `docs`, `git`, `correctness`.
+  These are the values `--only` accepts; the run derives that list from the rules it loaded.
 - **severity**: `error` for issues that can cause bugs/security problems; `warning` for style and maintainability.
 
 ## Pull Request Checklist
@@ -52,7 +68,20 @@ npm run test:coverage
 - [ ] At least one true-positive and one false-positive test added
 - [ ] `npm run build` passes without TypeScript errors
 - [ ] `npm test` passes
-- [ ] Rule count updated in README if significant
+- [ ] `npm run verify:rules` passes
+- [ ] `npm run docs:gen` run and the regenerated files committed
+
+Do not edit the rule count, the language coverage table or the rule pages by
+hand: they are generated from the rules themselves and CI fails if what is
+committed differs from a fresh generation.
+
+## Where to start
+
+Issues labelled [`good first issue`](https://github.com/fabriziosalmi/slopless/labels/good%20first%20issue)
+are scoped to one file and have a test that will tell you when you are done. A
+false positive is usually the best first change: there is a real snippet that
+should not have been reported, the fix is a narrower pattern, and the snippet
+becomes the test that keeps it narrow.
 
 ## Reporting Bugs
 

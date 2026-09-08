@@ -255,6 +255,77 @@ function syncLanguageCoverage(rules: EngineRule[]) {
 }
 
 
+/**
+ * `llms.txt`, in the format llmstxt.org describes: a plain-Markdown summary of
+ * what this is and where the rest lives, for the models that answer questions
+ * about it rather than crawling it.
+ *
+ * Generated for the same reason the rule pages are. A hand-written file naming a
+ * count goes stale the moment a rule is added, and this one names three.
+ */
+function generateLlmsTxt(rules: { id: string; severity: string }[], languages: number) {
+    const errors = rules.filter(rule => rule.severity === 'error').length;
+    const site = 'https://fabriziosalmi.github.io/slopless';
+
+    /** The link list llmstxt.org asks for: `- [Title](URL): description`. */
+    const section = (entries: [string, string, string][]) =>
+        entries.map(([title, url, what]) => `- [${title}](${url}): ${what}.`).join('\n');
+
+    const content = `# slopless
+
+> Static analysis that finds the patterns AI-written code leaves behind: ${rules.length}
+> deterministic rules across ${languages} languages, with regex, AST, semantic and type
+> checkers, auto-fix, and SARIF output. ${errors} rules are errors and fail a run; the
+> remaining ${rules.length - errors} report and do not. It runs as a CLI, a GitHub Action,
+> a VS Code extension and an MCP server, all on the same engine and the same rules.
+
+Every rule ships two executable examples — a snippet it must flag and one it must
+ignore — which run on every commit, so a rule page cannot describe behaviour the
+tests do not verify. The tool is clean on itself in CI, and reports what it read
+and by how many rules on every run, because a file no rule covers looks exactly
+like a file that passed.
+
+## Documentation
+
+${section([
+        ['What slopless is', `${site}/`,
+            'what it catches, what it costs to adopt, and the ten-second start'],
+        [`All ${rules.length} rules`, `${site}/rules/`,
+            'every rule by category, with what it catches and how it analyses'],
+        ['What reaches which language', `${site}/languages.html`,
+            `how many of the ${rules.length} rules apply to each of the ${languages} languages`],
+        ['Configuration', `${site}/configuration.html`,
+            'severities, opt-in rules, ignore lists and the project vocabulary'],
+        ['In the editor, and while writing', `${site}/editor.html`,
+            'the VS Code extension and the MCP server, for checking a buffer first'],
+        ['Writing a rule', `${site}/writing-a-rule.html`,
+            'the YAML schema, scan scopes, precedence, and the required examples'],
+    ])}
+
+## Background
+
+${section([
+        ['The bug that hid every bug', `${site}/story.html`,
+            'why the protected-range engine exists'],
+        ['Changelog', `${site}/changelog.html`,
+            'every release, with the measurement behind each decision'],
+    ])}
+
+## Source
+
+${section([
+        ['Repository', 'https://github.com/fabriziosalmi/slopless',
+            'MIT, zero runtime dependencies'],
+        ['npm package', 'https://www.npmjs.com/package/@fabriziosalmi/slopless',
+            'npx @fabriziosalmi/slopless'],
+        ['Security policy', 'https://github.com/fabriziosalmi/slopless/blob/main/SECURITY.md',
+            'how to report a vulnerability privately'],
+    ])}
+`;
+
+    fs.writeFileSync(path.join(__dirname, '..', 'docs', 'public', 'llms.txt'), content);
+}
+
 function main() {
     const yamlFiles = fs.readdirSync(RULES_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
     const allRules: { id: string; name: string; category: string; severity: string;
@@ -322,7 +393,17 @@ function main() {
     syncRuleCounts(allRules.length);
     // Through the loader the engine uses, so the table cannot describe a rule set
     // the tool does not have.
-    syncLanguageCoverage(RuleLoader.loadRules([RULES_DIR]));
+    const loaded = RuleLoader.loadRules([RULES_DIR]);
+    syncLanguageCoverage(loaded);
+
+    // Same source as the coverage table, so llms.txt cannot claim a language
+    // count the table disagrees with.
+    const languages = new Set(loaded.flatMap(rule => [
+        ...(rule.match.file_types ?? []),
+        ...(rule.match.variants ?? []).flatMap(variant => variant.file_types),
+    ]));
+    generateLlmsTxt(allRules, languages.size);
+
     console.log(`Generated ${allRules.length} rule documents.`);
 }
 

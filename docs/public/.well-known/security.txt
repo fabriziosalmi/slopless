@@ -1,0 +1,16 @@
+# Vulnerability disclosure for slopless (RFC 9116).
+#
+# Served from the project's published root because this is a GitHub project
+# Pages site: https://fabriziosalmi.github.io/slopless/ is what this repository
+# controls, and the domain root belongs to a different repository. A scanner
+# that only looks at https://fabriziosalmi.github.io/.well-known/security.txt
+# will not find this file, and cannot until the site moves to its own domain.
+#
+# Expires is a hard date by design: a security.txt nobody renews is worse than
+# none, because it advertises a channel that may no longer be watched.
+
+Contact: https://github.com/fabriziosalmi/slopless/security/advisories/new
+Expires: 2027-09-01T00:00:00.000Z
+Preferred-Languages: en, it
+Canonical: https://fabriziosalmi.github.io/slopless/.well-known/security.txt
+Policy: https://github.com/fabriziosalmi/slopless/blob/main/SECURITY.md
