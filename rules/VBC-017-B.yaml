@@ -8,7 +8,10 @@ tags:
 match:
   # `.only` is the dangerous one: the suite still passes, having run one test.
   # A skipped test is at least visibly skipped.
-  regex: \b(?:describe|it|test|context|suite)\.only\s*\(|^\s*(?:fdescribe|fit)\s*\(
+  # `^[ \t]*`, not `^\s*`: with `m` every line start is a match position and
+  # `\s*` there swallows the newlines after it, which is quadratic on a file of
+  # blank lines. Indentation before `fit(` is horizontal whitespace.
+  regex: \b(?:describe|it|test|context|suite)\.only\s*\(|^[ \t]*(?:fdescribe|fit)\s*\(
   flags: m
   scan: code
   file_types:

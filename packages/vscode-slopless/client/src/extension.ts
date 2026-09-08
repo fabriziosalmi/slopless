@@ -8,7 +8,7 @@ import {
     TransportKind,
 } from 'vscode-languageclient/node';
 
-import { lintText, applyIgnoreRules } from 'slopless/dist/engine/api';
+import { lintText, applyIgnoreRules, loadConfig } from 'slopless/dist/engine/api';
 
 import {
     commentSyntax, findingBlock, plural, report, suppression, type Finding,
@@ -42,6 +42,21 @@ const SCANNED = '**/*.{ts,tsx,js,jsx,mjs,cjs,astro,py,go,rs,java,rb,cs,c,h,cpp,k
  */
 const CHEAP_EXCLUDE = '**/{node_modules,.git,dist,build,out,coverage}/**';
 const SCAN_LIMIT = 2000;
+
+/**
+ * The workspace's `slopless.config.json`, for whichever folder a file belongs to.
+ *
+ * The engine falls back to `process.cwd()` when nobody says where the config is,
+ * and the extension host's working directory is not the workspace — it is
+ * whatever VS Code was launched from. So every call that reads config has to be
+ * told, or the panel silently runs the defaults: rules set to `off` kept
+ * appearing, and opt-in rules never appeared at all.
+ */
+function configFor(uri: vscode.Uri): string | undefined {
+    const folder = vscode.workspace.getWorkspaceFolder(uri)
+        ?? vscode.workspace.workspaceFolders?.[0];
+    return folder && path.join(folder.uri.fsPath, 'slopless.config.json');
+}
 
 type Node = FileNode | FindingNode;
 
@@ -195,15 +210,25 @@ export function activate(context: vscode.ExtensionContext) {
         await vscode.window.withProgress(
             { location: { viewId: 'sloplessFindings' }, title: 'Scanning' },
             async () => {
-                const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+                const folder = vscode.workspace.workspaceFolders?.[0];
+                const root = folder?.uri.fsPath;
+                const config = root
+                    ? path.join(root, 'slopless.config.json')
+                    : undefined;
                 const candidates = await vscode.workspace.findFiles(
                     SCANNED, CHEAP_EXCLUDE, SCAN_LIMIT,
                 );
                 // The same decision the CLI makes, made by the same code: the
-                // engine's list plus .gitignore and .sloplessignore.
+                // engine's list plus .gitignore and .sloplessignore, and the
+                // workspace config's own `ignore` entries, which the panel used
+                // to skip because nothing told it where the config was.
                 const keep = new Set(
                     root
-                        ? applyIgnoreRules(candidates.map(uri => uri.fsPath), undefined, root)
+                        ? applyIgnoreRules(
+                            candidates.map(uri => uri.fsPath),
+                            loadConfig(config).ignore,
+                            root,
+                        )
                         : candidates.map(uri => uri.fsPath),
                 );
                 const files = candidates.filter(uri => keep.has(uri.fsPath));
@@ -214,6 +239,7 @@ export function activate(context: vscode.ExtensionContext) {
                         const findings = (await lintText(
                             Buffer.from(bytes).toString('utf8'),
                             uri.fsPath,
+                            config,
                         )) as unknown as Finding[];
                         if (findings.length) withFindings.push(new FileNode(uri, findings));
                     } catch (error) {
@@ -309,6 +335,7 @@ export function activate(context: vscode.ExtensionContext) {
                 const findings = (await lintText(
                     document.getText(),
                     document.uri.fsPath,
+                    configFor(document.uri),
                 )) as unknown as Finding[];
                 provider.update(document.uri, findings);
                 describe(view, provider);

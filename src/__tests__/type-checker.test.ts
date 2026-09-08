@@ -27,7 +27,13 @@ function checkSource(source: string) {
     }
 }
 
-describe('TypeCheckerEngine — VBC-800 floating-promise', () => {
+/**
+ * Each case builds a real TypeScript Program against the default lib, which is
+ * seconds of work rather than milliseconds. The default 5s timeout was enough
+ * until the suite grew and coverage instrumentation slowed every file down at
+ * once; the tests were never near passing on speed, they were near the limit.
+ */
+describe('TypeCheckerEngine — VBC-800 floating-promise', { timeout: 30_000 }, () => {
     it('flags an async call whose promise is dropped', () => {
         const violations = checkSource(`
 async function save(): Promise<void> {}

@@ -50,6 +50,7 @@ jobs:
 
       # Publish only what CI already proved. A tag is not a licence to skip this.
       - run: npm test
+      - run: npm run verify:rules
       - run: npm run build
       - name: the bundled CLI in git must match the source
         run: git diff --exit-code dist/index.js

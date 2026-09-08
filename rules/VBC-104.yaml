@@ -5,8 +5,21 @@ category: clean-code
 tags:
   - clean-code
 match:
+  # `^[ \t]*` rather than `^\s*`: with the `m` flag every line start is a match
+  # position, and `\s*` there can swallow the newlines that follow it, so a file
+  # of blank lines gave the engine an ambiguous split at every one of them. That
+  # was quadratic — 28ms at 5,000 blank lines, 44s at 200,000 — and a file of
+  # blank lines is something anyone can put in a pull request. Indentation before
+  # `import` is horizontal whitespace, which is all this ever meant to allow.
+  #
+  # The gap between the two is bounded as well. Unbounded, every `import` with
+  # no `require` after it rescanned to the end of the file, which is quadratic
+  # on a file that is mostly imports: 13ms at 28KB, 848ms at 223KB. Bounded it is
+  # linear, 20ms and 146ms. 4,000 characters is roughly a hundred lines, which is
+  # further apart than the two spellings of a module system usually sit, and
+  # being further apart than that costs a missed warning rather than a wrong one.
   regex: >-
-    ^\s*import\s[\s\S]*?^\s*(?:const|let|var)\s[^\n]*=\s*require\(|^\s*(?:const|let|var)\s[^\n]*=\s*require\([\s\S]*?^\s*import\s
+    ^[ \t]*import\s[\s\S]{0,4000}?^[ \t]*(?:const|let|var)\s[^\n]*=\s*require\(|^[ \t]*(?:const|let|var)\s[^\n]*=\s*require\([\s\S]{0,4000}?^[ \t]*import\s
   flags: m
   multiline: true
   file_types:

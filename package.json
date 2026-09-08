@@ -2,9 +2,25 @@
   "name": "@fabriziosalmi/slopless",
   "version": "1.17.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/engine/api.js",
+  "types": "dist/engine/api.d.ts",
   "bin": {
     "slopless": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/engine/api.d.ts",
+      "default": "./dist/engine/api.js"
+    },
+    "./dist/engine/api": {
+      "types": "./dist/engine/api.d.ts",
+      "default": "./dist/engine/api.js"
+    },
+    "./dist/engine/api.js": {
+      "types": "./dist/engine/api.d.ts",
+      "default": "./dist/engine/api.js"
+    },
+    "./package.json": "./package.json"
   },
   "files": [
     "dist",
@@ -20,8 +36,9 @@
     "docs:build": "npm run docs:gen && vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "verify:bundle": "node scripts/verify-bundle.js",
+    "verify:rules": "node scripts/check-rule-performance.js",
     "verify:action": "bash scripts/run-action-locally.sh . 'src/**/*.ts'",
-    "release:prep": "npm run docs:gen && npm run build && npm test && npm run verify:bundle",
+    "release:prep": "npm run docs:gen && npm run build && npm test && npm run verify:rules && npm run verify:bundle",
     "version": "node scripts/check-changelog.js && node scripts/sync-versions.js && npm run docs:gen && npm run build && git add dist docs README.md packages/*/package.json"
   },
   "keywords": [

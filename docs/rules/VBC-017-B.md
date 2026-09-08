@@ -48,5 +48,5 @@ expect(list.only).toBe(true);
 ## Pattern
 
 ```regex
-\b(?:describe|it|test|context|suite)\.only\s*\(|^\s*(?:fdescribe|fit)\s*\(
+\b(?:describe|it|test|context|suite)\.only\s*\(|^[ \t]*(?:fdescribe|fit)\s*\(
 ```

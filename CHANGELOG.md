@@ -1,3 +1,96 @@
+# 1.17.1 - 2026-09-08
+
+A 20-category audit of this repository found 56 issues. These are the five that
+mattered, and every one of them was in code no test executed.
+
+## Five rules could be made to hang a run
+
+`VBC-104` took **44 seconds** on a file of 200,000 blank lines, and the cost grew
+with the square of the input: 28ms at 5,000 lines, 1,724ms at 40,000. `VBC-035`
+took 15 seconds on 32,000 unclosed `<svg>` tags. `VBC-017-B`, `VBC-936` and
+`VBC-051` were seconds on inputs just as ordinary. A pull request containing one
+large, mostly-blank `.ts` file was therefore enough to occupy a CI worker for
+twenty minutes, and a JavaScript regular expression cannot be interrupted once it
+has started.
+
+Two shapes caused all five. `^\s*` under the `m` flag makes every line start a
+match position where `\s*` can swallow the newlines after it, so a file of blank
+lines hands the engine an ambiguous split at every one of them; indentation is
+horizontal whitespace, and `^[ \t]*` says so. And a scan with no upper bound —
+`(?:(?!</svg>)[\s\S])*?`, `[^>]*`, `.*?` — runs to the end of the file once for
+every candidate before it when what it is looking for is absent. Bounding the
+repetition turns that from quadratic into linear, and the cost is a missed
+finding on input larger than the bound, which is the safe direction.
+
+All 152 patterns are now linear across 19 hostile input shapes, and the slowest
+single match is **6ms**. Two checks keep it that way, because they catch
+different things: `rule-performance.test.ts` bans the two shapes outright, and
+`npm run verify:rules` times every pattern at one size and at four times that
+size and fails anything growing faster than linearly. The timing lives in a
+script rather than the suite because vitest runs its files in parallel, and the
+same match read 12ms alone and 259ms under load — a threshold tuned to one is
+wrong for the other about a third of the time.
+
+## `--fix` could destroy the file it was fixing
+
+The write was `fs.writeFileSync` straight over the original, which opens with
+`O_TRUNC`: between the truncate and the last byte the file on disk is neither
+version. An interruption there — a full disk, a lost session, a killed job —
+left source that nobody can regenerate, and nothing kept a copy.
+
+`action.yml` had the right pattern all along, building the report in a temp file
+and moving it into place only once it parses. That is now applied to the input as
+well: `writeAtomically` writes a sibling and renames, which is atomic on one
+filesystem, and copies the original's mode across first so fixing a `#!` script
+does not take away its executable bit.
+
+## The editor never read your configuration
+
+`lintText` takes an optional config path, and neither the extension nor the
+language server passed one, so `loadConfig` fell back to `process.cwd()` — the
+extension host's working directory, which is whatever VS Code was launched from
+and never the workspace. A rule set to `off` kept appearing in the panel and in
+the squiggles, an opt-in rule never appeared, custom rules never loaded, and the
+config's own `ignore` list did nothing. `docs/editor.md` said the opposite.
+
+Both now pass the workspace's `slopless.config.json`, the server keeping the
+roots it is given at `initialize`. `customRulesPaths` resolve against the config
+that named them rather than against the working directory, which is what a
+relative path in a config file has always meant.
+
+## Importing the package ran the linter
+
+`main` and `bin` were the same file, so `require('@fabriziosalmi/slopless')`
+executed the CLI: it parsed the *host* program's `argv`, fell back to running
+`git diff --cached` in the caller's directory, wrote to their stdout and set
+their exit code. `main` now points at `dist/engine/api.js`, there is an `exports`
+map naming what is public, and `verify:bundle` imports the package with
+`--fix **/*.ts` in `process.argv` and fails if anything runs or the exit code
+moves.
+
+## The gaps in coverage were exactly where the defects were
+
+Every finding above lived in a module the suite did not execute. `api.ts`,
+`utils.ts`, `cache.ts` and `formatters.ts` were all at **0%**. They are now at
+100%, 100%, 96% and 91%, with `atomic-write.ts` at 100%: **83.5%** statements
+overall, up from 78.87%, and 91% of functions, up from 84%. 893 tests.
+
+The tests are about behaviour rather than lines. The cache is asserted to miss
+when a file changes and to start empty rather than carry a corrupt file forward;
+the pool to give every item to exactly one worker and never exceed its limit;
+`resolveRules` to read the config it is pointed at rather than the one beside the
+process; the atomic write to keep the executable bit and to leave the original
+intact when the rename cannot land.
+
+## Also
+
+- SARIF reports named version `1.0.0`, and had for sixteen releases, so a report
+  in a security tab could not be traced to the rules that produced it. It now
+  carries the running version.
+- `.sloplesscache` and `coverage/` are ignored. The cache is derived, rebuilt by
+  rescanning, and was landing in every project that ran the tool with nothing
+  telling anyone to leave it out of a commit.
+
 # 1.17.0 - 2026-09-05
 
 **The panel can hand what it found to something else.** A finding names a rule

@@ -19,6 +19,10 @@ out-tsc/
 # Linter results
 slop_results.txt
 final_slop_results.txt
+# Derived: a content-hashed record of what the last run found. Rebuilt by
+# rescanning, so it costs a run to lose and adds diff noise to every commit.
+.sloplesscache
+coverage/
 
 # OS File
 .DS_Store

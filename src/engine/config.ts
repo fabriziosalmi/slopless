@@ -14,9 +14,22 @@ export interface SloplessConfig {
     vocabulary?: string[];
 }
 
+/**
+ * Where a config path resolves to, whether or not anything is there.
+ *
+ * Separate from `loadConfig` because a relative `customRulesPaths` entry means
+ * "relative to the config that named it". Resolving those against
+ * `process.cwd()` is right for the CLI and wrong everywhere else: an editor does
+ * not run in the directory it is checking.
+ */
+export function configLocation(configPath?: string): string {
+    return configPath
+        ? path.resolve(configPath)
+        : path.join(process.cwd(), 'slopless.config.json');
+}
+
 export function loadConfig(configPath?: string): SloplessConfig {
-    const defaultPath = path.join(process.cwd(), 'slopless.config.json');
-    const targetPath = configPath ? path.resolve(configPath) : defaultPath;
+    const targetPath = configLocation(configPath);
 
     if (fs.existsSync(targetPath)) {
         try {
