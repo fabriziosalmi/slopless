@@ -1,0 +1,33 @@
+# slopless
+
+> Static analysis that finds the patterns AI-written code leaves behind: 152
+> deterministic rules across 27 languages, with regex, AST, semantic and type
+> checkers, auto-fix, and SARIF output. 43 rules are errors and fail a run; the
+> remaining 109 report and do not. It runs as a CLI, a GitHub Action,
+> a VS Code extension and an MCP server, all on the same engine and the same rules.
+
+Every rule ships two executable examples — a snippet it must flag and one it must
+ignore — which run on every commit, so a rule page cannot describe behaviour the
+tests do not verify. The tool is clean on itself in CI, and reports what it read
+and by how many rules on every run, because a file no rule covers looks exactly
+like a file that passed.
+
+## Documentation
+
+- [What slopless is](https://fabriziosalmi.github.io/slopless/): what it catches, what it costs to adopt, and the ten-second start.
+- [All 152 rules](https://fabriziosalmi.github.io/slopless/rules/): every rule by category, with what it catches and how it analyses.
+- [What reaches which language](https://fabriziosalmi.github.io/slopless/languages.html): how many of the 152 rules apply to each of the 27 languages.
+- [Configuration](https://fabriziosalmi.github.io/slopless/configuration.html): severities, opt-in rules, ignore lists and the project vocabulary.
+- [In the editor, and while writing](https://fabriziosalmi.github.io/slopless/editor.html): the VS Code extension and the MCP server, for checking a buffer first.
+- [Writing a rule](https://fabriziosalmi.github.io/slopless/writing-a-rule.html): the YAML schema, scan scopes, precedence, and the required examples.
+
+## Background
+
+- [The bug that hid every bug](https://fabriziosalmi.github.io/slopless/story.html): why the protected-range engine exists.
+- [Changelog](https://fabriziosalmi.github.io/slopless/changelog.html): every release, with the measurement behind each decision.
+
+## Source
+
+- [Repository](https://github.com/fabriziosalmi/slopless): MIT, zero runtime dependencies.
+- [npm package](https://www.npmjs.com/package/@fabriziosalmi/slopless): npx @fabriziosalmi/slopless.
+- [Security policy](https://github.com/fabriziosalmi/slopless/blob/main/SECURITY.md): how to report a vulnerability privately.

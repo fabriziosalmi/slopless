@@ -1,5 +1,10 @@
 ---
 layout: home
+# The <title> is the site name alone without this, which is eight characters and
+# says nothing to anyone who has not already heard of it. titleTemplate is off
+# because the suffix would repeat the name it already opens with.
+title: "slopless — static analysis for AI-slop patterns"
+titleTemplate: false
 
 hero:
   name: slopless
