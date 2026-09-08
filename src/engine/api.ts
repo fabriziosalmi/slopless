@@ -1,4 +1,4 @@
-import { loadConfig, SloplessConfig } from './config';
+import { loadConfig, configLocation, SloplessConfig } from './config';
 import { RuleLoader } from './loader';
 import { RegexChecker, Violation } from '../checkers/regex-checker';
 import { AstChecker } from '../checkers/ast-checker';
@@ -23,10 +23,13 @@ const RULES_DIR = path.join(__dirname, '..', '..', 'rules');
 export function resolveRules(configPath?: string) {
     const config = loadConfig(configPath);
 
+    // Relative to the config that named them, not to wherever this happens to be
+    // running: the editor and the MCP server do not run in the workspace.
+    const configDir = path.dirname(configLocation(configPath));
     const ruleDirs = [RULES_DIR];
     if (config.customRulesPaths) {
         for (const customPath of config.customRulesPaths) {
-            ruleDirs.push(path.resolve(process.cwd(), customPath));
+            ruleDirs.push(path.resolve(configDir, customPath));
         }
     }
 
@@ -75,3 +78,10 @@ export async function lintText(content: string, filePath: string, configPath?: s
  * runs it.
  */
 export { applyIgnoreRules, NEVER_YOURS } from './ignore';
+
+/**
+ * The config a run would use. Exported for the same reason as `resolveRules`:
+ * an editor that filters its own file list has to filter it by what the config
+ * says, and the config is only found where the caller points at it.
+ */
+export { loadConfig, configLocation, type SloplessConfig } from './config';

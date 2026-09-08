@@ -8,8 +8,14 @@ match:
   # "Icon-only" is the whole claim: a button holding an icon *and* a visible
   # label already has an accessible name, and that is how most toolbars are
   # written. The svg has to be the only thing between the tags.
+  #
+  # The `{0,2000}?` bound is what stops the scan. Unbounded, an `<svg>` with no
+  # closing tag sent the search to the end of the file, once per candidate
+  # button: 15 seconds on 32,000 unclosed tags, and quadratic. Bounded, the same
+  # input is 179ms and linear. 2,000 characters is far more than a button icon's
+  # path data, and exceeding it costs a missed finding rather than a wrong one.
   regex: >-
-    <button\b(?![^>]*(?:aria-label|aria-labelledby|title))[^>]*>\s*<svg\b[^>]*(?:/>|>(?:(?!</svg>)[\s\S])*?</svg>)\s*</button>
+    <button\b(?![^>]*(?:aria-label|aria-labelledby|title))[^>]*>\s*<svg\b[^>]*(?:/>|>(?:(?!</svg>)[\s\S]){0,2000}?</svg>)\s*</button>
   multiline: true
   file_types:
     - html

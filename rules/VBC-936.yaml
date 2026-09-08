@@ -6,8 +6,11 @@ tags:
   - docs
   - maintenance
 match:
+  # `^[ \t]*`, not `^\s*`: with `m` every line start is a match position and
+  # `\s*` there swallows the newlines after it, which is quadratic on a file of
+  # blank lines. A blockquote marker is indented by horizontal whitespace.
   regex: >-
-    \[\s*(?:EXPERIMENTAL|ALPHA|UNSTABLE|PREVIEW)\s*\]|(?:⚠️|:warning:)\s*\*{0,2}(?:experimental|alpha|unstable)\b|^\s*>\s*\*{0,2}(?:experimental|unstable)\b
+    \[\s*(?:EXPERIMENTAL|ALPHA|UNSTABLE|PREVIEW)\s*\]|(?:⚠️|:warning:)\s*\*{0,2}(?:experimental|alpha|unstable)\b|^[ \t]*>\s*\*{0,2}(?:experimental|unstable)\b
   flags: im
   file_types:
     - md

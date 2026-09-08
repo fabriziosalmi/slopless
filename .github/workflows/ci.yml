@@ -22,6 +22,11 @@ jobs:
           echo "dependencies, so Dependabot changing a version changes the bundle,"
           echo "and Dependabot cannot rebuild it. Rebuild on the branch and push."
           exit 1
+      # Timed here rather than in the suite: vitest runs its files in parallel,
+      # so a wall-clock threshold there measures the contention as much as the
+      # pattern. Five rules reached users growing with the square of their input.
+      - name: no rule pattern may backtrack catastrophically
+        run: npm run verify:rules
       - name: the bundle must run with no node_modules
         run: npm run verify:bundle
       - name: the generated docs and rule counts in git must match the rules

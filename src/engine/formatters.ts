@@ -6,6 +6,17 @@ export function formatJson(violations: Violation[]): string {
     return JSON.stringify(violations, null, 2);
 }
 
+/** The running version, for a report that has to be traceable to what made it. */
+export function toolVersion(): string {
+    try {
+        return require('../../package.json').version as string;
+    } catch {
+        // Bundled somewhere the manifest did not follow. A report is still worth
+        // producing; saying nothing about the version is better than a wrong one.
+        return '0.0.0';
+    }
+}
+
 export function formatSarif(violations: Violation[], rulesDirs: string[]): string {
     const rules = RuleLoader.loadRules(rulesDirs);
 
@@ -47,7 +58,10 @@ export function formatSarif(violations: Violation[], rulesDirs: string[]): strin
                     driver: {
                         name: "Slopless",
                         informationUri: "https://github.com/fabriziosalmi/slopless",
-                        version: "1.0.0",
+                        // The version that produced the report, not a literal.
+                        // It said 1.0.0 for sixteen releases, so a SARIF file in
+                        // a security tab named no version anyone could act on.
+                        version: toolVersion(),
                         rules: sarifRules
                     }
                 },

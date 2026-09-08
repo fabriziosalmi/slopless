@@ -116,9 +116,49 @@ function checkLargeOutputIsNotTruncated() {
     }
 }
 
+/**
+ * `main` and `bin` were the same file, so `require('@fabriziosalmi/slopless')`
+ * executed the CLI: it parsed the *host* process's argv, fell back to running
+ * `git diff --cached` in the caller's directory, wrote to their stdout and set
+ * their exit code. Importing a linter is not asking it to lint you.
+ */
+function checkImportingThePackageDoesNotRunIt() {
+    const manifest = require(path.join(root, 'package.json'));
+    if (manifest.main === manifest.bin.slopless) {
+        failures.push(`main and bin are both ${manifest.main}, so importing the package runs `
+            + 'the CLI. main belongs on the library entry point.');
+        return;
+    }
+
+    const sandbox = fs.mkdtempSync(path.join(os.tmpdir(), 'slopless-main-'));
+    const probe = path.join(sandbox, 'probe.js');
+    // Arguments the CLI would act on if it were the thing being loaded.
+    fs.writeFileSync(probe, `
+        process.argv = [process.argv[0], 'host-program', '--fix', '**/*.ts'];
+        const api = require(${JSON.stringify(path.join(root, manifest.main))});
+        if (typeof api.lintText !== 'function') {
+            console.error('main does not export lintText');
+            process.exit(3);
+        }
+        console.log('imported cleanly');
+    `);
+    const result = cp.spawnSync(process.execPath, [probe], { cwd: sandbox, encoding: 'utf8' });
+    fs.rmSync(sandbox, { recursive: true, force: true });
+
+    const output = `${result.stdout ?? ''}${result.stderr ?? ''}`;
+    if (result.status !== 0) {
+        failures.push(`Importing main exited ${result.status} rather than 0. Importing a library `
+            + 'must not decide the caller\'s exit code:\n' + output);
+    }
+    if (/No patterns provided|staged files|issues:/.test(output)) {
+        failures.push('Importing main ran the CLI:\n' + output);
+    }
+}
+
 checkNoDeclaredDependencies();
 checkRunsStandalone();
 checkApiLoadsStandalone();
+checkImportingThePackageDoesNotRunIt();
 checkLargeOutputIsNotTruncated();
 
 if (failures.length > 0) {

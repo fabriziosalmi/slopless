@@ -15,6 +15,7 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument';
 import { lintText } from 'slopless/dist/engine/api';
 import { URI } from 'vscode-uri';
+import { join, sep } from 'path';
 
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
@@ -22,8 +23,30 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 let hasConfigurationCapability = false;
 let hasWorkspaceFolderCapability = false;
 
+/**
+ * The workspace roots, kept from initialize so diagnostics can name the config.
+ *
+ * The engine looks for `slopless.config.json` next to `process.cwd()` when it is
+ * not told otherwise, and this server's working directory is the extension
+ * host's, not the workspace. Squiggles were therefore produced from the default
+ * rule set no matter what the project had configured.
+ */
+let workspaceRoots: string[] = [];
+
+function configFor(fsPath: string): string | undefined {
+    const root = workspaceRoots.find(candidate => fsPath.startsWith(candidate + sep))
+        ?? workspaceRoots[0];
+    return root && join(root, 'slopless.config.json');
+}
+
 connection.onInitialize((params: InitializeParams) => {
     const capabilities = params.capabilities;
+
+    workspaceRoots = (params.workspaceFolders ?? [])
+        .map(folder => URI.parse(folder.uri).fsPath);
+    if (workspaceRoots.length === 0 && params.rootUri) {
+        workspaceRoots = [URI.parse(params.rootUri).fsPath];
+    }
 
     hasConfigurationCapability = !!(
         capabilities.workspace && !!capabilities.workspace.configuration
@@ -109,7 +132,7 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
     const fsPath = uri.fsPath;
 
     try {
-        const violations = await lintText(text, fsPath);
+        const violations = await lintText(text, fsPath, configFor(fsPath));
         const diagnostics: Diagnostic[] = violations.map((v: any) => {
             const severity = v.severity === 'error' ? DiagnosticSeverity.Error : DiagnosticSeverity.Warning;
 

@@ -6,8 +6,13 @@ tags:
   - clean-code
   - style
 match:
+  # The gap between the two spellings is bounded at 400 characters. Unbounded,
+  # `.*?` rescanned the rest of the line from every candidate, which on one long
+  # line is quadratic: 128ms at 30KB, 413ms at 60KB. The CLI skips such files as
+  # generated, but `lintText` does not, so the editor and the MCP server see
+  # them. Two names on the same line are near each other or they are unrelated.
   regex: >-
-    ((?<![.'\"])\b[a-z]+_[a-z]+\b(?!\s*[:?]).*?\b[a-z]+[A-Z][a-z]+\b)|(\b[a-z]+[A-Z][a-z]+\b.*?(?<![.'\"])\b[a-z]+_[a-z]+\b(?!\s*[:?]))
+    ((?<![.'\"])\b[a-z]+_[a-z]+\b(?!\s*[:?]).{0,400}?\b[a-z]+[A-Z][a-z]+\b)|(\b[a-z]+[A-Z][a-z]+\b.{0,400}?(?<![.'\"])\b[a-z]+_[a-z]+\b(?!\s*[:?]))
   file_types:
     - js
     - ts

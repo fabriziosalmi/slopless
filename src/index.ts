@@ -20,6 +20,7 @@ import { TypeCheckerEngine } from './checkers/type-checker';
 import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
 import { fixWouldBreak } from './engine/fix-guard';
+import { writeAtomically } from './engine/atomic-write';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
 import { applySuppressions } from './engine/suppressions';
@@ -80,7 +81,9 @@ function applyFixesToFile(file: string, items: Violation[]): number {
         return 0;
     }
 
-    fs.writeFileSync(file, updated, 'utf8');
+    // Write-then-rename, not truncate-in-place: an interrupted write here would
+    // destroy source nobody can regenerate, and there is no copy of it anywhere.
+    writeAtomically(file, updated);
     return fixCount;
 }
 

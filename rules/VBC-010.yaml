@@ -6,7 +6,11 @@ tags:
   - accessibility
   - html
 match:
-  regex: <div[^>]*\s(onclick|onClick)=(?!\{?\s*\(?\s*(?:e|ev|evt|event|_e)\s*\)?\s*=>\s*\{?\s*(?:e|ev|evt|event|_e)\.(?:stopPropagation|preventDefault)\(\)\s*\}?\s*\})
+  # `[^>]{0,2000}` rather than `[^>]*`: in markup with no closing `>` the
+  # unbounded form scanned to the end of the file from every `<div`, which is
+  # quadratic — 13ms at 15KB, 767ms at 120KB. An opening tag's attribute list is
+  # not 2,000 characters long, and exceeding it costs a missed finding.
+  regex: <div[^>]{0,2000}\s(onclick|onClick)=(?!\{?\s*\(?\s*(?:e|ev|evt|event|_e)\s*\)?\s*=>\s*\{?\s*(?:e|ev|evt|event|_e)\.(?:stopPropagation|preventDefault)\(\)\s*\}?\s*\})
   file_types:
     - html
     - js
