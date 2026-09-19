@@ -2,11 +2,22 @@ id: VBC-920
 name: relative-link-format
 severity: warning
 category: docs
+# Off unless the config names it (#43). In CommonMark [x](guide.md) and
+# [x](./guide.md) resolve identically, and the message's "tool compatibility"
+# names no tool, so this is a house style rather than a defect. Preferences
+# nobody agreed to ship disabled; a project that wants the style can ask for it.
+opt_in: true
 tags:
   - documentation
   - maintenance
 match:
-  regex: \]\((?![a-z]+:|/|\.)
+  # `#` is excluded along with schemes, absolute paths and ./ ../: an in-page
+  # anchor points at a heading in this document, not at a relative file.
+  regex: \]\((?![a-z]+:|/|\.|#)
+  # Link syntax inside `code` or a fenced block is an example of a link, not a
+  # link, and CommonMark renders neither. The CHANGELOG line that describes how
+  # Jekyll writes links was the one reported (#43).
+  exclude_markdown_code: true
   file_types:
     - md
 message: >-
@@ -15,6 +26,22 @@ message: >-
 tests:
   fire:
     - See [the guide](guide.md).
+    # A real link after the code in the same line is still a real link.
+    - 'Run `make docs`, then read [the guide](guide.md).'
   quiet:
     - See [the guide](./guide.md).
     - See [the site](https://example.com).
+    # In-page anchor.
+    - See [the setup](#setup).
+    # Inside a code span.
+    - 'Inline code: `[CLI](cli-reference.html)` is how Jekyll links.'
+    - 'Double backticks: ``[a](b.md) with a ` inside`` still code.'
+    # Inside a fenced block, both fence characters.
+    - |
+      ```markdown
+      [guide](guide.md)
+      ```
+    - |
+      ~~~
+      [guide](guide.md)
+      ~~~

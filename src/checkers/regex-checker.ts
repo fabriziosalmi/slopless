@@ -4,6 +4,7 @@ import { isExcludedFile } from '../engine/file-scope';
 import { extractProtectedRanges, scopeAt, supportsProtectedRanges, ProtectedRange, isDocComment, markFileHeader } from '../engine/ast-utils';
 import { protectedRangesFor, supportsTokenizing } from '../engine/tokenize';
 import { testRegionsFor, isInTestRegion } from '../engine/test-regions';
+import { isMarkdown, markdownCodeSpans, isInSpans, Span } from '../engine/markdown';
 import { VocabularyState, excuses } from '../engine/vocabulary';
 
 export interface Violation {
@@ -47,6 +48,10 @@ export class RegexChecker {
         // Only computed if a rule asks, since it means walking the file again.
         let cachedRegions: ProtectedRange[] | null = null;
         const testRegions = () => cachedRegions ??= testRegionsFor(ext, content);
+        // The same, for the code a Markdown file quotes rather than contains.
+        let cachedCode: Span[] | null = null;
+        const markdownCode = () => cachedCode ??= markdownCodeSpans(content);
+        const markdown = isMarkdown(ext);
 
         // Suppresses the same rule reporting twice for one line, which happens
         // whenever a global regex has several alternatives that all hit.
@@ -84,6 +89,8 @@ export class RegexChecker {
                 if (rule.match.exclude_doc_comments && isDocComment(ranges, match.start)) continue;
                 if (rule.match.exclude_test_code && isInTestRegion(testRegions(), match.start)) continue;
                 if (rule.match.exclude_programs && isProgram) continue;
+                if (rule.match.exclude_markdown_code && markdown
+                    && isInSpans(markdownCode(), match.start)) continue;
                 if (fixturesFrom >= 0 && match.start >= fixturesFrom) continue;
 
                 const key = `${rule.id}:${line}`;
