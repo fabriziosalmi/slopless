@@ -4,6 +4,72 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.17.2 - 2026-09-19
+
+Six comments from Slopless code scanning on
+[l0-git#29](https://github.com/fabriziosalmi/l0-git/pull/29), and all six were
+false positives, split across two rules
+([#43](https://github.com/fabriziosalmi/slopless/issues/43)). On the reproduction
+from the issue, this release reports nothing by default. With `VBC-920`
+enabled, it reports only the one real case.
+
+## `VBC-920` knows what Markdown code looks like, and is now opt-in
+
+It was a bare regex over raw lines, so it fired on link syntax that is not a
+link: inside `` `code spans` ``, inside fenced blocks, and on `[x](#anchor)`,
+which points at a heading, not a file. The hit on l0-git was a CHANGELOG line
+*describing* how Jekyll writes links. That is the same pattern that has driven
+most corrections here: a marker fires hardest on the text that explains it.
+
+- `#` joins the exclusions.
+- A new match option, **`exclude_markdown_code`**, skips code spans and fenced
+  blocks in `.md`, `.markdown` and `.mdx`. It is a flag, not a Markdown mode for
+  `scan:`, for a specific reason. Every Markdown rule was written while `scan:`
+  was ignored on `.md`, and the default scope is `code`. Turning scopes on would
+  have silenced the four rules that say `scan: comments` on every line of prose.
+- The detector is linear. Backtick runs are paired through per-length queues,
+  because the obvious approach (search ahead from every opener) is quadratic
+  on a paragraph of unmatched backticks.
+- **Off by default.** `[x](guide.md)` and `[x](./guide.md)` resolve identically
+  in CommonMark, and the message's "tool compatibility" names no tool. That
+  makes it a house style, and preferences nobody agreed to ship disabled. Name
+  it in `slopless.config.json` to turn it back on.
+
+## `VBC-901` stops reporting the addresses blocklists are made of
+
+The rule already skipped the RFC 5737 documentation ranges, because reporting
+one reports an example for being an example. The same holds for the IANA
+special-purpose ranges that are not globally reachable. Those are exactly what
+SSRF and egress blocklists contain, so a project's most defensive file was also
+its noisiest:
+
+| range | |
+|---|---|
+| `0.0.0.0/8` | "this network", all of it, not only `0.0.0.0` |
+| `192.0.0.0/24` | IETF protocol assignments |
+| `192.88.99.0/24` | deprecated 6to4 relay anycast |
+| `100.64.0.0/10` | carrier-grade NAT |
+| `198.18.0.0/15` | benchmarking |
+
+**Public resolvers are no longer reported either**, by exact address and never
+by subnet: 26 addresses from Google, Cloudflare (including the filtered
+`1.1.1.2` and `1.1.1.3`), Quad9, OpenDNS and AdGuard. The message says an
+address pins code to one environment. An anycast resolver reachable from
+everywhere does not. `8.8.8.8` was in the rule's own `fire` list and is now in
+`quiet`.
+
+Two kinds of address are still reported, on purpose, with the reasons written
+in the rule:
+
+- RFC 1918: `192.168.1.50` in code *is* one environment.
+- `169.254.0.0/16`: a literal link-local address is almost always the cloud
+  metadata service being called, not being blocked.
+
+Every exclusion has its neighbour in `tests.fire` (`192.0.1.1`, `100.63.255.255`,
+`100.128.0.1`, `8.8.8.9`, `1.1.1.4`, …), so none of them can widen quietly.
+
+928 tests.
+
 # 1.17.1 - 2026-09-08
 
 A 20-category audit of this repository found 56 issues. These are the five that
