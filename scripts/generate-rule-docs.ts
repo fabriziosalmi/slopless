@@ -155,29 +155,51 @@ Older entries are in [CHANGELOG.md](https://github.com/fabriziosalmi/slopless/bl
 }
 
 /**
- * The rule count is quoted in prose in several files. Written by hand it goes
- * stale the moment a rule is added, which it did twice in one day, so it is
- * rewritten from the real count instead. CI fails if any of these drift.
+ * Facts quoted in prose — the rule count, how many rules ship disabled, the
+ * version, how many executable examples the rules carry — are rewritten from
+ * the rules and package.json. Written by hand each one went stale: the rule
+ * count twice in one day, the version badge on the landing page for sixteen
+ * releases, "ten rules ship disabled" the day an eleventh was added. CI fails if
+ * any of these drift.
  */
-function syncRuleCounts(total: number) {
-    const targets: { file: string; patterns: RegExp[] }[] = [
-        { file: 'docs/index.md', patterns: [
-            /\b\d+ deterministic rules\b/g, /\bThe \d+ rules\b/g,
-            /\[ \d+ rules \]/g, /<b>\d+<\/b> rules/g,
+interface Facts {
+    total: number;
+    optIn: number;
+    examples: number;
+    version: string;
+}
+
+function syncFacts(facts: Facts) {
+    const count = (value: number) => (match: string) => match.replace(/\d+/, String(value));
+    const targets: { file: string; rewrites: [RegExp, (match: string) => string][] }[] = [
+        { file: 'docs/index.md', rewrites: [
+            [/\b\d+ deterministic rules\b/g, count(facts.total)],
+            [/\bThe \d+ rules\b/g, count(facts.total)],
+            [/\[ \d+ rules \]/g, count(facts.total)],
+            [/<b>\d+<\/b> rules/g, count(facts.total)],
+            [/<b>\d+<\/b> executable examples/g, count(facts.examples)],
+            [/<span>v\d+\.\d+\.\d+<\/span>/g, () => `<span>v${facts.version}</span>`],
         ] },
-        { file: 'README.md', patterns: [/\b\d+ rigorous rules\b/g, /\ball \d+ rules\b/g] },
+        { file: 'README.md', rewrites: [
+            [/\b\d+ rigorous rules\b/g, count(facts.total)],
+            [/\ball \d+ rules\b/g, count(facts.total)],
+        ] },
+        { file: 'docs/configuration.md', rewrites: [
+            [/\b\d+ rules ship disabled\b/g, count(facts.optIn)],
+        ] },
+        { file: 'docs/languages.md', rewrites: [
+            [/\bthe \d+ that ship disabled\b/g, count(facts.optIn)],
+        ] },
     ];
 
-    for (const { file, patterns } of targets) {
+    for (const { file, rewrites } of targets) {
         const full = path.join(__dirname, '..', file);
         const before = fs.readFileSync(full, 'utf8');
         let after = before;
-        for (const pattern of patterns) {
-            after = after.replace(pattern, match => match.replace(/\d+/, String(total)));
-        }
+        for (const [pattern, rewrite] of rewrites) after = after.replace(pattern, rewrite);
         if (after !== before) {
             fs.writeFileSync(full, after);
-            console.log(`Updated the rule count in ${file}.`);
+            console.log(`Updated the quoted counts in ${file}.`);
         }
     }
 }
@@ -390,11 +412,19 @@ function main() {
     fs.writeFileSync(path.join(DOCS_DIR, 'index.md'), indexContent);
 
     generateChangelog();
-    syncRuleCounts(allRules.length);
     // Through the loader the engine uses, so the table cannot describe a rule set
     // the tool does not have.
     const loaded = RuleLoader.loadRules([RULES_DIR]);
     syncLanguageCoverage(loaded);
+    syncFacts({
+        total: allRules.length,
+        optIn: loaded.filter(rule => rule.opt_in).length,
+        // The fire and quiet snippets every rule carries, run on every commit.
+        // Rules exercised by a dedicated test file instead are not counted here.
+        examples: loaded.reduce((sum, rule) => sum
+            + (rule.tests?.fire?.length ?? 0) + (rule.tests?.quiet?.length ?? 0), 0),
+        version: JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'package.json'), 'utf8')).version,
+    });
 
     // Same source as the coverage table, so llms.txt cannot claim a language
     // count the table disagrees with.
