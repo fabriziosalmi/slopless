@@ -31,11 +31,12 @@ npx @fabriziosalmi/slopless --init
 
 Maps a rule id to `error`, `warning`, or `off`.
 
-Naming a rule here also **turns on** the ones that ship disabled. Ten rules encode
-a preference about how you write English prose rather than a defect in the code,
-and across twenty repositories they were two thirds of everything slopless said.
-A preference nobody agreed to should not drown the findings someone installed the
-tool for, so those rules wait to be asked for:
+Naming a rule here also **turns on** the ones that ship disabled. 11 rules ship disabled
+because they encode a preference rather than a defect: ten are about how you
+write English prose, and across twenty repositories they were two thirds of
+everything slopless said; one is a Markdown link style. A preference nobody
+agreed to should not drown the findings someone installed the tool for, so those
+rules wait to be asked for:
 
 ```json
 { "rules": { "VBC-948": "warning", "VBC-347": "warning" } }
@@ -44,7 +45,9 @@ tool for, so those rules wait to be asked for:
 The opt-in set is `VBC-948` em dashes, `VBC-347` passive voice, `VBC-421` filler
 words, `VBC-324` condescending language, `VBC-917` shouting, `VBC-398`
 punctuation, `VBC-929` jargon, `VBC-934` personal opinion, `VBC-935`
-colloquialism, `VBC-918` tone. Every rule page says whether it is one of them.
+colloquialism, `VBC-918` tone, and `VBC-920` writing a relative Markdown link as
+`./guide.md` rather than `guide.md`, which CommonMark resolves identically. Every
+rule page says whether it is one of them.
 
 Rules that mark content as unfinished or generated stay on: lorem ipsum, "coming
 soon", the phrasings of machine-written prose. Those are what this tool is for. This is how you disable a rule
@@ -218,7 +221,7 @@ A regular expression literal is not a string literal: `/^https?:\/\//` is a
 pattern that recognises a URL, not a URL. A rule about the values a program
 carries does not read one, and the rule about patterns reads nothing else.
 
-Two more fields decide what a rule skips.
+Three more fields decide what a rule skips.
 
 `exclude_test_code: true` skips test code that lives inside the file it tests.
 Rust puts it in `#[cfg(test)] mod tests`, and `exclude_files` cannot see it
@@ -230,3 +233,9 @@ exported symbol and on the package, Rust writes them with `///` and `//!`, and
 the comments above the first line of code are a header whatever the language. A
 rule about commentary that counts those is asking a language to stop following
 its own convention.
+
+`exclude_markdown_code: true` skips `code spans` and fenced blocks in `.md`,
+`.markdown` and `.mdx`. Link syntax inside backticks is an example of a link,
+and CommonMark renders it as text. This is a flag rather than a Markdown
+setting for `scan:` because the Markdown rules were written while `scan:` had
+no effect on Markdown, and turning it on would change what all of them read.

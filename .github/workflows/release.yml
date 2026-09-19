@@ -61,7 +61,7 @@ jobs:
       - name: the published docs must describe the rules being released
         run: |
           npm run docs:gen
-          git diff --exit-code docs/rules docs/changelog.md docs/index.md README.md || {
+          git diff --exit-code docs/rules docs/changelog.md docs/index.md docs/languages.md docs/configuration.md README.md docs/public/llms.txt || {
             echo "Generated content is stale. Run: npm run docs:gen && git add -A"
             exit 1
           }

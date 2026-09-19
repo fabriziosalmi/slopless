@@ -47,7 +47,7 @@ rather than written by hand.
 | YAML (`.yml`) | 3 of 152 |
 <!-- coverage:end -->
 
-Counts are of every rule, including the ten that ship disabled and wait to be
+Counts are of every rule, including the 11 that ship disabled and wait to be
 asked for. A run reports against the ones actually enabled, which is why its
 number is lower.
 

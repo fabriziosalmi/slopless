@@ -50,10 +50,10 @@ Summary: 0 errors, 7 warnings.</pre>
 <div class="sl-stats">
   <span><b>152</b> rules</span>
   <span><b>0</b> dependencies</span>
-  <span><b>560</b> tests</span>
+  <span><b>455</b> executable examples</span>
   <span><b>0</b> errors on itself</span>
   <span><b>0</b> telemetry</span>
-  <span>v1.1.1</span>
+  <span>v1.17.2</span>
 </div>
 
 ## In ten seconds {#in-ten-seconds}
