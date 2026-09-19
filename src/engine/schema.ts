@@ -59,6 +59,12 @@ export const RuleSchema = z.object({
         // Rust writes them with ///. A rule that reads those is asking a language
         // to stop following its own convention.
         exclude_doc_comments: z.boolean().optional(),
+        // In Markdown, text inside `code spans` and fenced blocks is an example of
+        // syntax, not an instance of it. A flag rather than a Markdown mode for
+        // `scan:`, because every Markdown rule was written while `scan:` was
+        // ignored there, and switching it on would silence the ones that say
+        // `scan: comments` on every line of prose.
+        exclude_markdown_code: z.boolean().optional(),
         git_check: z.enum([
             'committed_env',
             'private_key',
