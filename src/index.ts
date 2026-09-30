@@ -21,6 +21,7 @@ import { formatJson, formatSarif } from './engine/formatters';
 import { AnalysisCache } from './engine/cache';
 import { fixWouldBreak } from './engine/fix-guard';
 import { writeAtomically } from './engine/atomic-write';
+import { linkVerifier } from './engine/link-verifier';
 import { runWithConcurrencyLimit } from './engine/utils';
 import { applyPrecedence } from './engine/precedence';
 import { applySuppressions } from './engine/suppressions';
@@ -158,6 +159,8 @@ interface LintOptions {
     useCache: boolean;
     typeCheck: boolean;
     gitMode: boolean;
+    /** Seconds the link checker may spend on the network; 0 is no limit. */
+    linkBudget: number;
 }
 
 async function runLint(files: string[], config: SloplessConfig, options: LintOptions) {
@@ -221,6 +224,9 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
         // so that one check is asked on every run instead.
         allViolations = allViolations.concat(GitChecker.checkTracked(rules));
     }
+
+    // The link checker's clock starts at its first request, not here.
+    linkVerifier.startRun(options.linkBudget * 1000);
 
     // Analyze files concurrently with a CPU core boundary
     let generatedCount = 0;
@@ -288,13 +294,24 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
     const coverage = coverageOf(files, rules);
     const blind = uncovered(coverage);
 
+    // A link nobody asked about must not read as a link that passed. Saying so
+    // is the same discipline as the coverage line above.
+    const skippedLinks = linkVerifier.skipped;
+    const unchecked = skippedLinks > 0
+        ? `${skippedLinks} link${skippedLinks === 1 ? ' was' : 's were'} not checked: the `
+            + `${options.linkBudget}s link budget ran out, or the host stopped answering. `
+            + 'Raise it with --link-budget, or turn VBC-401 off.'
+        : '';
+
     if (options.format === 'json') {
         console.log(formatJson(allViolations));
         // stderr, so the report on stdout stays a parseable array.
         console.error(describeCoverage(coverage, rules.length));
+        if (unchecked) console.error(unchecked);
     } else if (options.format === 'sarif') {
         console.log(formatSarif(allViolations, ruleDirs));
         console.error(describeCoverage(coverage, rules.length));
+        if (unchecked) console.error(unchecked);
     } else {
         if (allViolations.length > 0) {
             console.log(`\n🚫 Static Analysis found ${allViolations.length} issues:\n`);
@@ -314,6 +331,7 @@ async function runLint(files: string[], config: SloplessConfig, options: LintOpt
             console.log('✅ No static analysis issues detected. Clean architecture!');
         }
         console.log(`\n${describeCoverage(coverage, rules.length)}`);
+        if (unchecked) console.log(unchecked);
         if (vocabulary && vocabulary.excused > 0) {
             console.log(`${vocabulary.excused} finding${vocabulary.excused === 1 ? '' : 's'} `
                 + `excused by the project vocabulary: ${(config.vocabulary ?? []).join(', ')}.`);
@@ -355,10 +373,11 @@ program
     .option('--fix', 'Automatically fix issues where possible', false)
     .option('--no-cache', 'Disable file caching', false)
     .option('--type-check', 'Enable deep semantic type analysis via ts.createProgram (slower)', false)
-    .option('--only <categories>', 'Comma-separated categories to run: security, core, clean-code, ux-dx, docs, git')
+    .option('--only <categories>', 'Comma-separated categories to run: security, core, clean-code, ux-dx, docs, git, correctness')
     .option('--min-severity <error|warning>', 'Lowest severity to report', 'warning')
+    .option('--link-budget <seconds>', 'Network time VBC-401 may spend checking links, 0 for no limit', '30')
     .option('--init', 'Initialize Slopless configuration files in the current directory')
-    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, typeCheck: boolean, init: boolean, only?: string, minSeverity: string }) => {
+    .action(async (patterns: string[], options: { config?: string, format: string, fix: boolean, cache: boolean, typeCheck: boolean, init: boolean, only?: string, minSeverity: string, linkBudget: string }) => {
         if (options.init) {
             const configPath = path.join(process.cwd(), 'slopless.config.json');
             const ignorePath = path.join(process.cwd(), '.sloplessignore');
@@ -407,6 +426,7 @@ program
             useCache: options.cache,
             typeCheck: shouldTypeCheck,
             gitMode: patterns.length === 0,
+            linkBudget: Math.max(0, Number(options.linkBudget) || 0),
         });
     });
 

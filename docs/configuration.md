@@ -56,7 +56,7 @@ you disagree with, or promote one you care about.
 `error` fails the run with exit code 1. `warning` reports and exits 0. `off`
 removes the rule entirely: it is never loaded, so it costs nothing.
 
-```json
+```jsonc
 {
   "rules": {
     "VBC-018": "off",        // console.log is the output of this CLI
@@ -106,11 +106,26 @@ slopless --fix                    # rewrites what can be fixed safely
 slopless --type-check             # adds the type checker tier
 slopless --format sarif > out.sarif
 slopless --no-cache               # skips the content-hash cache
+slopless --link-budget 10         # seconds VBC-401 may spend on the network (default 30, 0 = no limit)
 slopless -c path/to/config.json
 ```
 
 Exit code is 1 when any **error** was reported, 0 otherwise. Warnings never fail
 a run, which is what makes them safe to leave on.
+
+### Links, and how long they may take
+
+`VBC-401` is the one rule that goes to the network. It asks about each URL once,
+however many files repeat it, a few at a time per host, and gives up on a host
+that stops answering. The whole run has a time budget, counted from the first
+request, so a repository full of links cannot hold a build for minutes: one
+report with 85 links to a single host took 49 seconds before this, and about
+two now.
+
+A link the budget left unchecked is not reported as fine. The run says how many
+it skipped, for the same reason it says which files no rule covers: silence there
+would look exactly like a pass. `--link-budget` raises or removes the limit, and
+`"VBC-401": "off"` in the config turns the rule off.
 
 ## Choosing what to run
 
@@ -125,7 +140,7 @@ slopless --min-severity error "src/**/*.ts"   # only what fails a build
 slopless --only docs "**/*.md"                # prose and documentation
 ```
 
-`--only` takes any of `security`, `core`, `clean-code`, `ux-dx`, `docs`, `git`.
+`--only` takes any of `security`, `core`, `clean-code`, `ux-dx`, `docs`, `git`, `correctness`.
 Measured on one repository: 993 findings, 51 with `--only security,core`, 4 with
 `--min-severity error`.
 

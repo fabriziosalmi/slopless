@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
 import * as path from 'path';
 import { HeuristicChecker } from '../checkers/heuristic-checker';
 import { RuleLoader } from '../engine/loader';
 import type { Rule } from '../engine/schema';
 import * as safeRequest from '../engine/safe-request';
+import { linkVerifier } from '../engine/link-verifier';
 
 // The checker no longer goes through `fetch`, so a stubbed global would sit
 // there unused while the tests hit the network for real. The seam is the module
@@ -16,6 +17,11 @@ vi.mock('../engine/safe-request', async importOriginal => {
 
 const RULES_DIR = path.resolve(__dirname, '../../rules');
 const rules = RuleLoader.loadRules([RULES_DIR]).filter(rule => rule.id === 'VBC-401');
+
+// The verifier is shared across files on purpose, and so across these tests:
+// without this the second test to ask about a URL would be answered from the
+// first one's memory.
+beforeEach(() => { linkVerifier.reset(); });
 
 describe('HeuristicChecker — VBC-401 broken-links', () => {
     it('only inspects markdown', async () => {
