@@ -1,6 +1,6 @@
 # Rules
 
-All 152 rules. **43** are errors and fail the run; the remaining 109 are warnings and only report.
+All 152 rules. **41** are errors and fail the run; the remaining 111 are warnings and only report.
 
 Every rule ships a snippet it must flag and one it must ignore, executed on every commit. Open any rule to see both.
 
@@ -63,18 +63,18 @@ Use the search box above to find a rule by what it catches.
 | [VBC-001](./VBC-001.md)<br>`hardcoded-secret` | Hardcoded credential | **error** | Regex |
 | [VBC-002](./VBC-002.md)<br>`committed-env` | Environment file (.env) detected in staged files | **error** | Git |
 | [VBC-003](./VBC-003.md)<br>`chmod-777` | Insecure chmod 777 detected | **error** | Regex |
-| [VBC-005](./VBC-005.md)<br>`use-var` | Use of 'var' detected | **error** | Regex |
 | [VBC-013](./VBC-013.md)<br>`empty-catch` | Empty catch block detected | **error** | AST |
 | [VBC-017](./VBC-017.md)<br>`fake-test-assertion` | Trivially true test assertion | **error** | Regex |
 | [VBC-019](./VBC-019.md)<br>`absolute-paths` | Hardcoded absolute path detected | **error** | Regex |
 | [VBC-039](./VBC-039.md)<br>`use-eval` | Use of 'eval()' detected | **error** | Regex |
 | [VBC-070](./VBC-070.md)<br>`use-innerhtml` | Use of 'innerHTML' detected | **error** | Regex |
-| [VBC-086](./VBC-086.md)<br>`target-blank-rel` | target='_blank' without rel='noopener' detected | **error** | Regex |
 | [VBC-800](./VBC-800.md)<br>`floating-promise` | Unawaited Promise detected | **error** | Type checker |
+| [VBC-005](./VBC-005.md)<br>`use-var` | Use of 'var' detected | warning | Regex |
 | [VBC-028](./VBC-028.md)<br>`function-params-limit` | Function takes parameters, over the limit of | warning | AST |
 | [VBC-032](./VBC-032.md)<br>`css-important` | Global '!important' detected in CSS | warning | Regex |
 | [VBC-057](./VBC-057.md)<br>`use-any` | Avoid using 'any' type | warning | Regex |
 | [VBC-059](./VBC-059.md)<br>`file-length-limit` | File is too long ( lines) | warning | AST |
+| [VBC-086](./VBC-086.md)<br>`target-blank-rel` | target='_blank' without rel='noopener' | warning | Regex |
 | [VBC-090](./VBC-090.md)<br>`passive-aggressive-comments` | Passive-aggressive or helpless comment detected | warning | Regex |
 | [VBC-150](./VBC-150.md)<br>`production-todo` | Tracked debt marker still in the code | warning | Regex |
 

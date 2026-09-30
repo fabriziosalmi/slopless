@@ -6,8 +6,13 @@ tags:
   - security
 match:
   regex: >-
-    (?:"[^"\n]*|'[^'\n]*|`[^`\n]*)(?:\bSELECT\b[^\n]{0,80}?\bFROM\b|\bINSERT\s+INTO\b|\bUPDATE\b[^\n]{0,80}?\bSET\b|\bDELETE\b[^\n]{0,80}?\bFROM\b|\bWHERE\b|\bVALUES\s*\()[^\n]{0,120}?["'`]\s*\+|\+=?\s*(?=[^\n]*["'`]\s*\+)["'`][^\n]{0,80}?\b(?:WHERE\s|VALUES\s*\(|SET\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`])|ORDER\s+BY|GROUP\s+BY|LIMIT\s+\d|AND\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`])|OR\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`]))
+    (?:"[^"\n]*|'[^'\n]*|`[^`\n]*)(?:\bSELECT\b[^\n]{0,80}?\bFROM\b|\bINSERT\s+INTO\b|\bUPDATE\b[^\n]{0,80}?\bSET\b|\bDELETE\b[^\n]{0,80}?\bFROM\b|\bWHERE\s+[A-Za-z_][\w.]*\s*(?:=|<>|!=|<|>|\b(?:IN|LIKE|IS|BETWEEN)\b)|\bVALUES\s*\()[^\n]{0,120}?["'`]\s*\+|\+=?\s*(?=[^\n]*["'`]\s*\+)["'`][^\n]{0,80}?\b(?:WHERE\s|VALUES\s*\(|SET\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`])|ORDER\s+BY|GROUP\s+BY|LIMIT\s+\d|AND\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`])|OR\s+\w+\s*=(?!\s*(?:\?|\$\d+|:\w+|%[sd])\s*[\"'`]))
   flags: i
+  # `WHERE` has to be followed by a column and a comparison to count. On its own,
+  # under the `i` flag, it matched the English word: "Select where your domains are
+  # managed" in a wizard's help text, and `${where}` as a template placeholder, each
+  # followed by a string and a `+`.
+  #
   # A fragment that closes on a placeholder injects nothing: `q += " AND p = ?"`
   # beside `args = append(args, v)` is how a dynamic WHERE clause is built
   # safely, and it is the shape every Go and Python query builder uses.
@@ -27,6 +32,23 @@ match:
     - java
     - cs
     - astro
+  # A test that builds a statement from a table name in a fixed list, or a fixture
+  # that is vulnerable on purpose to prove a scanner finds it: the same call every
+  # other security rule here makes about tests.
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*.test.*'
+    - '**/*.spec.*'
 message: >-
   SQL built by string concatenation at line {line}. An attacker controlling the interpolated
   value can rewrite the statement. Use parameterized queries or a query builder that binds
@@ -35,6 +57,9 @@ tests:
   fire:
     - db.query("SELECT * FROM users WHERE id = " + id);
     - sql += " AND status = " + status;
+    # Beside the exclusion: WHERE with a column and a comparison is still SQL.
+    - sql += " WHERE name = " + name;
+    - 'q = "SELECT id FROM t WHERE id IN (" + ids + ")"'
   quiet:
     - 'q += " ORDER BY acquired DESC;"'
     - 'q += " LIMIT 10;"'
@@ -43,3 +68,9 @@ tests:
     - sql += " AND id = $1"
     - sql += " AND name = :name"
     - const label = 'Update ' + count + ' items';
+    # The English word, and a template placeholder that happens to be called where.
+    - "const hint = '<p>Select where your domains are managed</p>' + extra;"
+    - 'console.log(`render bench (${where}, ${secs}s` + tail);'
+    # A test builds it from a fixed table name.
+    - file: store_test.go
+      code: 'db.Exec("DELETE FROM " + table)'

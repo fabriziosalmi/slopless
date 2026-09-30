@@ -7,13 +7,33 @@ tags:
   - clean-code
 match:
   regex: >-
-    \b(?:(?:price|cost|fee|fees|tax|subtotal|payment|invoice|salary|refund|charge)(?![a-z])|[a-z_$]+(?:Price|Cost|Fee|Fees|Tax|Subtotal|Payment|Invoice|Salary|Refund|Charge)(?![a-z]))[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
+    \b(?:(?:price|cost|fee|fees|tax|subtotal|payment|invoice|salary|refund|charge)(?![a-z])|[a-z_$]+(?:Price|Cost|Fee|Fees|Tax|Subtotal|Payment|Invoice|Salary|Refund|Charge)(?![a-z]))(?![A-Za-z_$]*(?:[Ww]eight|[Rr]atio|[Ss]core|[Ff]actor|[Tt]hreshold|[Pp]enalty|[Mm]ultiplier|[Bb]ias|[Cc]oef))[A-Za-z_$]*\s*[:=]\s*[0-9]+\.[0-9]+
+  # `cost_weight = 0.3` is how much a router cares about cost, not what anything
+  # costs: 44 of this rule's 55 findings across 90 repositories were exactly that,
+  # in one LLM-routing project, at error severity. A name carrying a weight, a
+  # ratio, a score, a factor, a threshold, a penalty, a multiplier, a bias or a
+  # coefficient is a number about money, not money. `taxRate` and `unitPrice`
+  # are still reported.
   file_types:
     - js
     - ts
     - tsx
     - py
     - astro
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*.test.*'
+    - '**/*.spec.*'
 message: >-
   Monetary value declared as a floating point literal at line {line}. Binary floats cannot
   represent decimal cents exactly. Store money as integer minor units or use a decimal type.
@@ -22,8 +42,17 @@ tests:
     - const unitPrice = 19.99;
     - let taxRate = 0.22;
     - 'totalCost: 4.50'
+    # Beside the exclusion: the weight comes BEFORE the money word, so it is still money.
+    - const weightedPrice = 4.5;
   quiet:
     - const unitPriceCents = 1999;
+    # A number about money, not money.
+    - cost_weight = 0.3
+    - 'const cfg = { costWeight: 0.7 };'
+    - const priceRatio = 0.5;
+    # Test data is not a price anyone is charged.
+    - file: billing.test.ts
+      code: const unitPrice = 19.99;
     - const ratio = 0.22;
     - const feedback = 0.5;
     - const amount = 0.5;

@@ -1,5 +1,7 @@
 {
-    "rules": {},
+    "rules": {
+        "VBC-338": "warning"
+    },
     "ignore": [],
     "vocabulary": [
         "blacklist",

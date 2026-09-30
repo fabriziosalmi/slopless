@@ -2,8 +2,8 @@
 
 > Static analysis that finds the patterns AI-written code leaves behind: 152
 > deterministic rules across 27 languages, with regex, AST, semantic and type
-> checkers, auto-fix, and SARIF output. 43 rules are errors and fail a run; the
-> remaining 109 report and do not. It runs as a CLI, a GitHub Action,
+> checkers, auto-fix, and SARIF output. 41 rules are errors and fail a run; the
+> remaining 111 report and do not. It runs as a CLI, a GitHub Action,
 > a VS Code extension and an MCP server, all on the same engine and the same rules.
 
 Every rule ships two executable examples — a snippet it must flag and one it must
