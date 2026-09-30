@@ -124,7 +124,7 @@ the file exists and mentions the rule:
 
 ```yaml
 tests:
-  external: git-checker.test.ts: needs a staged file list
+  external: 'git-checker.test.ts: needs a staged file list'
 ```
 
 ## Running your rule

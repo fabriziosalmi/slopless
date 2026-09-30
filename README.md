@@ -72,7 +72,8 @@ npx @fabriziosalmi/slopless
   moving tag, with Dependabot keeping the pins current.
 - **No telemetry.** Nothing is reported anywhere. The only rule that touches the
   network is `VBC-401` (broken links), which fetches the URLs it finds in the
-  Markdown you point it at, and nothing else.
+  Markdown you point it at, once each and within a time budget (`--link-budget`),
+  and nothing else.
 
 ## Usage
 
