@@ -53,6 +53,26 @@ Read from a screenshot of it on this repository, and from the code behind it.
   walked, and every id in it must be unique, which VS Code requires of the ids
   it is given.
 
+## The scan, and what leaves the panel
+
+- **A scan that is no longer the latest stops and writes nothing.** Pressing
+  refresh while one was reading started a second, and whichever finished last
+  wrote its answer over the other's. The same when the extension is deactivated.
+- **A file saved while a scan was reading keeps its new result.** The scan had read
+  the file before the save, and its older answer was laid over the newer one.
+- **The panel says how many files it could not read, and stops counting them as
+  read.** `out of N read` included the files that failed to open.
+- **"Stopped at 2000 files" is judged by the search, not by what was left after the
+  ignore rules.** A search that hit the limit could come out below it once ignored
+  files were taken out, and then the panel said nothing about the files it never
+  listed. The same caveats are in the report the panel copies.
+- **"Copy this finding, with its lines" leaves the lines out for a rule that
+  reports secrets.** The line such a rule names is the secret, the lines around it
+  are where the next one is, and the text is made to be pasted into a chat or an
+  issue. The location and the message are still copied. Which rules those are is
+  read from the rule's own `secrets` tag, so a rule of your own that carries it is
+  held to the same.
+
 # 1.18.0 - 2026-09-30
 
 **Slopless was run over 91 public repositories and every finding of its noisiest

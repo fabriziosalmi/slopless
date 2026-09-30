@@ -110,10 +110,27 @@ export interface Summary {
     files: number;
     /** Files the last scan read. */
     read: number;
-    /** The most a scan will read; reaching it means some files were not. */
+    /** The most a scan will look for. */
     limit: number;
+    /** The search hit that limit, so there are files it never listed. */
+    truncated: boolean;
+    /** Files the scan tried to read and could not. */
+    unreadable?: number;
     /** What the list is narrowed to, in words, or nothing when it is not. */
     scope?: string;
+}
+
+/**
+ * What the counts do not cover, in words: the list is narrowed, the scan stopped
+ * short, some files could not be read. Shared by the panel and the report it
+ * copies, because a count that leaves one of these out reads as the whole.
+ */
+export function caveats(s: Pick<Summary, 'limit' | 'truncated' | 'unreadable' | 'scope'>): string {
+    return [
+        s.scope,
+        s.truncated ? `Stopped at ${s.limit} files; what is beyond them was not read.` : '',
+        s.unreadable ? `${plural(s.unreadable, 'file')} could not be read; the Slopless output says which.` : '',
+    ].filter(Boolean).join(' ');
 }
 
 /**
@@ -123,17 +140,12 @@ export interface Summary {
  * said which number was which.
  */
 export function summaryMessage(s: Summary): string {
-    const scope = s.scope ? ` ${s.scope}` : '';
-    const stopped = s.read >= s.limit
-        ? ` Stopped at ${s.limit} files; what is beyond them was not read.`
-        : '';
-    if (!s.errors && !s.warnings) {
-        return s.read
-            ? `Nothing found in ${plural(s.read, 'file')}.${scope}${stopped}`
-            : 'Nothing found.';
-    }
-    return `${plural(s.errors, 'error')} and ${plural(s.warnings, 'warning')} `
-        + `in ${s.files} of ${plural(s.read, 'file')}.${scope}${stopped}`;
+    const found = s.errors || s.warnings
+        ? `${plural(s.errors, 'error')} and ${plural(s.warnings, 'warning')} `
+            + `in ${s.files} of ${plural(s.read, 'file')}.`
+        : (s.read ? `Nothing found in ${plural(s.read, 'file')}.` : 'Nothing found.');
+    const caveat = caveats(s);
+    return caveat ? `${found} ${caveat}` : found;
 }
 
 /**

@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { host, type Item, type Provider, type Row } from './fakes/vscode';
-import { activate } from '../../packages/vscode-slopless/client/src/extension';
+import { activate, deactivate } from '../../packages/vscode-slopless/client/src/extension';
 
 // The extension is activated against a stand-in for the editor and its tree is
 // walked the way the editor walks it. What this is for is what the pure tests
@@ -37,8 +37,10 @@ describe('the findings panel, as the editor drives it', () => {
         fs.writeFileSync(at, body);
     };
 
-    const start = async () => {
+    /** `before` runs once the fake editor is reset and before the extension is activated. */
+    const start = async (before?: () => void) => {
         host.reset(sandbox);
+        before?.();
         const context = {
             subscriptions: [] as unknown[],
             extension: { packageJSON: { version: '0.0.0-test' } },
@@ -60,6 +62,18 @@ describe('the findings panel, as the editor drives it', () => {
     };
     const run = (command: string, ...args: unknown[]) => host.commands.get(command)!(...args);
     const rows = () => walkTree(host.provider);
+    const paths = () => host.provider.getChildren().map(f => f.path);
+    /** The editor telling the extension a file was saved, with what is on disk now. */
+    const save = async (name: string) => {
+        const at = path.join(sandbox, name);
+        for (const handler of host.saveHandlers) {
+            await handler({
+                uri: { fsPath: at, toString: () => `file://${at}` },
+                getText: () => fs.readFileSync(at, 'utf8'),
+            });
+        }
+    };
+
 
     beforeEach(() => {
         sandbox = fs.realpathSync(fs.mkdtempSync(path.join(os.tmpdir(), 'slopless-panel-')));
@@ -173,12 +187,7 @@ describe('the findings panel, as the editor drives it', () => {
 
             // Edited and saved, as the editor would report it.
             write('a.ts', 'var first = 1;\nvar second = 2;\nvar more = 3;\n');
-            for (const handler of host.saveHandlers) {
-                await handler({
-                    uri: { fsPath: path.join(sandbox, 'a.ts'), toString: () => `file://${path.join(sandbox, 'a.ts')}` },
-                    getText: () => fs.readFileSync(path.join(sandbox, 'a.ts'), 'utf8'),
-                });
-            }
+            await save('a.ts');
             expect(host.provider.getChildren().map((f: Row) => f.path)).toEqual(['a.ts']);
             expect(host.provider.getChildren()[0].findings).toHaveLength(3);
         });
@@ -192,6 +201,138 @@ describe('the findings panel, as the editor drives it', () => {
             expect(host.contexts['slopless.onlyChanged']).toBe(false);
             expect(host.provider.getChildren()).toHaveLength(2);
             expect(host.messages.join('\n')).toContain('not a git repository');
+        });
+    });
+
+    describe('a scan that is not the latest', () => {
+        it('does not write over a newer one', async () => {
+            await start();
+            // The older scan reads a.ts, then waits at sub/a.ts.
+            const gate = host.holdRead('sub/a.ts');
+            const older = run('slopless.scan');
+            await gate.arrived;
+
+            write('a.ts', 'export const first = 1;\n');       // fixed since the older scan read it
+            await run('slopless.scan');                         // the newer scan reads it fixed
+            expect(paths()).toEqual(['sub/a.ts']);
+
+            gate.release();
+            await older;
+            // Finishing last, the older scan used to put its stale a.ts back.
+            expect(paths()).toEqual(['sub/a.ts']);
+        });
+
+        it('stops reading files once a newer scan has taken over', async () => {
+            write('zzz.ts', 'export const last = 1;\n');       // sorts after the file the older scan waits at
+            await start();
+            host.reads = [];
+
+            const gate = host.holdRead('sub/a.ts');
+            const older = run('slopless.scan');
+            await gate.arrived;
+            await run('slopless.scan');                         // reads everything, zzz.ts included
+            gate.release();
+            await older;
+
+            // Once for the newer scan. The older one would have read it too, to the end.
+            expect(host.reads.filter(file => file.endsWith('zzz.ts'))).toHaveLength(1);
+        });
+
+        it('keeps what was saved while it was reading', async () => {
+            await start();
+            const gate = host.holdRead('sub/a.ts');
+            const scanning = run('slopless.scan');
+            await gate.arrived;
+
+            write('a.ts', 'export const first = 1;\n');
+            await save('a.ts');
+            expect(paths()).toEqual(['sub/a.ts']);
+
+            gate.release();
+            await scanning;
+            // The scan had read a.ts before the save, and its answer is the older one.
+            expect(paths()).toEqual(['sub/a.ts']);
+        });
+
+        it('stops when the extension is deactivated', async () => {
+            await start();
+            write('a.ts', 'export const first = 1;\n');
+            const gate = host.holdRead('sub/a.ts');
+            const scanning = run('slopless.scan');
+            await gate.arrived;
+
+            await deactivate();
+            gate.release();
+            await scanning;
+            // Had it finished it would have replaced the list with sub/a.ts alone.
+            expect(paths()).toEqual(['a.ts', 'sub/a.ts']);
+        });
+    });
+
+    describe('what a scan says it covered', () => {
+        it('counts the files it read, not the ones it tried, and says how many it could not', async () => {
+            await start(() => { host.phantoms = 1995; });
+            expect(host.view.message).toBe(
+                '0 errors and 3 warnings in 2 of 5 files. Stopped at 2000 files; what is beyond them was not read. '
+                + '1995 files could not be read; the Slopless output says which.',
+            );
+            expect(host.provider.read).toBe(5);
+        });
+
+        it('says it stopped at the limit even when the ignore rules took files out of what it listed', async () => {
+            write('.gitignore', 'phantom-*.ts\n');
+            await start(() => { host.phantoms = 1995; });
+            // 2,000 listed, 1,995 of them ignored, 5 read: fewer than the limit, and stopped all the same.
+            expect(host.provider.read).toBe(5);
+            expect(host.view.message).toContain('Stopped at 2000 files');
+            expect(host.view.message).not.toContain('could not be read');
+        });
+
+        it('puts the same caveats in the report it copies', async () => {
+            await start(() => { host.phantoms = 1995; });
+            await run('slopless.copyReport');
+            expect(host.clipboard).toContain('Stopped at 2000 files');
+            expect(host.clipboard).toContain('1995 files could not be read');
+        });
+    });
+
+    describe('copying a finding', () => {
+        const findingOf = (ruleId: string) =>
+            rows().map(({ node }) => node).find(node => node.kind === 'finding' && node.finding.ruleId === ruleId);
+
+        it('leaves the lines out for a rule that reports secrets, and keeps them otherwise', async () => {
+            write('src/auth.ts', 'const apiHost = "x";\nconst password = "hunter2abc9";\nexport {};\n');
+            await start();
+
+            await run('slopless.copyFinding', findingOf('VBC-001'));
+            expect(host.clipboard).not.toContain('hunter2abc9');
+            expect(host.clipboard).toContain('src/auth.ts:2');
+            expect(host.clipboard).toContain('left out');
+
+            await run('slopless.copyFinding', findingOf('VBC-005'));
+            expect(host.clipboard).toContain('var first = 1;');
+
+            // Nor does the report, which carries messages and never lines.
+            await run('slopless.copyReport');
+            expect(host.clipboard).not.toContain('hunter2abc9');
+        });
+
+        it('goes by the rule\'s own tag, so a rule of the project\'s is held to it too', async () => {
+            write('slopless.config.json', JSON.stringify({ customRulesPaths: ['./my-rules'] }));
+            write('my-rules/VBC-9001.yaml', [
+                'id: VBC-9001', 'name: house-token', 'severity: warning', 'category: security',
+                'tags: [secrets]',
+                // The value is inside a string, which a rule reads only when it says so.
+                'match:', '  regex: zz-token-[a-z0-9]+', '  scan: strings', '  file_types: [ts]',
+                'message: A house token at line {line}.',
+                'tests:', '  fire:', '    - const t = "zz-token-abc123"', '  quiet:', '    - const t = 1',
+            ].join('\n'));
+            write('src/house.ts', 'const t = "zz-token-abc123";\n');
+            await start();
+
+            await run('slopless.copyFinding', findingOf('VBC-9001'));
+            expect(host.clipboard).not.toContain('zz-token-abc123');
+            expect(host.clipboard).toContain('left out');
         });
     });
 

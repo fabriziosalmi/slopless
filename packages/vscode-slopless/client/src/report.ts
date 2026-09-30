@@ -51,8 +51,29 @@ export function suppression(comment: string, ruleId: string, targetLine: string)
     return `${indent}${comment} slopless-disable-next-line ${ruleId} -- `;
 }
 
-/** One finding with the lines around it, so the reader does not have to open the file. */
-export function findingBlock(where: string, finding: Finding, lines: string[], around = 3): string {
+/**
+ * One finding with the lines around it, so the reader does not have to open the
+ * file. Not for a rule that reports secrets: the line it names is the secret, the
+ * lines around it are where the next one is, and this is text made to be pasted
+ * into a chat or an issue. There the location is enough to go and look.
+ */
+export function findingBlock(
+    where: string, finding: Finding, lines: string[], around = 3, withholdSource = false,
+): string {
+    const headerLines = [
+        `slopless ${finding.ruleId} ${finding.name} (${finding.severity})`,
+        `${where}:${finding.line}`,
+        '',
+    ];
+    if (withholdSource) {
+        return [
+            ...headerLines,
+            '(The lines are left out: this rule reports secrets, and pasting them would paste the secret.)',
+            '',
+            finding.message,
+        ].join('\n');
+    }
+
     const first = Math.max(0, finding.line - 1 - around);
     const last = Math.min(lines.length - 1, finding.line - 1 + around);
     const width = String(last + 1).length;
@@ -63,20 +84,11 @@ export function findingBlock(where: string, finding: Finding, lines: string[], a
         rows.push(`${marker} ${String(n + 1).padStart(width)} | ${lines[n]}`);
     }
 
-    return [
-        `slopless ${finding.ruleId} ${finding.name} (${finding.severity})`,
-        `${where}:${finding.line}`,
-        '',
-        '```',
-        ...rows,
-        '```',
-        '',
-        finding.message,
-    ].join('\n');
+    return [...headerLines, '```', ...rows, '```', '', finding.message].join('\n');
 }
 
 /** Everything the scan found, as something worth pasting somewhere else. */
-export function report(files: FileFindings[], read: number, version: string, scope?: string): string {
+export function report(files: FileFindings[], read: number, version: string, caveats?: string): string {
     const all = files.flatMap(f => f.findings);
     const errors = all.filter(f => f.severity === 'error').length;
     const warnings = all.length - errors;
@@ -96,7 +108,7 @@ export function report(files: FileFindings[], read: number, version: string, sco
         + 'Errors fail a build; warnings are reported and do not.'
         // A report of the changed files read as one of the whole repository
         // would understate it, and nothing in the text would say so.
-        + (scope ? ` ${scope}` : ''),
+        + (caveats ? ` ${caveats}` : ''),
         '',
         '## By rule',
         ...[...byRule.entries()]
