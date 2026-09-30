@@ -65,6 +65,11 @@ export const RuleSchema = z.object({
         // ignored there, and switching it on would silence the ones that say
         // `scan: comments` on every line of prose.
         exclude_markdown_code: z.boolean().optional(),
+        // A rule that asks for an explanation has nothing to say where there is one:
+        // a comment on the line above, or at the end of the line. `complex-regex-no-
+        // comment` reported a regex whose comment was the line before it in 19% of
+        // the findings, because it counted characters and never looked for one.
+        exclude_commented: z.boolean().optional(),
         git_check: z.enum([
             'committed_env',
             'private_key',

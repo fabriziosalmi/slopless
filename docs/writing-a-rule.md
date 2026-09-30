@@ -82,6 +82,13 @@ attributes on separate rows.
 patterns and skips whole files. `exclude_selectors` applies to stylesheets and
 skips a match whose enclosing CSS selector is in the list.
 
+A pattern starting with `@` is matched against the at-rules around the
+declaration instead, case-insensitively: `@media print`, or
+`@media (prefers-reduced-motion`. That is how `css-important` leaves alone the
+one place `!important` is the accessibility pattern, where a reduced-motion
+override has to beat every component's own animation and the innermost selector
+is just `*`.
+
 ## message
 
 Shown when the rule fires. Available placeholders: `{line}`, `{match}`, `{count}`,

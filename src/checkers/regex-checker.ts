@@ -89,6 +89,7 @@ export class RegexChecker {
                 if (rule.match.exclude_doc_comments && isDocComment(ranges, match.start)) continue;
                 if (rule.match.exclude_test_code && isInTestRegion(testRegions(), match.start)) continue;
                 if (rule.match.exclude_programs && isProgram) continue;
+                if (rule.match.exclude_commented && hasScopes && isCommented(ranges, index, match)) continue;
                 if (rule.match.exclude_markdown_code && markdown
                     && isInSpans(markdownCode(), match.start)) continue;
                 if (fixturesFrom >= 0 && match.start >= fixturesFrom) continue;
@@ -243,18 +244,32 @@ function isInScope(ranges: ProtectedRange[], match: RawMatch, scan: Rule['match'
  * Maps every line of a stylesheet to the selector of the block that encloses it,
  * so a rule can say "cursor: pointer is fine, but not on a plain div".
  */
-function buildSelectorMap(lines: string[]): string[] {
+/**
+ * For each line, the selector it sits under and the at-rules around that selector.
+ *
+ * The second is what lets a rule say where something is allowed: `!important` inside
+ * `@media (prefers-reduced-motion: reduce)` is the accessibility pattern, because
+ * the override has to beat every component's own animation, and the innermost
+ * selector there is just `*`.
+ */
+interface CssContext { selectors: string[]; atRules: string[]; }
+
+function buildSelectorMap(lines: string[]): CssContext {
     const map: string[] = new Array(lines.length).fill('');
+    const atRules: string[] = new Array(lines.length).fill('');
     const stack: string[] = [];
+    const chain = () => stack.filter(entry => entry.startsWith('@')).join(' ');
     let pending = '';
     for (let i = 0; i < lines.length; i++) {
         const line = lines[i];
         map[i] = stack[stack.length - 1] || '';
+        atRules[i] = chain();
         for (const char of line) {
             if (char === '{') {
                 stack.push(pending.trim());
                 pending = '';
                 map[i] = stack[stack.length - 1];
+                atRules[i] = chain();
             } else if (char === '}') {
                 stack.pop();
                 pending = '';
@@ -264,20 +279,60 @@ function buildSelectorMap(lines: string[]): string[] {
         }
         if (stack.length === 0) pending = '';
     }
-    return map;
+    return { selectors: map, atRules };
 }
 
-function isExcludedSelector(selectors: string[], line: number, patterns?: string[]): boolean {
+/**
+ * A pattern starting with `@` names an at-rule around the declaration and is
+ * looked for, case-insensitively, in the chain of them: `@media print`,
+ * `@media (prefers-reduced-motion`. Every other pattern is a selector, as before.
+ * Nothing that existed started with `@`, so nothing that existed changes.
+ */
+function patternsMatch(context: CssContext, line: number, patterns: string[]): boolean {
+    const atRules = (context.atRules[line - 1] || '').toLowerCase();
+    const fromAtRule = patterns.filter(p => p.startsWith('@'))
+        .some(p => atRules.includes(p.toLowerCase()));
+    const selectorPatterns = patterns.filter(p => !p.startsWith('@'));
+    const fromSelector = selectorPatterns.length > 0
+        && selectorMatches(context.selectors[line - 1], selectorPatterns);
+    return fromAtRule || fromSelector;
+}
+
+function isExcludedSelector(context: CssContext, line: number, patterns?: string[]): boolean {
     if (!patterns || patterns.length === 0) return false;
-    return selectorMatches(selectors[line - 1], patterns);
+    return patternsMatch(context, line, patterns);
 }
 
 // The mirror of exclude_selectors: a rule about focus has nothing to say inside a
 // block that describes something which can never take focus. A line with no
 // selector above it is not in a block at all, so it cannot satisfy a requirement.
-function lacksRequiredSelector(selectors: string[], line: number, patterns?: string[]): boolean {
+function lacksRequiredSelector(context: CssContext, line: number, patterns?: string[]): boolean {
     if (!patterns || patterns.length === 0) return false;
-    return !selectorMatches(selectors[line - 1], patterns);
+    return !patternsMatch(context, line, patterns);
+}
+
+/**
+ * Whether the match has an explanation beside it: a comment at the end of its line,
+ * or a comment line directly above, skipping blank ones.
+ *
+ * Only the line above is looked at. A comment three lines up belongs to whatever is
+ * between, and calling it an explanation would excuse the rule it was written for.
+ */
+function isCommented(ranges: ProtectedRange[], index: LineIndex, match: RawMatch): boolean {
+    const line = lineOfOffset(index, match.start) - 1;
+    const lineEnd = index.offsets[line] + index.lines[line].length;
+    const matchEnd = match.start + match.text.length;
+    if (ranges.some(r => r.type === 'comment' && r.start >= matchEnd && r.start < lineEnd)) return true;
+
+    for (let above = line - 1; above >= 0; above--) {
+        const first = index.lines[above].search(/\S/);
+        if (first < 0) continue;
+        // The line above has to BE a comment: its first character, not its last.
+        // `.replace(/<!--/g, '') // strips comments` ends in a comment and explains
+        // itself, not the regex on the next line of the chain.
+        return scopeAt(ranges, index.offsets[above] + first) === 'comment';
+    }
+    return false;
 }
 
 function selectorMatches(selector: string | undefined, patterns: string[]): boolean {

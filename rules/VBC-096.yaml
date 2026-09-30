@@ -9,6 +9,11 @@ match:
   # Regular expression literals and nothing else. Reading strings found the
   # slashes in a translation file; reading code found the ones in a division.
   scan: regex
+  # The rule is named for a regex with no comment, and it counted characters without
+  # ever looking for one: 19% of its 144 findings across 90 repositories had the
+  # comment on the line above. A comment at the end of the line, or ending the
+  # nearest line above that is not blank, is the explanation it asks for.
+  exclude_commented: true
   file_types:
     - js
     - ts
@@ -20,5 +25,29 @@ message: >-
 tests:
   fire:
     - const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/;
+    # A comment at the end of the line above explains THAT line, not the next one.
+    - |
+      const text = html.replace(/<!--[\s\S]*?-->/g, ' ') // strips comments
+        .replace(/<\/(p|div|li|h[1-6]|br|tr|td|th|blockquote|pre|ul|ol)>|<br\s*\/?>/gi, ' ');
+    # Beside the exclusion: a comment about something else is not an explanation.
+    - |
+      // fetch the page
+      load();
+      const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/;
   quiet:
     - const re = /^\d+$/;
+    # The explanation is there: above the regex, or at the end of its line.
+    - |
+      // a slug: lowercase words joined by single hyphens or underscores, then the domain
+      const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/;
+    - |
+      /* the domain part of an address */
+
+      const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/;
+    - const re = /^[a-z0-9]+(?:[-_][a-z0-9]+)*@example\.com$/; // a slug at the domain
+    # Two closing tags are not a regular expression between them.
+    - file: Card.tsx
+      code: |
+        const Card = () => (
+          <p>Is your code <span className="green">Engineering Substance</span> or <span className="red">Slop</span> today?</p>
+        );

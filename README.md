@@ -127,7 +127,7 @@ count, written from the rules rather than from memory:
 | TypeScript (JSX) (`.tsx`) | 98 of 152 |
 | TypeScript (`.ts`) | 96 of 152 |
 | JavaScript (`.js`) | 95 of 152 |
-| Astro (`.astro`) | 84 of 152 |
+| Astro (`.astro`) | 83 of 152 |
 | JavaScript (JSX) (`.jsx`) | 32 of 152 |
 | Python (`.py`) | 32 of 152 |
 | Markdown (`.md`) | 26 of 152 |

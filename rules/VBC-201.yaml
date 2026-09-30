@@ -13,6 +13,20 @@ match:
     - jsx
   ast_check:
     type: async-without-await
+  # A stub that has to be async to stand in for the real thing has nothing to
+  # await either: 36 of this rule's 345 findings across 90 repositories were in
+  # tests and mocks, as properties and assignments that the existing "handed
+  # straight to a call" exemption does not see.
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/__mocks__/**'
+    - '**/fixtures/**'
+    - '**/e2e/**'
+    - '**/*.test.*'
+    - '**/*.spec.*'
 message: >-
   async function with no await at line {line}. The async keyword only wraps the return value
   in a Promise here; drop it or await something.
@@ -22,11 +36,33 @@ tests:
       async function load() {
         return cached;
       }
+    # Beside the exclusion: a Promise in a parameter is not a declared return type.
+    - |
+      async function load(pending: Promise<Item>) {
+        return pending;
+      }
   quiet:
     - |
       async function load() {
         return await fetchIt();
       }
+    # A declared Promise is a contract: without `async` a throw is no longer a rejection.
+    - |
+      async function load(): Promise<Item[]> {
+        return cached;
+      }
+    - |
+      class Provider {
+        async getChildren(element?: Node): Promise<Node[]> {
+          return [];
+        }
+      }
+    - |
+      const parse = async (text: string): Promise<number> => Number(text);
+    # A test stub has to be async to stand in for the real one.
+    - file: toggles.test.ts
+      code: |
+        const props = { onToggle: async () => ({ enabled: true }) };
     - |
       function load() {
         return cached;

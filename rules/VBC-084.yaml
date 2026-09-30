@@ -11,19 +11,55 @@ match:
   # and three props on one tag — not a difference in how the code was written,
   # and turning it on there would file 4,274 warnings over everything else the
   # rules have to say about those files.
-  regex: ^.{120,}$
+  #
+  # `.astro` is left out for the same reason and on the same kind of number: over
+  # 90 repositories its template is JSX-shaped and runs 4.5 findings per file
+  # against 1.0 for .py and .ts.
+  #
+  # The limit is over 120, which is what the message says. The pattern used to be
+  # 120 or more, so a line of exactly 120 characters was reported as too long: 250
+  # of this rule's 6,143 findings.
+  #
+  # Go has its own limit because it has no formatter that wraps. Prettier and Black
+  # break a long line, so a long line in those languages got past a tool that would
+  # have wrapped it; `gofmt` does not, and Go runs 2.0 findings per file. At 140 it
+  # runs about 1.0, in line with the others. That is a choice, not a measurement:
+  # across languages the lengths of the lines reported are nearly the same.
+  regex: ^.{121,}$
   scan: all
   file_types:
     - js
     - ts
     - py
     - go
-    - astro
+  variants:
+    - file_types:
+        - go
+      regex: ^.{141,}$
+      message: >-
+        Line is too long ({count} characters). Consider wrapping it. Max recommended: 140.
 message: >-
   Line is too long ({count} characters). Consider wrapping it. Max recommended: 120.
 tests:
   fire:
     - >-
       const message = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+    # One character over 120 is over.
+    - code: x
+      repeat: 121
+    # Go is held to 140, so this is over.
+    - file: store.go
+      code: x
+      repeat: 141
   quiet:
     - const message = "short";
+    # Exactly 120 is at the limit, not over it.
+    - code: x
+      repeat: 120
+    # Go is held to 140, so this is fine.
+    - file: store.go
+      code: x
+      repeat: 130
+    - file: store.go
+      code: x
+      repeat: 140

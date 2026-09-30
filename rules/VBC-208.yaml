@@ -6,7 +6,11 @@ tags:
   - design
   - maintainability
 match:
-  regex: color:\s*(#[0-9a-fA-F]{3,6}|rgba?\(.*?\))
+  # Not `--text-color: #1a202c`, `$brand-color: #f00` or `@bg-color: #fff`: those
+  # are the definitions the rule tells you to use, and reporting them is telling
+  # you to hardcode the colour one level up. 14% of this rule's 828 findings
+  # across 90 repositories were the definition of a token.
+  regex: (?<!(?:--|[$@])[\w-]{0,40})color:\s*(#[0-9a-fA-F]{3,6}|rgba?\(.*?\))
   file_types:
     - css
     - scss
@@ -21,7 +25,15 @@ message: >-
 tests:
   fire:
     - '.card { color: #ff0044; }'
+    # Beside the exclusion: the property, not the definition, even when it says color.
+    - '.card { background-color: #ff0044; }'
+    - '.card { --gap: 4px; color: #ff0044; }'
   quiet:
     - '.card { color: var(--text); }'
     - file: theme.css
       code: '.card { color: #ff0044; }'
+    # The definition of a token is where a colour belongs.
+    - ':root { --text-color: #1a202c; }'
+    - '  --background-color: rgba(18, 18, 18, 0.85);'
+    - file: vars.scss
+      code: '$brand-color: #ff0044;'

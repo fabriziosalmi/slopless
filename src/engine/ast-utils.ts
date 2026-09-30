@@ -89,14 +89,23 @@ export function extractProtectedRanges(content: string, isTsOrJs: boolean): Prot
     // a regex literal was being handed to the rules as code: `/(?:var|const)/`
     // reported a `var` this project does not contain.
     let previous: ts.SyntaxKind | undefined;
+    let previousEnd = -1;
 
     let token = scanner.scan();
     while (token !== ts.SyntaxKind.EndOfFileToken) {
         token = advanceTemplateState(scanner, token, templateBraceDepths, () => braceDepth,
             (delta) => { braceDepth += delta; });
 
+        // `</span>` is a closing tag: a slash that touches the `<` before it cannot
+        // open a regular expression, and in JSX it never does. Read as one, the
+        // slash of one closing tag paired with the slash of the next and everything
+        // between them — the text of the page — became a "regex" of thirty characters
+        // with no comment, which is 21% of what `complex-regex-no-comment` reported.
+        const closesTag = previous === ts.SyntaxKind.LessThanToken
+            && scanner.getTokenPos() === previousEnd;
+
         if ((token === ts.SyntaxKind.SlashToken || token === ts.SyntaxKind.SlashEqualsToken)
-            && canStartRegex(previous)) {
+            && canStartRegex(previous) && !closesTag) {
             token = scanner.reScanSlashToken();
         }
 
@@ -113,7 +122,10 @@ export function extractProtectedRanges(content: string, isTsOrJs: boolean): Prot
         // The scanner is set to report trivia, so the token before a slash was
         // usually a space. `(a + b) / 1000` was read as a regular expression and
         // swallowed the rest of the file.
-        if (!isCommentToken(token) && !isTrivia(token)) previous = token;
+        if (!isCommentToken(token) && !isTrivia(token)) {
+            previous = token;
+            previousEnd = scanner.getTextPos();
+        }
         token = scanner.scan();
     }
 
