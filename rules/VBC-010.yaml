@@ -6,11 +6,22 @@ tags:
   - accessibility
   - html
 match:
+  # A backdrop is the exception everyone makes: the full-bleed layer behind a modal
+  # or drawer whose click closes it. Keyboard users close it with Escape or the
+  # dialog's own button, and the layer is not a control, which is why it is
+  # `aria-hidden` or `role="presentation"`. 26% of this rule's findings across 90
+  # repositories were one, recognised three ways: aria-hidden="true", role
+  # presentation/none, or a class or id saying backdrop, overlay, scrim or inset-0
+  # (Tailwind's "cover the parent"). Only the first 600 characters of the tag are
+  # read for that, which keeps the cost of the lookahead down on markup with no
+  # closing `>`; attributes after an arrow function are not seen either, because
+  # the tag ends at its first `>`.
+  #
   # `[^>]{0,2000}` rather than `[^>]*`: in markup with no closing `>` the
   # unbounded form scanned to the end of the file from every `<div`, which is
   # quadratic — 13ms at 15KB, 767ms at 120KB. An opening tag's attribute list is
   # not 2,000 characters long, and exceeding it costs a missed finding.
-  regex: <div[^>]{0,2000}\s(onclick|onClick)=(?!\{?\s*\(?\s*(?:e|ev|evt|event|_e)\s*\)?\s*=>\s*\{?\s*(?:e|ev|evt|event|_e)\.(?:stopPropagation|preventDefault)\(\)\s*\}?\s*\})
+  regex: <div(?![^>]{0,600}?(?:aria-hidden\s*=\s*["{]?\s*["']?true|role\s*=\s*["{]?\s*["']?(?:presentation|none)\b|(?<![\w-])(?:class|className|id)\s*=[^>]{0,400}?(?:[Bb]ackdrop|[Oo]verlay|[Ss]crim|inset-0)))[^>]{0,2000}\s(onclick|onClick)=(?!\{?\s*\(?\s*(?:e|ev|evt|event|_e)\s*\)?\s*=>\s*\{?\s*(?:e|ev|evt|event|_e)\.(?:stopPropagation|preventDefault)\(\)\s*\}?\s*\})
   file_types:
     - html
     - js
@@ -25,7 +36,17 @@ message: >-
 tests:
   fire:
     - <div onClick={handleClick}>Save</div>
+    # Beside the exclusion: a card is a control, and inset-x-0 is not inset-0.
+    - <div className="card" onClick={open}>
+    - <div className="absolute inset-x-0 top-0" onClick={open}>
+    - <div aria-hidden="false" onClick={open}>
   quiet:
     - <button onClick={handleClick}>Save</button>
     - <div className="row" onClick={(e) => e.stopPropagation()}>
     - <div onClick={e => e.preventDefault()}>
+    # A backdrop: not a control, closed by Escape and by the dialog's own button.
+    - <div className="fixed inset-0 bg-black/60" onClick={onCancel} />
+    - <div onClick={close} aria-hidden="true" />
+    - '<div role="presentation" onClick={close}>'
+    - <div id="certDetailOverlay" class="hidden" onclick="closeCertDetail()"></div>
+    - <div className="modal-backdrop" onClick={onClose} />

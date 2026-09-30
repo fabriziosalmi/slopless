@@ -1,6 +1,14 @@
 id: VBC-086
 name: target-blank-rel
-severity: error
+# Off unless the config names it. `target="_blank"` has implied `noopener` in every
+# browser since 2021 (Chrome 88, Firefox 79, Safari 12.1), which is the hazard the
+# rule was written for, and slopless says exactly that about VBC-950: an anchor has
+# had it since then, `window.open` never has. So reporting this as an error was
+# reporting a defect that no current browser has, 66 times across five repositories.
+# It stays for anyone who still supports browsers older than that, or who wants
+# `noreferrer` to hide the referrer, which is not implied.
+opt_in: true
+severity: warning
 category: core
 tags:
   - security
@@ -14,7 +22,9 @@ match:
     - ts
     - tsx
     - astro
-message: target='_blank' without rel='noopener' detected at line {line}.
+message: >-
+  target='_blank' without rel='noopener' at line {line}. Browsers since 2021 treat it as noopener
+  already, so this only matters for older ones; add rel='noreferrer' as well to hide the referrer.
 tests:
   fire:
     - <a href="/x" target="_blank">docs</a>

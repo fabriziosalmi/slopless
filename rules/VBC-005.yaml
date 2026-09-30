@@ -1,6 +1,11 @@
 id: VBC-005
 name: use-var
-severity: error
+# A warning, not an error (#44-tuning). CONTRIBUTING reserves `error` for what can
+# cause a bug or a security problem, and `var` is a scoping preference: across
+# 90 repositories 1,269 of its findings were in seven of them, nearly all in
+# hand-written ES5 that runs correctly in every browser, and each one failed a
+# build. The finding is still true, which is why it is still reported.
+severity: warning
 category: core
 tags:
   - best-practice

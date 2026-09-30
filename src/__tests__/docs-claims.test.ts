@@ -18,8 +18,8 @@ describe('the configuration page names every opt-in rule', () => {
     // `\s+` because the sentence wraps, and an indexOf that silently returned -1
     // used to turn this slice into "everything to the end of the page" — which
     // held up only until a later paragraph mentioned a rule in backticks.
-    const start = page.search(/The opt-in set is/);
-    const end = page.search(/Every\s+rule page says whether/);
+    const start = page.search(/The\s+opt-in\s+set\s+is/);
+    const end = page.search(/Every\s+rule\s+page\s+says\s+whether/);
     const section = start >= 0 && end > start ? page.slice(start, end) : '';
 
     it('finds the list it is meant to check', () => {

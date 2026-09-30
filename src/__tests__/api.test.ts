@@ -50,7 +50,10 @@ describe('resolveRules', () => {
     };
 
     it('is the set the linter would run, with opt-in rules left out', () => {
-        const rules = resolveRules();
+        // An empty config, not the repository's own: this project names VBC-338 in
+        // its config, so asking for "the default" from the repository root would
+        // be asking for the default plus that.
+        const rules = resolveRules(config({}));
         expect(rules.length).toBeGreaterThan(100);
         expect(rules.some(rule => rule.opt_in)).toBe(false);
     });
@@ -58,7 +61,7 @@ describe('resolveRules', () => {
     it('drops a rule the config turns off', () => {
         const at = config({ rules: { 'VBC-005': 'off' } });
         expect(resolveRules(at).some(rule => rule.id === 'VBC-005')).toBe(false);
-        expect(resolveRules().some(rule => rule.id === 'VBC-005')).toBe(true);
+        expect(resolveRules(config({})).some(rule => rule.id === 'VBC-005')).toBe(true);
     });
 
     it('applies a severity the config overrides', () => {
@@ -102,7 +105,7 @@ describe('resolveRules', () => {
         const optIn = RuleLoader.loadRules([RULES_DIR]).find(rule => rule.opt_in);
         expect(optIn, 'no opt-in rule to exercise').toBeDefined();
 
-        const withoutIt = resolveRules();
+        const withoutIt = resolveRules(config({}));
         expect(withoutIt.some(rule => rule.id === optIn!.id)).toBe(false);
 
         const at = config({ rules: { [optIn!.id]: 'warning' } });

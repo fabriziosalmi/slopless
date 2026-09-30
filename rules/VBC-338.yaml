@@ -1,5 +1,11 @@
 id: VBC-338
 name: non-inclusive-terminology
+# Off unless the config names it, like the other rules about how prose is worded:
+# it is a stance rather than a defect, and it was 1,615 findings across 43
+# repositories, nearly all of them the two words it exists to report. A project
+# that holds the stance turns it on, and keeps its own vocabulary for the domain
+# uses (an audio master bus, a repository that is literally about blocklists).
+opt_in: true
 severity: warning
 category: docs
 tags:
@@ -11,6 +17,10 @@ match:
     ]check\b
   flags: i
   scan: all
+  # A contributing guide that says "use Main/Replica instead of Master/Slave", or
+  # a code span showing `git push origin master`, mentions the term; it does not
+  # use it. 28% of this rule's findings in Markdown were inside code.
+  exclude_markdown_code: true
   file_types:
     - md
     - txt
@@ -31,4 +41,9 @@ tests:
     - Push to the main branch.
     - Add the host to the allowlist.
     - Master section accent colour.
+    - 'To rename the branch, run `git branch -m master main`.'
+    - |
+      ```sh
+      git push origin master
+      ```
     - The audio mastering chain.

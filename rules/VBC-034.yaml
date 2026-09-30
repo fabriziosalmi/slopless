@@ -6,7 +6,19 @@ tags:
   - security
 match:
   regex: >-
-    (?<!new URL\([^)]{0,200})http://(?!localhost|127\.|0\.0\.0\.0|169\.254\.|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org)(?=[\w\[$\{])
+    (?<!new URL\([^)]{0,200})http://(?!localhost|127\.|0\.0\.0\.0|169\.254\.|\[::1\]|test\b|example\.(?:com|org)|www\.w3\.org|schemas?\.|json-schema\.org|purl\.org|ns\.adobe|www\.apache\.org|10\.|192\.168\.|172\.(?:1[6-9]|2[0-9]|3[01])\.|[\w.-]+\.(?:local|internal|localhost|lan)\b|(?:\$?\{[^}\n]{0,80}\}|\$\w+|%s|%\(\w+\)s):[\d{$]|[^\s'"`)]{0,120}/(?:schemas?|dtds?|xmlns?)\b)(?=[\w\[$\{])
+  # Plain http:// is the only choice, not a careless one, for four kinds of address:
+  #  - a private range (10.x, 192.168.x, 172.16-31.x) and .local/.internal/.lan
+  #    hosts, which no certificate authority will sign a certificate for;
+  #  - a host that is a variable followed by a port, `http://${host}:${port}` or
+  #    `http://{host}:{port}`: a service address being built, nearly always in a
+  #    log line saying where a local server came up;
+  #  - an XML namespace or DTD identifier, `.../schemas/sitemap/0.9`, which is a
+  #    name that has to be spelled exactly and is never requested;
+  # 44% of this rule's 111 findings across 90 repositories were one of these.
+  # A variable host with NO port still fires: the code chose plain http for an
+  # address it does not know, which is the thing the rule is about.
+  #
   # A scheme with no host after it is prose about the scheme, not an endpoint:
   # a security standard writing "a single http:// subresource downgrades the
   # page" is describing the hazard, and an error message saying "must use
@@ -44,6 +56,11 @@ message: Insecure http:// link detected at line {line}. Use https:// instead.
 tests:
   fire:
     - const api = 'http://api.example.com/v1';
+    # Beside the exclusions: a public address, and a variable host with no port.
+    - const api = 'http://203.0.113.9/v1';
+    - const probe = 'http://172.32.0.1/v1';
+    - 'fetch(`http://${target}/api`)'
+    - const docs = 'http://docs.example.net/schemata/x';
   quiet:
     - const api = 'https://api.example.com/v1';
     - const dev = 'http://localhost:3000';
@@ -54,3 +71,13 @@ tests:
 
     - const parsed = new URL(req.url, `http://${req.headers.host}`);
     - const svg = 'http://www.w3.org/2000/svg';
+    # A private address cannot have a certificate.
+    - const llm = 'http://192.168.1.50:1234/v1';
+    - const db = "http://10.0.0.5/health";
+    - const host = 'http://host.docker.internal:4318/v1/traces';
+    # A local server coming up, reported in a log line.
+    - 'print(f"Serving at http://{host}:{port}")'
+    - 'console.log(`listening on http://${host}:${port}`)'
+    # A namespace is a name, not a request.
+    - "'xmlns': 'http://www.sitemaps.org/schemas/sitemap/0.9'"
+    - "'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd'"

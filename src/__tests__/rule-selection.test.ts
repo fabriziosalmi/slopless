@@ -46,11 +46,28 @@ describe('selectRules', () => {
 describe('opt-in rules', () => {
     const optIn = rules.filter(rule => rule.opt_in);
 
+    // A rule about a hazard must never be opt-in: silence there is the wrong default.
+    // The exception is a rule whose hazard no current browser has, and each one is
+    // named here with the reason, so the exception cannot grow by accident.
+    const OBSOLETE_HAZARDS: Record<string, string> = {
+        // target="_blank" has implied noopener since 2021 (Chrome 88, Firefox 79,
+        // Safari 12.1). Reported as an error, it was 66 findings of nothing across
+        // five repositories.
+        'VBC-086': 'the hazard it names was closed in every browser in 2021',
+    };
+
     it('marks the house-style prose rules and nothing structural', () => {
         expect(optIn.length).toBeGreaterThan(0);
-        // A rule about a hazard must never be opt-in: silence there is the wrong default.
-        expect(optIn.every(rule => rule.category === 'docs')).toBe(true);
+        const structural = optIn.filter(rule => rule.category !== 'docs').map(rule => rule.id).sort();
+        expect(structural).toEqual(Object.keys(OBSOLETE_HAZARDS).sort());
         expect(optIn.every(rule => rule.severity === 'warning')).toBe(true);
+    });
+
+    it('only excuses a hazard that is actually opt-in', () => {
+        // An entry above that stopped being opt-in is an exception nobody needs.
+        for (const id of Object.keys(OBSOLETE_HAZARDS)) {
+            expect(rules.find(rule => rule.id === id)?.opt_in, id).toBe(true);
+        }
     });
 
     it('leaves the markers of unfinished or generated content enabled', () => {

@@ -31,12 +31,13 @@ npx @fabriziosalmi/slopless --init
 
 Maps a rule id to `error`, `warning`, or `off`.
 
-Naming a rule here also **turns on** the ones that ship disabled. 11 rules ship disabled
-because they encode a preference rather than a defect: ten are about how you
+Naming a rule here also **turns on** the ones that ship disabled. 13 rules ship disabled
+because they encode a preference rather than a defect. Most are about how you
 write English prose, and across twenty repositories they were two thirds of
-everything slopless said; one is a Markdown link style. A preference nobody
-agreed to should not drown the findings someone installed the tool for, so those
-rules wait to be asked for:
+everything slopless said; one is a Markdown link style, and one guards against a
+hazard browsers have not had since 2021. A preference nobody agreed to should not
+drown the findings someone installed the tool for, so those rules wait to be
+asked for:
 
 ```json
 { "rules": { "VBC-948": "warning", "VBC-347": "warning" } }
@@ -45,9 +46,11 @@ rules wait to be asked for:
 The opt-in set is `VBC-948` em dashes, `VBC-347` passive voice, `VBC-421` filler
 words, `VBC-324` condescending language, `VBC-917` shouting, `VBC-398`
 punctuation, `VBC-929` jargon, `VBC-934` personal opinion, `VBC-935`
-colloquialism, `VBC-918` tone, and `VBC-920` writing a relative Markdown link as
-`./guide.md` rather than `guide.md`, which CommonMark resolves identically. Every
-rule page says whether it is one of them.
+colloquialism, `VBC-918` tone, `VBC-338` non-inclusive terminology, `VBC-920`
+writing a relative Markdown link as `./guide.md` rather than `guide.md`, which
+CommonMark resolves identically, and `VBC-086` a `target="_blank"` link without
+`rel`, which every browser since 2021 already treats as `noopener`. Every rule
+page says whether it is one of them.
 
 Rules that mark content as unfinished or generated stay on: lorem ipsum, "coming
 soon", the phrasings of machine-written prose. Those are what this tool is for. This is how you disable a rule
