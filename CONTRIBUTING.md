@@ -53,6 +53,42 @@ the square of their input before this existed.
    bundle against a fresh build and fails if they differ — including on Dependabot
    pull requests, which cannot rebuild it themselves.
 
+## Measuring a rule change
+
+A rule is tuned by what it does to real code, not by what its fixtures say. A
+fixture proves the case you thought of; a few hundred findings from other
+people's repositories show the ones you did not. `npm run corpus` is the tool:
+
+```bash
+# one repository directory name per line, resolved under --root
+npm run corpus -- run names.txt corpus-out/before --root ~/code
+# change the rule, then run again (see below for comparing two versions)
+npm run corpus -- run names.txt corpus-out/after --root ~/code
+npm run corpus -- diff corpus-out/before corpus-out/after
+npm run corpus -- sample corpus-out/after VBC-070 8
+```
+
+Nothing is written into the repositories it reads, and `corpus-out/` is ignored
+by git. Keep the list of repositories and the reports out of the project too:
+they are findings about someone else's code.
+
+Three things in it exist because skipping them gave a wrong answer:
+
+- **Run both sides back to back, and read the rules you did not change.** The
+  repositories are working copies and they move while you work. A first
+  comparison showed 79 findings "added" to a rule nobody had touched, because one
+  repository had been edited in between. `diff` prints the rules that did not
+  change as a control group: every one of them must show a delta of zero.
+- **Read the removed findings.** A removal is only good if the finding was a
+  false positive. `diff` prints them with their source line. Checking *all* of one
+  rule's removals against the reason they should have gone is what found a
+  comment-detection bug that every test had passed.
+- **Read the added ones too.** An added finding is a regression or a side effect
+  of an engine change, and the diff lists each in full.
+
+To compare two versions of the rules, keep the old one in a worktree
+(`git worktree add --detach /tmp/before main`) and pass its build with `--cli`.
+
 ## Rule Naming Conventions
 
 - **ID**: `VBC-NNN` where NNN is the next available three-digit number.

@@ -37,6 +37,7 @@
     "docs:preview": "vitepress preview docs",
     "verify:bundle": "node scripts/verify-bundle.js",
     "verify:rules": "node scripts/check-rule-performance.js",
+    "corpus": "node scripts/corpus.js",
     "verify:action": "bash scripts/run-action-locally.sh . 'src/**/*.ts'",
     "release:prep": "npm run docs:gen && npm run build && npm test && npm run verify:rules && npm run verify:bundle",
     "version": "node scripts/check-changelog.js && node scripts/sync-versions.js && npm run docs:gen && npm run build && git add dist docs README.md packages/*/package.json"

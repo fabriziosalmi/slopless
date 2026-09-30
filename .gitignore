@@ -23,6 +23,8 @@ final_slop_results.txt
 # rescanning, so it costs a run to lose and adds diff noise to every commit.
 .sloplesscache
 coverage/
+# Reports from `npm run corpus`: findings over other people's code, not this repository's.
+corpus-out/
 
 # OS File
 .DS_Store

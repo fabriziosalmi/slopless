@@ -4,6 +4,126 @@ description: Release notes for slopless, and what changed in each version.
 editLink: false
 ---
 
+# 1.18.0 - 2026-09-30
+
+**Slopless was run over 91 public repositories and every finding of its noisiest
+rules was read.** Across them it reported 34,122 findings, **1,870 of which would
+fail a build**. After this release it reports 30,091, and **407 fail a build**.
+Every change below comes with the family of false positives it removes, counted
+from that run, and with the neighbours of each exclusion kept in the rule's
+`fire` examples so it cannot widen quietly.
+
+## Read this before upgrading
+
+Some of this changes what fails your build.
+
+- **`VBC-005` (`var`) is a warning, not an error.** `CONTRIBUTING` reserves
+  `error` for what can cause a bug or a security problem, and `var` is a scoping
+  preference: 1,269 of its findings were in seven repositories, nearly all
+  hand-written ES5 that runs correctly. If you relied on it to fail a build,
+  `"rules": { "VBC-005": "error" }` brings it back.
+- **`VBC-086` (`target="_blank"` without `rel`) is opt-in**, at warning.
+  `target="_blank"` has implied `noopener` in every browser since 2021 (Chrome 88,
+  Firefox 79, Safari 12.1), and slopless says exactly that about `VBC-950`. As an
+  error it reported a hazard no current browser has: 66 times across five
+  repositories. It is the one hazard rule that is opt-in, named as the single
+  exception in the test that says hazards never are.
+- **`VBC-338` (non-inclusive terminology) is opt-in**, like the other rules about
+  how prose is worded: 1,615 findings, nearly all of them the two words it exists
+  to report. It also no longer reads code spans and fenced blocks in Markdown,
+  where 28% of its findings were a guide *quoting* the term it tells you to avoid.
+- **`VBC-084` (line length) changes three ways.** The pattern was `.{120,}`, so a
+  line of *exactly* 120 characters was reported as over a limit of 120: 241
+  findings. `.astro` is left out, as `.tsx` already was and for the same reason:
+  its template is JSX-shaped and ran 4.5 findings per file against 1.0 for `.py`
+  and `.ts`. **Go is held to 140.** That last one is a choice and not a
+  measurement — across languages the lengths of the lines reported are nearly
+  identical — made because `gofmt` does not wrap and Prettier and Black do.
+
+## The link checker was the slowest thing in the tool
+
+`VBC-401` went through every link in a document one at a time, each a HEAD and
+often a GET at five seconds apiece, and forgot every answer. A 9.6KB report with
+85 links to one host took **49 seconds and produced nothing**; it is the reason
+one repository hit a 240-second timeout. It now takes about **2 seconds**, and a
+run over all 91 repositories went from 697 seconds to 207, with a three-second
+link budget, and the one that used to time out now finishes in 9.
+
+A URL is asked about once however often it appears, four at a time per host, and a
+host that fails three times running is left alone. There is a budget for the run,
+30 seconds from the first request and settable with **`--link-budget`**, and **a
+link the budget left unchecked is counted and reported** rather than read as a
+link that passed. Each appearance of a broken link is reported on its own line;
+every repeat used to be pinned to the first.
+
+## Error-severity rules that were wrong
+
+| rule | removed | what it was |
+|---|---|---|
+| `VBC-007` float-for-currency | 51 of 55 | `cost_weight = 0.3` is a number *about* money, not money |
+| `VBC-070` innerHTML | 40 of 210 | a template literal with nothing interpolated is a constant; each of the 40 was checked for a `${` |
+| `VBC-034` http-not-https | 23 of 111 | private ranges, `.local`/`.internal` hosts, `http://{host}:{port}` in a log line, XML namespace names |
+| `VBC-010` div-onclick | 8 of 31 | a modal's backdrop: `aria-hidden`, `role="presentation"`, or a class naming backdrop, overlay, scrim or `inset-0` |
+| `VBC-004` SQL concatenation | 6 of 14 | a bare `WHERE` matched English: "Select where your domains are managed" |
+
+## Warning-severity rules that were wrong
+
+| rule | removed | what it was |
+|---|---|---|
+| `VBC-018` console | 534 of 850 | a test, an e2e run, a benchmark or a script printing its own output |
+| `VBC-208` colours | 136 of 828 | `--text-color: #1a202c` is the definition of the token the rule asks for |
+| `VBC-201` redundant async | 89 of 345 | `async f(): Promise<T>` is a contract: without `async`, a throw is no longer a rejection; and test stubs |
+| `VBC-026` empty file | 80 of 93 | an empty `__init__.py` is how Python marks a package |
+| `VBC-096` regex with no comment | 60 of 145 | it counted characters and never looked for a comment; and JSX text |
+| `VBC-032` `!important` | 42 of 941 | inside `prefers-reduced-motion` and `print`, where it is the right tool |
+| `VBC-901` IPv4 | 21 of 195 | nothing from 224 up is a host, and `Chrome/120.0.0.0` is a version |
+
+## Three engine pieces, each removable and each tested by removing it
+
+- **`exclude_commented`** skips a match with an explanation beside it: a comment at
+  the end of its line, or a comment *line* directly above. The first version looked
+  at the last character of the line above and excused a regex in a `.replace()`
+  chain because the call before it carried a trailing comment. Reading every
+  removed finding found it; every test had passed. It is a fixture now.
+- **A slash touching the `<` before it is a closing tag, not the start of a
+  regex.** In JSX, `</span>` paired with the next `</span>` and the page text
+  between them became a thirty-character "regular expression".
+- **`exclude_selectors` patterns starting with `@`** match the at-rules around a
+  declaration, which is how `css-important` tells `@media (prefers-reduced-motion`
+  from anywhere else. Nothing that existed started with `@`.
+
+## A way to measure this
+
+**`npm run corpus`** runs slopless over a list of repositories and compares two
+runs: what was removed, with its source line, and what was *added*, in full. The
+method is written down in `CONTRIBUTING`, because the parts of it that look
+fussy are the parts that mattered. The repositories are working copies and move
+while you work, and a first comparison showed 79 findings "added" to a rule
+nobody had touched; so both sides are run back to back and the rules you did not
+edit are read as a control group, which must show a delta of zero. In the two
+comparisons behind the rule changes above, 85 and then 83 rules were unchanged,
+and no finding was added anywhere.
+
+## Smaller
+
+- `--only` was documented without `correctness` in the CLI help and the docs, so
+  a category three rules use was reachable and undiscoverable. A test now
+  compares both against the categories the rules declare.
+- Two examples in the docs were wrong: a `json` block carrying comments, now
+  `jsonc`, and a `yaml` value containing `: `, now quoted.
+- `.nvmrc`. `engines` is deliberately not set: the published bundle targets node16
+  and its real floor has not been measured, so declaring one would constrain users
+  on a guess.
+
+## What this does not claim
+
+It was measured on one author's repositories, which are mostly AI-assisted
+TypeScript, Python and Go. Precision on other people's code is not known. Three
+things were measured and left alone on purpose: `VBC-063-B` is 57% a no-op
+function used as a value, which is an idiom; `VBC-933` had eight of thirty
+findings between quotation marks, which does not justify an option; and
+`VBC-052` is 99% real single-letter declarations, contrary to the first guess.
+
 # 1.17.2 - 2026-09-19
 
 Six comments from Slopless code scanning on
