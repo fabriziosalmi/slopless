@@ -53,7 +53,7 @@ Summary: 0 errors, 7 warnings.</pre>
   <span><b>529</b> executable examples</span>
   <span><b>0</b> errors on itself</span>
   <span><b>0</b> telemetry</span>
-  <span>v1.18.0</span>
+  <span>v1.18.1</span>
 </div>
 
 ## In ten seconds {#in-ten-seconds}

@@ -1,6 +1,6 @@
 {
   "name": "@fabriziosalmi/slopless",
-  "version": "1.18.0",
+  "version": "1.18.1",
   "description": "",
   "main": "dist/engine/api.js",
   "types": "dist/engine/api.d.ts",
