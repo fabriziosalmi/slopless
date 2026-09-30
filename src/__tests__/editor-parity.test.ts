@@ -63,13 +63,13 @@ describe('the editor and the command line agree', () => {
         const command = (JSON.parse(run.stdout) as { file: string; ruleId: string; line: number }[])
             .map(v => key(v.file, v.ruleId, v.line)).sort();
 
-        const editor: string[] = [];
+        const editorFindings: string[] = [];
         for (const file of files) {
             const at = path.join(sandbox, file);
             const found = await lintText(fs.readFileSync(at, 'utf8'), at, path.join(sandbox, 'slopless.config.json'));
-            editor.push(...found.map(v => key(at, v.ruleId, v.line)));
+            editorFindings.push(...found.map(v => key(at, v.ruleId, v.line)));
         }
-        editor.sort();
+        editorFindings.sort();
 
         // Not trivially equal: the fixture produces findings, and the ones it is
         // built to silence are not among them.
@@ -79,6 +79,6 @@ describe('the editor and the command line agree', () => {
         expect(command).not.toContain('a.ts:4 VBC-338');
         expect(command.some(k => k.startsWith('bundle.js'))).toBe(false);
 
-        expect(editor).toEqual(command);
+        expect(editorFindings).toEqual(command);
     });
 });

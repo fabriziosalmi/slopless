@@ -60,6 +60,30 @@
                 "command": "slopless.openRuleDocs",
                 "title": "What this rule is about",
                 "category": "Slopless"
+            },
+            {
+                "command": "slopless.groupByRule",
+                "title": "Group by rule",
+                "category": "Slopless",
+                "icon": "$(list-tree)"
+            },
+            {
+                "command": "slopless.groupByFile",
+                "title": "Group by file",
+                "category": "Slopless",
+                "icon": "$(files)"
+            },
+            {
+                "command": "slopless.onlyChanged",
+                "title": "Only files changed in git",
+                "category": "Slopless",
+                "icon": "$(filter)"
+            },
+            {
+                "command": "slopless.allFiles",
+                "title": "Show all files",
+                "category": "Slopless",
+                "icon": "$(filter-filled)"
             }
         ],
         "menus": {
@@ -73,6 +97,26 @@
                     "command": "slopless.copyReport",
                     "when": "view == sloplessFindings",
                     "group": "navigation@1"
+                },
+                {
+                    "command": "slopless.groupByRule",
+                    "when": "view == sloplessFindings && slopless.grouping == 'file'",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "slopless.groupByFile",
+                    "when": "view == sloplessFindings && slopless.grouping == 'rule'",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "slopless.onlyChanged",
+                    "when": "view == sloplessFindings && !slopless.onlyChanged",
+                    "group": "navigation@3"
+                },
+                {
+                    "command": "slopless.allFiles",
+                    "when": "view == sloplessFindings && slopless.onlyChanged",
+                    "group": "navigation@3"
                 }
             ],
             "commandPalette": [
@@ -106,7 +150,7 @@
                 },
                 {
                     "command": "slopless.openRuleDocs",
-                    "when": "view == sloplessFindings && viewItem == finding",
+                    "when": "view == sloplessFindings && (viewItem == finding || viewItem == rule)",
                     "group": "2@1"
                 }
             ]
