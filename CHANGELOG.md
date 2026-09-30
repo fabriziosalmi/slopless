@@ -1,3 +1,25 @@
+# 1.18.1 - 2026-09-30
+
+**The editor panel and the command line now say the same thing.** Run over this
+repository, the panel reported 120 findings and the command line 106. The 14 that
+only the panel showed were all wrong: thirteen of them words the project's
+`vocabulary` had claimed, and one an error that carried its own
+`slopless-disable-next-line`, which was the only error in the panel.
+
+## Fixed
+
+- **`lintText`, which the VS Code extension and the MCP server call, honours
+  `vocabulary`, `slopless-disable` directives and generated files.** The command
+  line always did; `lintText` did none of them. The "Copy a disable marker" command
+  therefore produced a marker that changed nothing in the editor. Directives are
+  read from the buffer rather than from the file, since the marker has been typed
+  and not yet saved. Still out of reach of a buffer, and said so in its
+  documentation: the git checks, which read the index, and the type check, which
+  needs a whole program.
+- **A test runs the command line and `lintText` over the same files and requires
+  the same answer**, so a check added to one and not the other fails in CI rather
+  than in a side panel.
+
 # 1.18.0 - 2026-09-30
 
 **Slopless was run over 91 public repositories and every finding of its noisiest
