@@ -14,14 +14,28 @@ there is no second implementation to keep in step.
 
 **A Slopless panel** in the activity bar:
 
-- files ordered by how much is wrong, errors first, then by count;
-- each finding naming its rule, with the message and the line;
+- files ordered by how much is wrong, errors first, then by count, each with its
+  folder beside the name so two `index.ts` are not the same row;
+- each finding naming its rule, with the line first and then the message;
 - clicking one opens the file at that line;
+- the count on the activity-bar icon, and under the title a sentence that says
+  which number is which — *"1 error and 119 warnings in 17 of 252 files."*;
+- **group by rule** (the tree icon in the panel's title) to see which rules
+  produce most of what is listed, and **only files changed in git** (the filter
+  icon) to see what you or an agent just wrote. The panel says when it is
+  narrowed, and so does the report it copies;
 - a full scan on open and from the panel's refresh button, and a re-read of just
   the file you saved when you save it.
 
-It stops at 2,000 files, and when it does it says so — *"What is below is
-complete; what is beyond it was not read"* — rather than reporting on a subset as
+What the panel shows is what `slopless` on the command line reports for the same
+files: findings excused by the project's `vocabulary`, lines under a
+`slopless-disable` marker and minified bundles are left out here as they are
+there. It cannot show what needs the repository rather than one file — the git
+checks, such as a private key that was committed — so those are in the terminal
+only.
+
+It stops at 2,000 files, and when it does it says so — *"Stopped at 2000 files;
+what is beyond them was not read."* — rather than reporting on a subset as
 though it were the whole thing.
 
 ### Taking it somewhere else
@@ -41,7 +55,8 @@ so the panel copies that too rather than making the reader open the file.
   have more than one comment syntax depending on where in the file you are, and
   a marker written in the wrong one silences nothing while looking as though it
   does.
-- **What this rule is about** — opens the rule's page.
+- **What this rule is about** — opens the rule's page, from a finding or from a
+  rule when the panel is grouped by rule.
 
 The text these produce is built in `client/src/report.ts`, which does not import
 the editor API, so it is under test with the rest of the suite rather than only

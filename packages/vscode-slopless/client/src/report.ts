@@ -76,7 +76,7 @@ export function findingBlock(where: string, finding: Finding, lines: string[], a
 }
 
 /** Everything the scan found, as something worth pasting somewhere else. */
-export function report(files: FileFindings[], read: number, version: string): string {
+export function report(files: FileFindings[], read: number, version: string, scope?: string): string {
     const all = files.flatMap(f => f.findings);
     const errors = all.filter(f => f.severity === 'error').length;
     const warnings = all.length - errors;
@@ -93,7 +93,10 @@ export function report(files: FileFindings[], read: number, version: string): st
         `# slopless ${version}: ${plural(errors, 'error')}, ${plural(warnings, 'warning')}`,
         '',
         `In ${plural(files.length, 'file')}, out of ${read} read. `
-        + 'Errors fail a build; warnings are reported and do not.',
+        + 'Errors fail a build; warnings are reported and do not.'
+        // A report of the changed files read as one of the whole repository
+        // would understate it, and nothing in the text would say so.
+        + (scope ? ` ${scope}` : ''),
         '',
         '## By rule',
         ...[...byRule.entries()]

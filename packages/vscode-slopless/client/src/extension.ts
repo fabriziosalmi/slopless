@@ -1,3 +1,4 @@
+import { execFile } from 'child_process';
 import * as path from 'path';
 import * as vscode from 'vscode';
 
@@ -13,6 +14,10 @@ import { lintText, applyIgnoreRules, loadConfig } from 'slopless/dist/engine/api
 import {
     commentSyntax, findingBlock, plural, report, suppression, type Finding,
 } from './report';
+import {
+    countOf, countsText, fileDescription, findingDescription, groupByRule, locationLabel, orderFiles,
+    parseStatus, shortDir, summaryMessage, type Grouping, type RuleGroup,
+} from './panel';
 
 /**
  * The languages the rules actually reach, which is what `docs/languages.md`
@@ -58,34 +63,51 @@ function configFor(uri: vscode.Uri): string | undefined {
     return folder && path.join(folder.uri.fsPath, 'slopless.config.json');
 }
 
-type Node = FileNode | FindingNode;
+type Node = FileNode | RuleNode | FindingNode;
 
 class FileNode {
     readonly kind = 'file';
-    constructor(readonly uri: vscode.Uri, readonly findings: Finding[]) {}
+    /** Relative to the workspace, which is what `orderFiles` and the tooltip read. */
+    readonly path: string;
+    constructor(readonly uri: vscode.Uri, readonly findings: Finding[]) {
+        this.path = vscode.workspace.asRelativePath(uri, false);
+    }
+}
+
+class RuleNode {
+    readonly kind = 'rule';
+    constructor(readonly group: RuleGroup<FileNode>) {}
 }
 
 class FindingNode {
     readonly kind = 'finding';
-    constructor(readonly uri: vscode.Uri, readonly finding: Finding) {}
+    constructor(
+        readonly uri: vscode.Uri,
+        readonly finding: Finding,
+        /** Unique among all nodes: VS Code requires it of the ids it is given. */
+        readonly id: string,
+        /** Under a rule the file is part of what identifies it; under a file it is not. */
+        readonly under: 'file' | 'rule',
+    ) {}
 }
 
 class FindingsProvider implements vscode.TreeDataProvider<Node> {
     private files: FileNode[] = [];
     /** How many files the last scan read, so a report can say what it covered. */
     read = 0;
-    private readonly changed = new vscode.EventEmitter<Node | undefined>();
-    readonly onDidChangeTreeData = this.changed.event;
+    grouping: Grouping = 'file';
+    /** Absolute paths of the files git says changed, or null when the list is not narrowed. */
+    changed: Set<string> | null = null;
+    private readonly changedEvent = new vscode.EventEmitter<Node | undefined>();
+    readonly onDidChangeTreeData = this.changedEvent.event;
 
-    /** Errors first, then by how much is wrong, so the top of the list is the top of the list. */
+    refresh() {
+        this.changedEvent.fire(undefined);
+    }
+
     replace(files: FileNode[]) {
-        this.files = files.sort((a, b) => {
-            const errors = (f: FileNode) => f.findings.filter(v => v.severity === 'error').length;
-            return errors(b) - errors(a)
-                || b.findings.length - a.findings.length
-                || a.uri.fsPath.localeCompare(b.uri.fsPath);
-        });
-        this.changed.fire(undefined);
+        this.files = files;
+        this.refresh();
     }
 
     /** Replaces one file's findings, dropping the file when nothing is left. */
@@ -94,64 +116,91 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
         this.replace(findings.length ? [...rest, new FileNode(uri, findings)] : rest);
     }
 
+    /** What is on show: everything, or only what git says changed. */
+    visible(): FileNode[] {
+        const { changed } = this;
+        return changed ? this.files.filter(file => changed.has(file.uri.fsPath)) : this.files;
+    }
+
+    scope(): string | undefined {
+        return this.changed ? 'Only files changed in git.' : undefined;
+    }
+
     counts(): { errors: number; warnings: number; files: number } {
-        const all = this.files.flatMap(f => f.findings);
-        return {
-            errors: all.filter(v => v.severity === 'error').length,
-            warnings: all.filter(v => v.severity !== 'error').length,
-            files: this.files.length,
-        };
+        const visible = this.visible();
+        const { errors, warnings } = countOf(visible.flatMap(file => file.findings));
+        return { errors, warnings, files: visible.length };
     }
 
     all(): FileNode[] {
-        return this.files;
+        return orderFiles(this.visible());
     }
 
     getChildren(node?: Node): Node[] {
-        if (!node) return this.files;
+        if (!node) {
+            return this.grouping === 'rule'
+                ? groupByRule(this.visible()).map(group => new RuleNode(group))
+                : this.all();
+        }
         if (node.kind === 'file') {
             return node.findings
                 .slice()
                 .sort((a, b) => a.line - b.line)
-                .map(finding => new FindingNode(node.uri, finding));
+                .map((finding, n) => new FindingNode(node.uri, finding, `finding:${node.uri}:${n}`, 'file'));
+        }
+        if (node.kind === 'rule') {
+            return node.group.items.map(({ file, finding }, n) =>
+                new FindingNode(file.uri, finding, `rule:${node.group.ruleId}:${n}`, 'rule'));
         }
         return [];
     }
 
     getTreeItem(node: Node): vscode.TreeItem {
         if (node.kind === 'file') {
-            const errors = node.findings.filter(v => v.severity === 'error').length;
-            const warnings = node.findings.length - errors;
             const item = new vscode.TreeItem(
                 path.basename(node.uri.fsPath),
                 vscode.TreeItemCollapsibleState.Collapsed,
             );
+            // An id of its own, from the path, so that a file keeps its open or closed
+            // state when a save reorders the list, and two of one name stay two.
+            item.id = `file:${node.uri}`;
             item.resourceUri = node.uri;
-            // The directory, not just the counts: two CHANGELOG.md and two
-            // VBC-001.yaml looked like the same file listed twice.
-            const where = vscode.workspace.asRelativePath(node.uri, false);
-            const counted = errors
-                ? `${plural(errors, 'error')}, ${plural(warnings, 'warning')}`
-                : plural(warnings, 'warning');
-            item.description = `${counted} · ${path.dirname(where)}`;
-            item.tooltip = where;
+            item.description = fileDescription(node.path, node.findings);
+            item.tooltip = node.path;
             item.iconPath = vscode.ThemeIcon.File;
             return item;
         }
 
+        if (node.kind === 'rule') {
+            const { group } = node;
+            const item = new vscode.TreeItem(
+                `${group.ruleId} ${group.name}`,
+                vscode.TreeItemCollapsibleState.Collapsed,
+            );
+            item.id = `rule:${group.ruleId}`;
+            item.contextValue = 'rule';
+            item.description = `${plural(group.items.length, 'finding')} in ${
+                plural(new Set(group.items.map(({ file }) => file.path)).size, 'file')}`;
+            item.iconPath = severityIcon(group.severity);
+            item.tooltip = new vscode.MarkdownString(
+                `**${group.ruleId} — ${group.name}** (${group.severity})\n\n${group.items[0].finding.message}`,
+            );
+            return item;
+        }
+
         const { finding } = node;
-        const item = new vscode.TreeItem(finding.message, vscode.TreeItemCollapsibleState.None);
+        const where = vscode.workspace.asRelativePath(node.uri, false);
+        const item = new vscode.TreeItem(
+            node.under === 'rule' ? locationLabel(where, finding.line) : finding.message,
+            vscode.TreeItemCollapsibleState.None,
+        );
+        item.id = node.id;
         item.contextValue = 'finding';   // what the right-click menu matches on
-        item.description = `${finding.ruleId} · ${finding.name} · line ${finding.line}`;
+        item.description = node.under === 'rule' ? shortDir(where) : findingDescription(finding);
         item.tooltip = new vscode.MarkdownString(
-            `**${finding.ruleId} — ${finding.name}**\n\n${finding.message}`,
+            `**${finding.ruleId} — ${finding.name}**\n\n${where}:${finding.line}\n\n${finding.message}`,
         );
-        item.iconPath = new vscode.ThemeIcon(
-            finding.severity === 'error' ? 'error' : 'warning',
-            new vscode.ThemeColor(
-                finding.severity === 'error' ? 'list.errorForeground' : 'list.warningForeground',
-            ),
-        );
+        item.iconPath = severityIcon(finding.severity);
         item.command = {
             command: 'slopless.reveal',
             title: 'Open',
@@ -161,34 +210,60 @@ class FindingsProvider implements vscode.TreeDataProvider<Node> {
     }
 }
 
-/** The one-line summary under the panel's title. */
-function describe(view: vscode.TreeView<Node>, provider: FindingsProvider, read?: number) {
-    const { errors, warnings, files } = provider.counts();
-    view.title = errors || warnings ? `Slopless — ${errors} / ${warnings}` : 'Slopless';
+function severityIcon(severity: string): vscode.ThemeIcon {
+    const error = severity === 'error';
+    return new vscode.ThemeIcon(
+        error ? 'error' : 'warning',
+        new vscode.ThemeColor(error ? 'list.errorForeground' : 'list.warningForeground'),
+    );
+}
 
-    if (read !== undefined && read >= SCAN_LIMIT) {
-        view.message = `Stopped at ${SCAN_LIMIT} files. What is below is complete; `
-            + 'what is beyond it was not read.';
-        return;
+/**
+ * The counts go on the activity-bar icon and in the line under the title, not in
+ * the title: the view lives in a container that is already called Slopless, and a
+ * title of "Slopless — 1 / 119" read "Slopless: Slopless — 1 / 119".
+ */
+function describe(view: vscode.TreeView<Node>, provider: FindingsProvider) {
+    const { errors, warnings, files } = provider.counts();
+    view.badge = errors || warnings
+        ? { value: errors + warnings, tooltip: countsText(errors, warnings) }
+        : undefined;
+    view.message = summaryMessage({
+        errors, warnings, files, read: provider.read, limit: SCAN_LIMIT, scope: provider.scope(),
+    });
+}
+
+/** Files git says differ from the last commit, or null where git cannot say. */
+async function changedFiles(root: string): Promise<Set<string> | null> {
+    const git = (args: string[]) => new Promise<string>((resolve, reject) => {
+        execFile('git', args, { cwd: root, maxBuffer: 32 * 1024 * 1024 },
+            (error, stdout) => (error ? reject(error) : resolve(stdout)));
+    });
+    try {
+        const prefix = (await git(['rev-parse', '--show-prefix'])).trim();
+        const status = await git(['status', '--porcelain', '-z', '--untracked-files=all']);
+        return new Set(parseStatus(status, root, prefix));
+    } catch {
+        return null;
     }
-    if (!errors && !warnings) {
-        view.message = read === undefined
-            ? 'Nothing found.'
-            : `Nothing found in ${plural(read, 'file')}.`;
-        return;
-    }
-    const where = read === undefined
-        ? `${plural(files, 'file')}`
-        : `${plural(files, 'file')}, out of ${read} read`;
-    view.message = `${plural(errors, 'error')} and ${plural(warnings, 'warning')} in ${where}.`;
 }
 
 let client: LanguageClient | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     const provider = new FindingsProvider();
-    const view = vscode.window.createTreeView('sloplessFindings', { treeDataProvider: provider });
+    provider.grouping = context.workspaceState.get<Grouping>('slopless.grouping') === 'rule' ? 'rule' : 'file';
+    const view = vscode.window.createTreeView('sloplessFindings', {
+        treeDataProvider: provider,
+        // Two hundred files open after one click each is the state the panel is
+        // left in; this closes them all in one.
+        showCollapseAll: true,
+    });
     context.subscriptions.push(view);
+    const setContext = (key: string, value: unknown) =>
+        vscode.commands.executeCommand('setContext', key, value);
+    void setContext('slopless.grouping', provider.grouping);
+    void setContext('slopless.onlyChanged', false);
 
     const output = vscode.window.createOutputChannel('Slopless');
     context.subscriptions.push(output);
@@ -248,12 +323,56 @@ export function activate(context: vscode.ExtensionContext) {
                 }
                 provider.read = files.length;
                 provider.replace(withFindings);
-                describe(view, provider, files.length);
+                await narrow();
+                describe(view, provider);
             },
         );
     };
 
     context.subscriptions.push(vscode.commands.registerCommand('slopless.scan', scan));
+
+    const group = (grouping: Grouping) => async () => {
+        provider.grouping = grouping;
+        void context.workspaceState.update('slopless.grouping', grouping);
+        await setContext('slopless.grouping', grouping);
+        provider.refresh();
+    };
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.groupByRule', group('rule')),
+        vscode.commands.registerCommand('slopless.groupByFile', group('file')),
+    );
+
+    /**
+     * Brings the narrowed list up to date with git, when it is narrowed. Asked again
+     * on every scan and every save, because the set of changed files is not fixed:
+     * the file just saved may be one that was not in it a moment ago.
+     */
+    const narrow = async () => {
+        const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        if (!provider.changed || !root) return;
+        provider.changed = await changedFiles(root) ?? provider.changed;
+    };
+    const onlyChanged = async (on: boolean) => {
+        const root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        const changed = on && root ? await changedFiles(root) : null;
+        if (on && !changed) {
+            // Saying so, rather than showing everything under a label that claims
+            // otherwise.
+            vscode.window.showWarningMessage(
+                'Slopless cannot tell which files changed: this is not a git repository, '
+                + 'or git is not available.',
+            );
+            return;
+        }
+        provider.changed = changed;
+        await setContext('slopless.onlyChanged', on);
+        describe(view, provider);
+        provider.refresh();
+    };
+    context.subscriptions.push(
+        vscode.commands.registerCommand('slopless.onlyChanged', () => onlyChanged(true)),
+        vscode.commands.registerCommand('slopless.allFiles', () => onlyChanged(false)),
+    );
 
     const version = context.extension.packageJSON.version as string;
 
@@ -261,12 +380,10 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.registerCommand('slopless.copyReport', async () => {
             const { errors, warnings } = provider.counts();
             await vscode.env.clipboard.writeText(report(
-                provider.all().map(file => ({
-                    path: vscode.workspace.asRelativePath(file.uri, false),
-                    findings: file.findings,
-                })),
+                provider.all().map(file => ({ path: file.path, findings: file.findings })),
                 provider.read,
                 version,
+                provider.scope(),
             ));
             vscode.window.showInformationMessage(
                 `Copied: ${plural(errors, 'error')}, ${plural(warnings, 'warning')}.`,
@@ -318,9 +435,12 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(
         vscode.commands.registerCommand('slopless.openRuleDocs', async (node: Node) => {
-            if (!node || node.kind !== 'finding') return;
+            const ruleId = node?.kind === 'finding' ? node.finding.ruleId
+                : node?.kind === 'rule' ? node.group.ruleId
+                : undefined;
+            if (!ruleId) return;
             await vscode.env.openExternal(vscode.Uri.parse(
-                `https://fabriziosalmi.github.io/slopless/rules/${node.finding.ruleId}`,
+                `https://fabriziosalmi.github.io/slopless/rules/${ruleId}`,
             ));
         }),
     );
@@ -338,6 +458,7 @@ export function activate(context: vscode.ExtensionContext) {
                     configFor(document.uri),
                 )) as unknown as Finding[];
                 provider.update(document.uri, findings);
+                await narrow();
                 describe(view, provider);
             } catch (error) {
                 output.appendLine(`${document.uri.fsPath}: ${(error as Error).message}`);

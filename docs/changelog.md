@@ -26,6 +26,33 @@ only the panel showed were all wrong: thirteen of them words the project's
   the same answer**, so a check added to one and not the other fails in CI rather
   than in a side panel.
 
+## The panel
+
+Read from a screenshot of it on this repository, and from the code behind it.
+
+- **The title no longer says `Slopless: Slopless — 1 / 119`.** The view sits in a
+  container that is already called Slopless, and `1 / 119` never said which
+  number was the errors. The count is on the activity-bar icon, and under the
+  title: *"1 error and 119 warnings in 17 of 252 files."*
+- **A file row shows where the file is before how much is wrong with it**, and
+  only the last two directories. A narrow sidebar cuts the right-hand end, which
+  was the path, so `report.ts` and `server.ts` both read `packages/vscode-slopless…`.
+  A finding row starts with its line, for the same reason.
+- **Group by rule**, for the question tuning asks: on this repository two rules
+  were 40% of what was listed, and that was visible only in the copied report.
+- **Only files changed in git**, which reads `git status` and follows it as you
+  save. The panel and the report it copies both say when the list is narrowed,
+  and where git cannot answer it says that instead of showing everything under a
+  label that claims otherwise.
+- **Collapse all**, and an id on every row, so that a row keeps its open or
+  closed state when the list is reordered by a save. Two files of one name,
+  two `index.ts` or two `CHANGELOG.md`, are told apart by their path.
+- **"What this rule is about"** works on a rule as well as on a finding.
+- **The panel is tested as the editor drives it**: the extension is activated
+  against a stand-in for the editor, over a git repository, and its tree is
+  walked, and every id in it must be unique, which VS Code requires of the ids
+  it is given.
+
 # 1.18.0 - 2026-09-30
 
 **Slopless was run over 91 public repositories and every finding of its noisiest

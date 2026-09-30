@@ -12,7 +12,11 @@ the editor and the build agree by construction rather than by being kept in step
   rules reach — TypeScript and JSX, JavaScript, Astro, Python, Go, Rust, Java,
   Ruby, C#, C and C++, Kotlin, Swift, PHP, shell, HTML, CSS, Sass, Markdown.
 - **A Slopless panel** in the activity bar: files ordered by how much is wrong,
-  errors first, each finding naming its rule. Clicking one goes to the line.
+  errors first, each finding naming its rule. Clicking one goes to the line. It
+  can group by rule, and narrow to the files git says changed.
+- **The same answer as the command line** for the same file: the project's
+  `vocabulary`, `slopless-disable` markers and minified bundles are honoured. The
+  git checks need the repository and run only from the terminal.
 - **A workspace scan** on open and on every save, and on demand from the panel's
   refresh button or `Slopless: Scan the workspace`.
 
