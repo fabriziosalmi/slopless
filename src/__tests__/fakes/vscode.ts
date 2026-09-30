@@ -6,7 +6,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 /** What the tests read of a tree node, an item the editor would draw, and the view. */
-export interface Row { kind: string; path: string; findings: unknown[]; group: { ruleId: string } }
+export interface Row {
+    kind: string;
+    path: string;
+    findings: unknown[];
+    group: { ruleId: string };
+    finding: { ruleId: string };
+}
 export interface Item { label: string; id?: string; description?: string; contextValue?: string }
 export interface Provider {
     grouping: string;
@@ -20,6 +26,16 @@ export interface View {
     message?: string;
 }
 type Command = (...args: unknown[]) => unknown;
+
+/** A read that waits, so a test can change the world while a scan is part-way. */
+export interface Gate {
+    file: string;
+    /** Settles when a read has reached the gate and is waiting at it. */
+    arrived: Promise<void>;
+    done: boolean;
+    released: Promise<void>;
+    release(): void;
+}
 
 export const host = {
     root: '',
@@ -35,6 +51,11 @@ export const host = {
     state: {} as Record<string, unknown>,
     /** Work the extension started and did not hand back, such as the scan on activation. */
     pending: [] as Array<Promise<unknown>>,
+    /** Files the search lists that are not on disk, so reading them fails. */
+    phantoms: 0,
+    /** Every file the extension asked to read, in order. */
+    reads: [] as string[],
+    gate: undefined as Gate | undefined,
     reset(root: string) {
         this.root = root;
         this.commands.clear();
@@ -48,6 +69,18 @@ export const host = {
         this.provider = undefined as unknown as Provider;
         this.state = {};
         this.pending = [];
+        this.phantoms = 0;
+        this.reads = [];
+        this.gate = undefined;
+    },
+    /** The next read of a file ending in `file` does not finish until `release()`. */
+    holdRead(file: string): Gate {
+        let release!: () => void;
+        let arrive!: () => void;
+        const released = new Promise<void>(resolve => { release = resolve; });
+        const arrived = new Promise<void>(resolve => { arrive = resolve; });
+        this.gate = Object.assign({ file, arrived, done: false, released, release }, { arrive });
+        return this.gate;
     },
 };
 
@@ -96,7 +129,11 @@ export const TextEditorRevealType = { InCenter: 2 };
 const SCANNED = /\.(ts|tsx|js|jsx|md|json|py|go|rs|sh|css|html|ya?ml)$/;
 
 function walk(dir: string, found: string[] = []): string[] {
-    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    // Sorted, because the order a directory lists in is the file system's to choose
+    // and a test that holds one read needs to know which ones came before it.
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
+        .sort((a, b) => a.name.localeCompare(b.name));
+    for (const entry of entries) {
         if (entry.name === 'node_modules' || entry.name === '.git') continue;
         const full = path.join(dir, entry.name);
         if (entry.isDirectory()) walk(full, found);
@@ -127,9 +164,22 @@ export const workspace = {
     getWorkspaceFolder: (uri: Uri) =>
         uri.fsPath.startsWith(host.root + path.sep) ? { uri: Uri.file(host.root) } : undefined,
     asRelativePath: (uri: Uri) => path.relative(host.root, uri.fsPath).split(path.sep).join('/'),
-    findFiles: (_include: string, _exclude: string, limit: number) =>
-        Promise.resolve(walk(host.root).slice(0, limit).map(file => Uri.file(file))),
-    fs: { readFile: (uri: Uri) => Promise.resolve(fs.readFileSync(uri.fsPath)) },
+    findFiles: (_include: string, _exclude: string, limit: number) => {
+        const phantoms = Array.from({ length: host.phantoms }, (_, n) => path.join(host.root, `phantom-${n}.ts`));
+        return Promise.resolve([...walk(host.root), ...phantoms].slice(0, limit).map(file => Uri.file(file)));
+    },
+    fs: {
+        readFile: async (uri: Uri) => {
+            host.reads.push(uri.fsPath);
+            const { gate } = host;
+            if (gate && !gate.done && uri.fsPath.endsWith(gate.file)) {
+                gate.done = true;
+                (gate as Gate & { arrive(): void }).arrive();
+                await gate.released;
+            }
+            return fs.readFileSync(uri.fsPath);
+        },
+    },
     onDidSaveTextDocument: (handler: (document: unknown) => unknown) => {
         host.saveHandlers.push(handler);
         return { dispose() {} };

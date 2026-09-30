@@ -36,7 +36,8 @@ only.
 
 It stops at 2,000 files, and when it does it says so — *"Stopped at 2000 files;
 what is beyond them was not read."* — rather than reporting on a subset as
-though it were the whole thing.
+though it were the whole thing. It says too how many files it could not open, and
+counts only the ones it did. Starting a scan while one is running replaces it.
 
 ### Taking it somewhere else
 
@@ -48,6 +49,8 @@ so the panel copies that too rather than making the reader open the file.
   it left behind.
 - **Copy this finding, with its lines** (right-click a finding) — the rule, the
   location, seven lines of code with the offending one marked, and the message.
+  Not the lines for a rule that reports secrets, which is one tagged `secrets`:
+  the line it names is the secret, and this is made to be pasted somewhere.
 - **Copy a disable marker for this rule** — `// slopless-disable-next-line
   VBC-005 -- `, indented to sit above the line it silences, and ending at the
   `--` because a suppression with no reason is the thing this tool exists to

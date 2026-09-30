@@ -4,10 +4,10 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import {
-    countsText, fileDescription, findingDescription, groupByRule, locationLabel, orderFiles,
+    caveats, countsText, fileDescription, findingDescription, groupByRule, locationLabel, orderFiles,
     parseStatus, shortDir, summaryMessage, type Summary,
 } from '../../packages/vscode-slopless/client/src/panel';
-import { report, type Finding } from '../../packages/vscode-slopless/client/src/report';
+import { findingBlock, report, type Finding } from '../../packages/vscode-slopless/client/src/report';
 
 const finding = (over: Partial<Finding> = {}): Finding => ({
     ruleId: 'VBC-005', name: 'use-var', severity: 'warning', message: 'Use let.', line: 1, ...over,
@@ -64,9 +64,9 @@ describe('orderFiles', () => {
     });
 
     it('does not reorder what it was given', () => {
-        const given = [file('b.ts', [finding()]), file('a.ts', [finding()])];
-        orderFiles(given);
-        expect(given.map(f => f.path)).toEqual(['b.ts', 'a.ts']);
+        const givenFiles = [file('b.ts', [finding()]), file('a.ts', [finding()])];
+        orderFiles(givenFiles);
+        expect(givenFiles.map(f => f.path)).toEqual(['b.ts', 'a.ts']);
     });
 });
 
@@ -91,7 +91,7 @@ describe('groupByRule', () => {
 });
 
 describe('summaryMessage', () => {
-    const base: Summary = { errors: 1, warnings: 119, files: 17, read: 252, limit: 2000 };
+    const base: Summary = { errors: 1, warnings: 119, files: 17, read: 252, limit: 2000, truncated: false };
 
     it('says which number is which, and how much was read', () => {
         expect(summaryMessage(base)).toBe('1 error and 119 warnings in 17 of 252 files.');
@@ -106,10 +106,64 @@ describe('summaryMessage', () => {
         expect(summaryMessage({ ...base, errors: 0, warnings: 0, files: 0 })).toBe('Nothing found in 252 files.');
     });
 
-    it('says when the scan stopped short, without dropping the counts', () => {
-        const message = summaryMessage({ ...base, read: 2000 });
+    it('says when the search stopped at its limit, without dropping the counts', () => {
+        const message = summaryMessage({ ...base, truncated: true });
         expect(message).toContain('1 error and 119 warnings');
         expect(message).toContain('Stopped at 2000 files');
+    });
+
+    it('does not say it stopped when it read a great many files and the search did not hit the limit', () => {
+        // It used to judge by the files read, which is after the ignore rules have
+        // removed some: a search that hit the limit could come out below it and say
+        // nothing, and a large workspace that did not hit it could be called stopped.
+        expect(summaryMessage({ ...base, read: 2000, truncated: false })).not.toContain('Stopped');
+    });
+
+    it('says how many files could not be read', () => {
+        expect(summaryMessage({ ...base, unreadable: 3 })).toContain('3 files could not be read');
+        expect(summaryMessage({ ...base, unreadable: 1 })).toContain('1 file could not be read');
+        expect(summaryMessage({ ...base, unreadable: 0 })).not.toContain('could not be read');
+    });
+
+    it('says so even when nothing was found', () => {
+        const message = summaryMessage({ ...base, errors: 0, warnings: 0, files: 0, unreadable: 2 });
+        expect(message).toContain('Nothing found in 252 files.');
+        expect(message).toContain('2 files could not be read');
+    });
+});
+
+describe('caveats', () => {
+    it('is empty when the counts cover everything', () => {
+        expect(caveats({ limit: 2000, truncated: false })).toBe('');
+    });
+
+    it('joins what they do not cover, in one place for the panel and the report', () => {
+        expect(caveats({ limit: 2000, truncated: true, unreadable: 2, scope: 'Only files changed in git.' }))
+            .toBe('Only files changed in git. Stopped at 2000 files; what is beyond them was not read. '
+                + '2 files could not be read; the Slopless output says which.');
+    });
+});
+
+describe('a finding copied to be pasted somewhere', () => {
+    const lines = ['const a = 1;', 'const password = "hunter2abc9";', 'const b = 2;'];
+    const secret = finding({
+        ruleId: 'VBC-001', name: 'hardcoded-secret', severity: 'error', line: 2, message: 'Hardcoded secret.',
+    });
+
+    it('carries the lines around it', () => {
+        const block = findingBlock('src/a.ts', secret, lines);
+        expect(block).toContain('> 2 | const password');
+        expect(block).toContain('src/a.ts:2');
+    });
+
+    it('leaves them out for a rule that reports secrets, and still says where', () => {
+        const block = findingBlock('src/a.ts', secret, lines, 3, true);
+        expect(block).not.toContain('hunter2abc9');
+        expect(block).not.toContain('```');
+        expect(block).toContain('src/a.ts:2');
+        expect(block).toContain('VBC-001 hardcoded-secret (error)');
+        expect(block).toContain('Hardcoded secret.');
+        expect(block).toContain('left out');
     });
 });
 
