@@ -6,6 +6,9 @@ import { HeuristicChecker } from '../checkers/heuristic-checker';
 import { SemanticChecker } from '../checkers/semantic-checker';
 import { TypeCheckerEngine } from '../checkers/type-checker';
 import { applyPrecedence } from './precedence';
+import { applySuppressions } from './suppressions';
+import { compileVocabulary } from './vocabulary';
+import { isGeneratedFile } from './generated';
 import * as path from 'path';
 import * as ts from 'typescript';
 
@@ -21,8 +24,11 @@ const RULES_DIR = path.join(__dirname, '..', '..', 'rules');
  * else is how the two drift apart.
  */
 export function resolveRules(configPath?: string) {
-    const config = loadConfig(configPath);
+    return rulesFrom(loadConfig(configPath), configPath);
+}
 
+/** The same, for a caller that has already read the config and needs it for more. */
+function rulesFrom(config: SloplessConfig, configPath?: string) {
     // Relative to the config that named them, not to wherever this happens to be
     // running: the editor and the MCP server do not run in the workspace.
     const configDir = path.dirname(configLocation(configPath));
@@ -51,21 +57,40 @@ export function resolveRules(configPath?: string) {
     return rules.filter(rule => !rule.opt_in || named.has(rule.id));
 }
 
+/**
+ * What the CLI would say about this text, for a caller that has a buffer rather
+ * than a file: the editor, and the MCP server.
+ *
+ * It has to say the same thing. It did not: the CLI honoured `vocabulary` and
+ * `slopless-disable` directives and this did not, so the editor panel showed an
+ * error the author had suppressed and thirteen findings the project had claimed
+ * as its own words, and the "copy a disable marker" command produced a marker
+ * that changed nothing. The test that keeps the two together runs both.
+ *
+ * What it cannot do is the repository-level work: the git checks read the index,
+ * and the type check needs a whole program, which an unsaved buffer is not part of.
+ */
 export async function lintText(content: string, filePath: string, configPath?: string): Promise<Violation[]> {
-    const rules = resolveRules(configPath);
+    // A minified bundle sets off every rule and none of it is actionable; the CLI
+    // leaves it alone, judged by shape from the text it was given.
+    if (isGeneratedFile(filePath, content)) return [];
+
+    const config = loadConfig(configPath);
+    const rules = rulesFrom(config, configPath);
+    // Counted per call. The CLI reports how many findings a word excused; a
+    // buffer has nowhere to say it, so the count is simply not read.
+    const vocabulary = compileVocabulary(config.vocabulary);
 
     let violations: Violation[] = [];
 
-    violations = violations.concat(RegexChecker.check(filePath, rules, content));
+    violations = violations.concat(RegexChecker.check(filePath, rules, content, vocabulary));
     violations = violations.concat(AstChecker.check(filePath, rules, content));
     violations = violations.concat(SemanticChecker.check(filePath, rules, content));
     violations = violations.concat(await HeuristicChecker.check(filePath, rules, content));
 
-    // TypeCheck on unsaved buffers would require a massive LanguageService abstraction.
-    // For now, we skip deep typechecking on unsaved purely text-based lintText calls.
-    // Typecheck can be done on the whole project via the CLI.
-
-    return applyPrecedence(violations, rules);
+    // After every tier, as in the CLI, and against the buffer rather than the
+    // file: what is on disk is the last save, and the marker was typed a moment ago.
+    return applySuppressions(applyPrecedence(violations, rules), () => content);
 }
 
 /**
