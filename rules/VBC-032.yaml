@@ -7,6 +7,16 @@ tags:
   - css
 match:
   regex: '!important'
+  # `!important` is the right tool in exactly two places, and both are about a
+  # stylesheet overriding all the others. A `prefers-reduced-motion` block has to
+  # beat every component's own animation or it does nothing for the people it was
+  # written for; a print stylesheet has to beat inline styles. 44 of this rule's 939
+  # findings across 90 repositories were those, and the first is the accessibility
+  # pattern itself. A pattern starting with `@` is matched against the at-rules
+  # around the declaration.
+  exclude_selectors:
+    - '@media (prefers-reduced-motion'
+    - '@media print'
   file_types:
     - css
     - scss
@@ -16,5 +26,24 @@ message: >-
 tests:
   fire:
     - '.card { color: red !important; }'
+    # Beside the exclusion: any other at-rule is an ordinary place to use it.
+    - |
+      @media (min-width: 600px) {
+        .card { color: red !important; }
+      }
+    - |
+      @media screen {
+        .card { margin: 0 !important; }
+      }
   quiet:
     - '.card { color: red; }'
+    # The accessibility pattern: the override has to beat every component's own.
+    - |
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
+      }
+    # Print has to beat inline styles.
+    - |
+      @media print {
+        .nav { display: none !important; }
+      }

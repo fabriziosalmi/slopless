@@ -11,6 +11,30 @@ match:
   # logging library" is advice that would break the thing it is aimed at, and it
   # was 26 of the 35 findings this rule produced against slopless itself.
   exclude_programs: true
+  # The same reasoning, for what has no shebang: a test prints what it checked, an
+  # end-to-end run narrates the browser, a benchmark's output is its result, and a
+  # build script's is its progress. 61% of this rule's 850 findings across 90
+  # repositories were in a test, an e2e run or a benchmark.
+  exclude_test_code: true
+  exclude_files:
+    - '**/test/**'
+    - '**/tests/**'
+    - '**/__tests__/**'
+    - '**/testdata/**'
+    - '**/fixtures/**'
+    - '**/test_*.py'
+    - '**/*_test.py'
+    - '**/test.py'
+    - '**/conftest.py'
+    - '**/*_test.go'
+    - '**/*.test.*'
+    - '**/*.spec.*'
+    - '**/e2e/**'
+    - '**/bench/**'
+    - '**/benchmark/**'
+    - '**/benchmarks/**'
+    - '**/scripts/**'
+    - '**/bin/**'
   file_types:
     - js
     - ts
@@ -22,8 +46,22 @@ message: >-
 tests:
   fire:
     - console.log("debug me");
+    # Beside the exclusions: application code, even one called `scripts.js`.
+    - file: src/app.js
+      code: console.log('got here');
+    - file: src/scriptsLoader.js
+      code: console.log('loaded');
   quiet:
     - logger.info("started");
+    # A test prints what it checked; a script, its progress; a benchmark, its result.
+    - file: flow.spec.ts
+      code: console.log('step 3 of 5');
+    - file: e2e/login.ts
+      code: console.log('opened the page');
+    - file: scripts/build.js
+      code: console.log('built 152 rules');
+    - file: bench/render.js
+      code: console.log('120 fps');
     # A program's output is not a leftover.
     - file: cli.js
       code: |

@@ -239,7 +239,7 @@ A regular expression literal is not a string literal: `/^https?:\/\//` is a
 pattern that recognises a URL, not a URL. A rule about the values a program
 carries does not read one, and the rule about patterns reads nothing else.
 
-Three more fields decide what a rule skips.
+Four more fields decide what a rule skips.
 
 `exclude_test_code: true` skips test code that lives inside the file it tests.
 Rust puts it in `#[cfg(test)] mod tests`, and `exclude_files` cannot see it
@@ -257,3 +257,10 @@ its own convention.
 and CommonMark renders it as text. This is a flag rather than a Markdown
 setting for `scan:` because the Markdown rules were written while `scan:` had
 no effect on Markdown, and turning it on would change what all of them read.
+
+`exclude_commented: true` skips a match that has an explanation beside it: a
+comment at the end of its line, or a comment on the line directly above. It is
+for a rule that asks for one. `complex-regex-no-comment` reported a regex with
+a comment over it in a fifth of its findings, because it counted characters and
+never looked. Only a line that *is* a comment counts: a comment trailing the
+line above explains that line.

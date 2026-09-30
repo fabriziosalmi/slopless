@@ -8,10 +8,21 @@ tags:
 match:
   ast_check:
     type: empty-file
+  # An empty __init__.py is how Python is told a directory is a package, and is
+  # required until the day it is not: 79 of this rule's 92 findings across 90
+  # repositories, every one of them correct Python.
+  exclude_files:
+    - '**/__init__.py'
 message: Empty code file detected. This clutters the repository.
 tests:
   fire:
     - ''
+    # Beside the exclusion: an empty module that is not a package marker.
+    - file: agent/api/models.py
+      code: ''
     - "   \n"
   quiet:
     - export const answer = 42;
+    # A package marker.
+    - file: agent/api/__init__.py
+      code: ''
