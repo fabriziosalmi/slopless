@@ -13,7 +13,7 @@
         "start": "node out/server.js"
     },
     "dependencies": {
-        "@modelcontextprotocol/sdk": "^1.0.0",
+        "@modelcontextprotocol/sdk": "^1.31.0",
         "slopless": "file:../..",
         "zod": "^4.5.4"
     },
