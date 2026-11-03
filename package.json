@@ -82,5 +82,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "overrides": {
+    "vitepress": {
+      "vite": "^6.4.5"
+    }
   }
 }
