@@ -15,7 +15,7 @@
     "dependencies": {
         "@modelcontextprotocol/sdk": "^1.32.0",
         "slopless": "file:../..",
-        "zod": "^4.5.4"
+        "zod": "^4.6.7"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",
